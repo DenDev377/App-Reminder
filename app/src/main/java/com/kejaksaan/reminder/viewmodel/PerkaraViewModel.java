@@ -43,6 +43,7 @@ public class PerkaraViewModel extends AndroidViewModel {
 
     private final MutableLiveData<ApiResult<List<Perkara>>> perkarasResult = new MutableLiveData<>();
     private final MutableLiveData<ApiResult<User>>          userProfileResult = new MutableLiveData<>();
+    private final MutableLiveData<ApiResult<List<com.kejaksaan.reminder.model.Reminder>>> slaRemindersResult = new MutableLiveData<>();
 
     /** Halaman paginasi saat ini */
     private int currentPage = 1;
@@ -60,6 +61,10 @@ public class PerkaraViewModel extends AndroidViewModel {
 
     public LiveData<ApiResult<User>> getUserProfileResult() {
         return userProfileResult;
+    }
+
+    public LiveData<ApiResult<List<com.kejaksaan.reminder.model.Reminder>>> getSlaRemindersResult() {
+        return slaRemindersResult;
     }
 
     // ─── Actions ─────────────────────────────────────────────────────────────────
@@ -85,6 +90,13 @@ public class PerkaraViewModel extends AndroidViewModel {
      */
     public void loadUserProfile() {
         perkaraRepository.getUserProfile(userProfileResult);
+    }
+
+    /**
+     * Muat SLA Reminders
+     */
+    public void loadSlaReminders(String urgensi) {
+        perkaraRepository.getSlaReminders(urgensi, slaRemindersResult);
     }
 
     /**

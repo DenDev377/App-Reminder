@@ -115,4 +115,32 @@ public class PerkaraRepository {
             }
         });
     }
+
+    // ─── SLA Reminders ───────────────────────────────────────────────────────────
+
+    public void getSlaReminders(String urgensi, MutableLiveData<ApiResult<List<com.kejaksaan.reminder.model.Reminder>>> result) {
+        result.postValue(ApiResult.loading());
+
+        apiService.getReminders(urgensi).enqueue(new Callback<com.kejaksaan.reminder.model.ReminderResponse>() {
+            @Override
+            public void onResponse(Call<com.kejaksaan.reminder.model.ReminderResponse> call, Response<com.kejaksaan.reminder.model.ReminderResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    com.kejaksaan.reminder.model.ReminderResponse body = response.body();
+                    
+                    if (body.isSuccess() && body.getData() != null && body.getData().getData() != null) {
+                        result.postValue(ApiResult.success(body.getData().getData()));
+                    } else {
+                        result.postValue(ApiResult.error("Data reminder kosong"));
+                    }
+                } else {
+                    result.postValue(ApiResult.error("Gagal memuat reminder (HTTP " + response.code() + ")"));
+                }
+            }
+
+            @Override
+            public void onFailure(Call<com.kejaksaan.reminder.model.ReminderResponse> call, Throwable t) {
+                result.postValue(ApiResult.error("Gagal terhubung server: " + t.getMessage()));
+            }
+        });
+    }
 }

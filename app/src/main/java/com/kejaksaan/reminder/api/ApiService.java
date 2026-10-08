@@ -59,4 +59,13 @@ public interface ApiService {
      */
     @GET("api/perkara")
     Call<PerkaraResponse> getPerkaras();
+
+    // ─── Reminder (SLA & Overdue) ────────────────────────────────────────────────
+    
+    /**
+     * GET /api/reminders
+     * Parameter: "urgensi" (misal: "semua_mendesak")
+     */
+    @GET("api/reminders")
+    Call<com.kejaksaan.reminder.model.ReminderResponse> getReminders(@Query("urgensi") String urgensi);
 }

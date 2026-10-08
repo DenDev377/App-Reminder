@@ -14,15 +14,25 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.bumptech.glide.Glide;
 import com.kejaksaan.reminder.model.User;
+import com.kejaksaan.reminder.model.Reminder;
 import com.kejaksaan.reminder.viewmodel.PerkaraViewModel;
+import com.kejaksaan.reminder.adapter.ReminderAdapter;
+import androidx.recyclerview.widget.RecyclerView;
+
+import java.util.List;
+import java.util.ArrayList;
+import android.view.View;
 
 public class DashboardActivity extends AppCompatActivity {
 
     private TextView tvUserName;
     private TextView tvUserRole;
     private ImageView imgProfileAvatar;
+    private RecyclerView rvSlaReminders;
+    private View layoutSlaReminders;
 
     private PerkaraViewModel perkaraViewModel;
+    private ReminderAdapter reminderAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +58,12 @@ public class DashboardActivity extends AppCompatActivity {
         tvUserName = findViewById(R.id.tvUserName);
         tvUserRole = findViewById(R.id.tvUserRole);
         imgProfileAvatar = findViewById(R.id.imgProfileAvatar);
+        rvSlaReminders = findViewById(R.id.rvSlaReminders);
+        layoutSlaReminders = findViewById(R.id.layoutSlaReminders);
+
+        // Setup RecyclerView
+        reminderAdapter = new ReminderAdapter(this);
+        rvSlaReminders.setAdapter(reminderAdapter);
 
         // Initialize ViewModel
         perkaraViewModel = new ViewModelProvider(this).get(PerkaraViewModel.class);
@@ -61,8 +77,33 @@ public class DashboardActivity extends AppCompatActivity {
             }
         });
 
+        // Observe SLA Reminders
+        perkaraViewModel.getSlaRemindersResult().observe(this, result -> {
+            if (result.isSuccess() && result.getData() != null) {
+                List<Reminder> reminders = result.getData();
+                if (reminders.isEmpty()) {
+                    layoutSlaReminders.setVisibility(android.view.View.GONE);
+                    rvSlaReminders.setVisibility(android.view.View.GONE);
+                } else {
+                    layoutSlaReminders.setVisibility(android.view.View.VISIBLE);
+                    rvSlaReminders.setVisibility(android.view.View.VISIBLE);
+                    // Ambil maksimal 3
+                    List<Reminder> top3 = new ArrayList<>();
+                    for (int i = 0; i < Math.min(3, reminders.size()); i++) {
+                        top3.add(reminders.get(i));
+                    }
+                    reminderAdapter.setReminderList(top3);
+                }
+            } else if (result.isError()) {
+                // Sembunyikan jika error
+                layoutSlaReminders.setVisibility(android.view.View.GONE);
+                rvSlaReminders.setVisibility(android.view.View.GONE);
+            }
+        });
+
         // Fetch API
         perkaraViewModel.loadUserProfile();
+        perkaraViewModel.loadSlaReminders("semua_mendesak");
 
         // Setup Logout functionality
         com.kejaksaan.reminder.viewmodel.AuthViewModel authViewModel = new ViewModelProvider(this).get(com.kejaksaan.reminder.viewmodel.AuthViewModel.class);
@@ -80,6 +121,12 @@ public class DashboardActivity extends AppCompatActivity {
 
         // Menu Perkara
         findViewById(R.id.menuPerkara).setOnClickListener(v -> {
+            android.content.Intent intent = new android.content.Intent(this, com.kejaksaan.reminder.PerkaraListActivity.class);
+            startActivity(intent);
+        });
+
+        // View All SLA Reminders (Arahkan ke PerkaraListActivity)
+        findViewById(R.id.tvViewAllSla).setOnClickListener(v -> {
             android.content.Intent intent = new android.content.Intent(this, com.kejaksaan.reminder.PerkaraListActivity.class);
             startActivity(intent);
         });
