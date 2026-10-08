@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFFFFF"
+    tools:context=".MainActivity">
+
+    <!-- Logo kecil Kejaksaan -->
+    <ImageView
+        android:id="@+id/imgLogo"
+        android:layout_width="45dp"
+        android:layout_height="45dp"
+        android:layout_marginTop="120dp"
+        android:contentDescription="Logo SIPETA"
+        android:scaleType="fitCenter"
+        android:src="@drawable/logo_kejaksaan"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Judul SIPETA -->
+    <TextView
+        android:id="@+id/tvTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:text="SIPETA"
+        android:textColor="#111111"
+        android:textSize="22sp"
+        android:textStyle="normal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/imgLogo" />
+
+    <!-- Subtitle -->
+    <TextView
+        android:id="@+id/tvSubtitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="1dp"
+        android:text="sistem pengingat tahapan perkara"
+        android:textColor="#222222"
+        android:textSize="13sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvTitle" />
+
+    <!-- Lambang Kejaksaan besar -->
+    <ImageView
+        android:id="@+id/imgLambang"
+        android:layout_width="400dp"
+        android:layout_height="400dp"
+        android:layout_marginTop="20dp"
+        android:contentDescription="Lambang Kejaksaan"
+        android:scaleType="fitCenter"
+        android:src="@drawable/lambang_kejaksaan"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvSubtitle" />
+
+    <!-- Username / Email -->
+    <EditText
+        android:id="@+id/etUsername"
+        android:layout_width="0dp"
+        android:layout_height="52dp"
+        android:layout_marginStart="23dp"
+        android:layout_marginTop="130dp"
+        android:layout_marginEnd="23dp"
+        android:background="@drawable/bg_edittext"
+        android:elevation="5dp"
+        android:hint="Username/Email"
+        android:inputType="textEmailAddress"
+        android:paddingStart="18dp"
+        android:paddingEnd="18dp"
+        android:textColor="#333333"
+        android:textColorHint="#AAAAAA"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvSubtitle" />
+
+    <!-- Password Container -->
+    <FrameLayout
+        android:id="@+id/flPasswordContainer"
+        android:layout_width="0dp"
+        android:layout_height="52dp"
+        android:layout_marginStart="23dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="23dp"
+        android:background="@drawable/bg_edittext"
+        android:elevation="5dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/etUsername">
+
+        <EditText
+            android:id="@+id/etPassword"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@null"
+            android:hint="Password"
+            android:inputType="textPassword"
+            android:paddingStart="18dp"
+            android:paddingEnd="48dp"
+            android:textColor="#333333"
+            android:textColorHint="#AAAAAA"
+            android:textSize="16sp" />
+
+        <ImageView
+            android:id="@+id/ivPasswordToggle"
+            android:layout_width="48dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="end|center_vertical"
+            android:padding="12dp"
+            android:src="@drawable/ic_eye_off"
+            app:tint="#888888"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:focusable="true"
+            android:contentDescription="Toggle Password Visibility" />
+    </FrameLayout>
+
+    <!-- Tombol Login -->
+    <Button
+        android:id="@+id/btnLogin"
+        android:layout_width="0dp"
+        android:layout_height="48dp"
+        android:layout_marginStart="45dp"
+        android:layout_marginTop="50dp"
+        android:layout_marginEnd="45dp"
+        android:background="@drawable/bg_button_login"
+        android:elevation="3dp"
+        android:text="LOGIN"
+        android:textAllCaps="false"
+        android:textColor="#FFFFFF"
+        android:textSize="14sp"
+        android:textStyle="normal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/flPasswordContainer" />
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btnLogin" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

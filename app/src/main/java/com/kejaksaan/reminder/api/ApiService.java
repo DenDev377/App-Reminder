@@ -1,0 +1,62 @@
+package com.kejaksaan.reminder.api;
+
+import com.kejaksaan.reminder.model.LoginRequest;
+import com.kejaksaan.reminder.model.LoginResponse;
+import com.kejaksaan.reminder.model.PerkaraResponse;
+import com.kejaksaan.reminder.model.UserResponse;
+
+import retrofit2.Call;
+import retrofit2.http.Body;
+import retrofit2.http.GET;
+import retrofit2.http.POST;
+import retrofit2.http.Query;
+
+/**
+ * Definisi semua endpoint API SIPETA.
+ * Menggunakan Retrofit Call<T> (kompatibel penuh dengan Java).
+ */
+public interface ApiService {
+
+    // ─── Authentication ──────────────────────────────────────────────────────────
+
+    /**
+     * POST /api/login
+     * Body: { "email": "...", "password": "..." }
+     * Response: { "success": true, "message": "...", "data": { "user": {...}, "token": "..." } }
+     */
+    @POST("api/login")
+    Call<LoginResponse> login(@Body LoginRequest request);
+
+    /**
+     * POST /api/logout
+     * Header Authorization dipasang otomatis oleh AuthInterceptor.
+     */
+    @POST("api/logout")
+    Call<Void> logout();
+
+    // ─── User Profile ────────────────────────────────────────────────────────────
+
+    /**
+     * GET /api/user
+     * Response: { "success": true, "data": { "user": {...} } }
+     */
+    @GET("api/user")
+    Call<UserResponse> getUserProfile();
+
+    // ─── Perkara (Kasus) ─────────────────────────────────────────────────────────
+
+    /**
+     * GET /api/perkara
+     * Response: { "success": true, "data": { "current_page": 1, "data": [...] } }
+     *
+     * @param page  Halaman yang diminta (mulai dari 1), default 1 jika tidak diisi.
+     */
+    @GET("api/perkara")
+    Call<PerkaraResponse> getPerkaras(@Query("page") int page);
+
+    /**
+     * Overload tanpa parameter page — memanggil halaman pertama.
+     */
+    @GET("api/perkara")
+    Call<PerkaraResponse> getPerkaras();
+}
