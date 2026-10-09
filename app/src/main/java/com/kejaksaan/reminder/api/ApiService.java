@@ -1,13 +1,17 @@
 package com.kejaksaan.reminder.api;
 
+import com.kejaksaan.reminder.model.ChangePasswordRequest;
+import com.kejaksaan.reminder.model.GenericResponse;
 import com.kejaksaan.reminder.model.LoginRequest;
 import com.kejaksaan.reminder.model.LoginResponse;
 import com.kejaksaan.reminder.model.PerkaraResponse;
+import com.kejaksaan.reminder.model.UpdatePhoneRequest;
 import com.kejaksaan.reminder.model.UserResponse;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
+import retrofit2.http.PATCH;
 import retrofit2.http.POST;
 import retrofit2.http.Query;
 
@@ -42,6 +46,26 @@ public interface ApiService {
      */
     @GET("api/user")
     Call<UserResponse> getUserProfile();
+
+    /**
+     * POST /api/user/change-password
+     * Body: { "current_password": "...", "new_password": "...", "new_password_confirmation": "..." }
+     * Response: { "success": true, "message": "Kata sandi berhasil diubah" }
+     *
+     * ⚠️ Sesuaikan path jika endpoint backend berbeda.
+     */
+    @POST("api/user/change-password")
+    Call<GenericResponse> changePassword(@Body ChangePasswordRequest request);
+
+    /**
+     * PATCH /api/user/update-phone
+     * Body: { "nomor_hp": "08123..." }
+     * Response: { "success": true, "message": "Nomor HP berhasil diperbarui" }
+     *
+     * ⚠️ Sesuaikan path jika endpoint backend berbeda.
+     */
+    @PATCH("api/user/update-phone")
+    Call<GenericResponse> updatePhone(@Body UpdatePhoneRequest request);
 
     // ─── Perkara (Kasus) ─────────────────────────────────────────────────────────
 

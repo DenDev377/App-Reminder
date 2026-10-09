@@ -34,6 +34,11 @@
         <activity 
             android:name=".PerkaraListActivity"
             android:exported="false" />
+
+        <activity
+            android:name=".ProfileActivity"
+            android:exported="false" />
     </application>
+
 
 </manifest>

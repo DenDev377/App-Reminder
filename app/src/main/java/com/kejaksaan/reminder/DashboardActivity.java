@@ -130,6 +130,18 @@ public class DashboardActivity extends AppCompatActivity {
             android.content.Intent intent = new android.content.Intent(this, com.kejaksaan.reminder.PerkaraListActivity.class);
             startActivity(intent);
         });
+
+        // Card User Profile → Buka ProfileActivity
+        findViewById(R.id.cardUserProfile).setOnClickListener(v -> {
+            android.content.Intent intent = new android.content.Intent(this, com.kejaksaan.reminder.ProfileActivity.class);
+            startActivity(intent);
+        });
+
+        // Grid Menu: Profile → Buka ProfileActivity
+        findViewById(R.id.menuProfile).setOnClickListener(v -> {
+            android.content.Intent intent = new android.content.Intent(this, com.kejaksaan.reminder.ProfileActivity.class);
+            startActivity(intent);
+        });
     }
 
     private void bindUserProfile(User user) {
@@ -141,17 +153,10 @@ public class DashboardActivity extends AppCompatActivity {
             : user.getRole();
         tvUserRole.setText(jabatanOrRole);
 
-        // Load image using Glide
-        if (user.getFotoProfil() != null && !user.getFotoProfil().isEmpty()) {
-            /* 
-             * If fotoProfil is just a path like "folder/image.jpg", 
-             * make sure to prepend the base URL here (e.g., RetrofitClient.BASE_URL + "storage/" + user.getFotoProfil()) 
-             * If it's already a full URL from the backend, just load it directly. 
-             */
-            String photoUrl = user.getFotoProfil().startsWith("http") 
-                ? user.getFotoProfil() 
-                : com.kejaksaan.reminder.api.RetrofitClient.BASE_URL + "storage/" + user.getFotoProfil();
-
+        // Load image using Glide — gunakan getResolvedPhotoUrl() yang sudah handle
+        // prioritas foto_profil_url (full URL) vs foto_profil (path relatif)
+        String photoUrl = user.getResolvedPhotoUrl();
+        if (photoUrl != null) {
             Glide.with(this)
                  .load(photoUrl)
                  .placeholder(R.drawable.logo_kejaksaan)

@@ -17,15 +17,16 @@
             android:layout_width="match_parent"
             android:layout_height="170dp">
 
-            <!-- Batik Background Image -->
+            <!-- Batik Header Background -->
             <ImageView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:scaleType="centerCrop"
-                android:src="@drawable/bg_profil_batik"
+                android:scaleType="fitXY"
+                android:src="@drawable/ic_batik_header"
                 android:contentDescription="Batik Header" />
 
             <!-- Top Action Bar -->
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -83,16 +84,106 @@
             android:layout_marginTop="-65dp"
             app:cardCornerRadius="16dp"
             app:cardElevation="6dp"
+            app:cardBackgroundColor="#00897B"
             app:strokeWidth="0dp">
 
-            <ImageView
-                android:id="@+id/imgKtaCard"
+            <!-- KTA Card dengan overlay data user -->
+            <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:adjustViewBounds="true"
-                android:scaleType="fitXY"
-                android:src="@drawable/img_kta_card"
-                android:contentDescription="Kartu Tanda Anggota Kejaksaan" />
+                android:layout_height="wrap_content">
+
+
+                <!-- Overlay data user di atas KTA -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="bottom"
+                    android:orientation="horizontal"
+                    android:padding="16dp"
+                    android:layout_marginBottom="4dp"
+                    android:gravity="center_vertical">
+
+                    <!-- Foto Profil (circle) -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="72dp"
+                        android:layout_height="72dp"
+                        app:cardCornerRadius="36dp"
+                        app:strokeWidth="2dp"
+                        app:strokeColor="#FFFFFF"
+                        app:cardElevation="4dp">
+
+                        <ImageView
+                            android:id="@+id/imgProfileKta"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:scaleType="centerCrop"
+                            android:src="@drawable/logo_kejaksaan"
+                            android:contentDescription="Foto Profil" />
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <!-- Info Teks -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="12dp"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/tvKtaNama"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Nama Lengkap"
+                            android:textColor="#FFFFFF"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            android:shadowColor="#66000000"
+                            android:shadowDx="1"
+                            android:shadowDy="1"
+                            android:shadowRadius="2" />
+
+                        <TextView
+                            android:id="@+id/tvKtaJabatan"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:text="Jabatan"
+                            android:textColor="#E0F2F1"
+                            android:textSize="11sp"
+                            android:shadowColor="#66000000"
+                            android:shadowDx="1"
+                            android:shadowDy="1"
+                            android:shadowRadius="2" />
+
+                        <TextView
+                            android:id="@+id/tvKtaNip"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:text="NIP/NRP: -"
+                            android:textColor="#B2DFDB"
+                            android:textSize="10sp"
+                            android:shadowColor="#66000000"
+                            android:shadowDx="1"
+                            android:shadowDy="1"
+                            android:shadowRadius="2" />
+
+                        <TextView
+                            android:id="@+id/tvKtaPangkat"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:text="Pangkat/Golongan: -"
+                            android:textColor="#B2DFDB"
+                            android:textSize="10sp"
+                            android:shadowColor="#66000000"
+                            android:shadowDx="1"
+                            android:shadowDy="1"
+                            android:shadowRadius="2" />
+                    </LinearLayout>
+                </LinearLayout>
+
+            </FrameLayout>
         </com.google.android.material.card.MaterialCardView>
 
         <!-- 3. Settings Card Container -->
@@ -161,10 +252,11 @@
                             android:textStyle="bold" />
 
                         <TextView
+                            android:id="@+id/tvInfoEmail"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="2dp"
-                            android:text="Atur kata sandi anda"
+                            android:text="-"
                             android:textColor="#64748B"
                             android:textSize="12sp" />
                     </LinearLayout>
@@ -221,10 +313,11 @@
                             android:textStyle="bold" />
 
                         <TextView
+                            android:id="@+id/tvInfoNomorHp"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="2dp"
-                            android:text="Atur nomor HP untuk verifikasi"
+                            android:text="-"
                             android:textColor="#64748B"
                             android:textSize="12sp" />
                     </LinearLayout>
