@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingHorizontal="16dp">
+
+    <!-- Top Vertical Connector Line -->
+    <View
+        android:id="@+id/viewTopLine"
+        android:layout_width="2dp"
+        android:layout_height="0dp"
+        android:background="#CBD5E1"
+        app:layout_constraintBottom_toTopOf="@id/viewNodeDot"
+        app:layout_constraintEnd_toEndOf="@id/viewNodeDot"
+        app:layout_constraintStart_toStartOf="@id/viewNodeDot"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Timeline Node Dot Indicator -->
+    <View
+        android:id="@+id/viewNodeDot"
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/bg_timeline_dot"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/cardContent" />
+
+    <!-- Bottom Vertical Connector Line -->
+    <View
+        android:id="@+id/viewBottomLine"
+        android:layout_width="2dp"
+        android:layout_height="0dp"
+        android:background="#CBD5E1"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@id/viewNodeDot"
+        app:layout_constraintStart_toStartOf="@id/viewNodeDot"
+        app:layout_constraintTop_toBottomOf="@id/viewNodeDot" />
+
+    <!-- Main Content Card -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cardContent"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="14dp"
+        android:layout_marginTop="6dp"
+        android:layout_marginBottom="10dp"
+        app:cardBackgroundColor="#FFFFFF"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="1dp"
+        app:cardPreventCornerOverlap="false"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/viewNodeDot"
+        app:layout_constraintTop_toTopOf="parent"
+        app:strokeColor="#E2E8F0"
+        app:strokeWidth="1dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="12dp">
+
+            <!-- Top Row: Date and Actor Badge -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/tvTanggalKejadian"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textColor="#64748B"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    tools:text="15 Okt 2026" />
+
+                <TextView
+                    android:id="@+id/tvBadgeActor"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_filter_chip_inactive"
+                    android:paddingHorizontal="8dp"
+                    android:paddingVertical="3dp"
+                    android:textSize="10sp"
+                    android:textStyle="bold"
+                    tools:text="Sistem (Otomatis)" />
+            </LinearLayout>
+
+            <!-- Tahap Subtitle -->
+            <TextView
+                android:id="@+id/tvTahap"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:textColor="#00897B"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                tools:text="Tahap: Koordinasi Awal" />
+
+            <!-- Status Kegiatan / Event Title -->
+            <TextView
+                android:id="@+id/tvStatusKegiatan"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:textColor="#0F172A"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                tools:text="Penerbitan Teguran SOP Form-1C (System Auto-Transition)" />
+
+            <!-- Catatan Box (Optional) -->
+            <LinearLayout
+                android:id="@+id/layoutCatatan"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="#F8FAFC"
+                android:orientation="vertical"
+                android:padding="8dp"
+                android:visibility="gone"
+                tools:visibility="visible">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Catatan:"
+                    android:textColor="#64748B"
+                    android:textSize="10sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvCatatan"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:textColor="#334155"
+                    android:textSize="11sp"
+                    tools:text="Batas waktu SLA 3 hari terlewati." />
+            </LinearLayout>
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

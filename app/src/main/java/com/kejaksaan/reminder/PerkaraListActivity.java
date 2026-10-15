@@ -59,6 +59,14 @@ public class PerkaraListActivity extends AppCompatActivity {
         // Setup RecyclerView
         rvPerkara.setLayoutManager(new LinearLayoutManager(this));
         adapter = new PerkaraAdapter();
+        adapter.setOnItemClickListener(perkara -> {
+            if (perkara != null && perkara.getId() > 0) {
+                android.content.Intent intent = new android.content.Intent(PerkaraListActivity.this, DetailPerkaraActivity.class);
+                intent.putExtra(DetailPerkaraActivity.EXTRA_PERKARA_ID, perkara.getId());
+                intent.putExtra(DetailPerkaraActivity.EXTRA_NOMOR_PERKARA, perkara.getNomorPerkara());
+                startActivity(intent);
+            }
+        });
         rvPerkara.setAdapter(adapter);
 
         // Setup ViewModel

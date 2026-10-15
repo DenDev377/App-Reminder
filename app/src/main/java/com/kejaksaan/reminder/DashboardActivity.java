@@ -137,6 +137,24 @@ public class DashboardActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
+        // Menu Timeline (Riwayat Aktivitas Perkara) -> Buka TimelineListActivity
+        View menuTimeline = findViewById(R.id.menuTimeline);
+        if (menuTimeline != null) {
+            menuTimeline.setOnClickListener(v -> {
+                android.content.Intent intent = new android.content.Intent(this, com.kejaksaan.reminder.TimelineListActivity.class);
+                startActivity(intent);
+            });
+        }
+
+        // Menu Riwayat -> Buka TimelineListActivity
+        View menuRiwayat = findViewById(R.id.menuRiwayat);
+        if (menuRiwayat != null) {
+            menuRiwayat.setOnClickListener(v -> {
+                android.content.Intent intent = new android.content.Intent(this, com.kejaksaan.reminder.TimelineListActivity.class);
+                startActivity(intent);
+            });
+        }
+
         // Card User Profile -> Buka ProfileActivity
         findViewById(R.id.cardUserProfile).setOnClickListener(v -> {
             android.content.Intent intent = new android.content.Intent(this, com.kejaksaan.reminder.ProfileActivity.class);

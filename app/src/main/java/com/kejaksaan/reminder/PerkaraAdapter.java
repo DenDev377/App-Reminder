@@ -16,7 +16,16 @@ import java.util.List;
 
 public class PerkaraAdapter extends RecyclerView.Adapter<PerkaraAdapter.PerkaraViewHolder> {
 
+    public interface OnItemClickListener {
+        void onItemClick(Perkara perkara);
+    }
+
     private final List<Perkara> perkaraList = new ArrayList<>();
+    private OnItemClickListener listener;
+
+    public void setOnItemClickListener(OnItemClickListener listener) {
+        this.listener = listener;
+    }
 
     public void setPerkaras(List<Perkara> list) {
         this.perkaraList.clear();
@@ -36,7 +45,7 @@ public class PerkaraAdapter extends RecyclerView.Adapter<PerkaraAdapter.PerkaraV
     @Override
     public void onBindViewHolder(@NonNull PerkaraViewHolder holder, int position) {
         Perkara perkara = perkaraList.get(position);
-        holder.bind(perkara);
+        holder.bind(perkara, listener);
     }
 
     @Override
@@ -59,7 +68,7 @@ public class PerkaraAdapter extends RecyclerView.Adapter<PerkaraAdapter.PerkaraV
             tvTersangkas = itemView.findViewById(R.id.tvTersangkas);
         }
 
-        public void bind(Perkara perkara) {
+        public void bind(Perkara perkara, OnItemClickListener listener) {
             tvNomorPerkara.setText(perkara.getNomorPerkara() != null ? perkara.getNomorPerkara() : "-");
             tvStatusSaatIni.setText(perkara.getStatusSaatIni() != null ? perkara.getStatusSaatIni() : "-");
             tvTahapSaatIni.setText(perkara.getTahapSaatIni() != null ? perkara.getTahapSaatIni() : "-");
@@ -78,6 +87,12 @@ public class PerkaraAdapter extends RecyclerView.Adapter<PerkaraAdapter.PerkaraV
             } else {
                 tvTersangkas.setText("Belum ada data tersangka");
             }
+
+            itemView.setOnClickListener(v -> {
+                if (listener != null) {
+                    listener.onItemClick(perkara);
+                }
+            });
         }
     }
 }

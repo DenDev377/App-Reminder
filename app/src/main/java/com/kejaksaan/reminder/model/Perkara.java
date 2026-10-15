@@ -22,10 +22,11 @@ public class Perkara {
     @SerializedName("status_saat_ini")
     private String statusSaatIni;
 
+    @SerializedName("penyidik")
+    private String penyidik;
+
     @SerializedName("tersangkas")
     private List<Tersangka> tersangkas;
-
-    // ─── Getters ────────────────────────────────────────────────────────────────
 
     public int getId() { return id; }
 
@@ -34,6 +35,8 @@ public class Perkara {
     public String getTahapSaatIni() { return tahapSaatIni; }
 
     public String getStatusSaatIni() { return statusSaatIni; }
+
+    public String getPenyidik() { return penyidik; }
 
     public List<Tersangka> getTersangkas() { return tersangkas; }
 }
