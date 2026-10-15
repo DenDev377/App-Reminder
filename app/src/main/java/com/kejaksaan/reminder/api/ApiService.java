@@ -5,6 +5,7 @@ import com.kejaksaan.reminder.model.GenericResponse;
 import com.kejaksaan.reminder.model.LoginRequest;
 import com.kejaksaan.reminder.model.LoginResponse;
 import com.kejaksaan.reminder.model.PerkaraResponse;
+import com.kejaksaan.reminder.model.ReminderResponse;
 import com.kejaksaan.reminder.model.UpdatePhoneRequest;
 import com.kejaksaan.reminder.model.UserResponse;
 
@@ -21,7 +22,7 @@ import retrofit2.http.Query;
  */
 public interface ApiService {
 
-    // ─── Authentication ──────────────────────────────────────────────────────────
+    // ─── Authentication ────────────────────────────────────────────────────────
 
     /**
      * POST /api/login
@@ -38,7 +39,7 @@ public interface ApiService {
     @POST("api/logout")
     Call<Void> logout();
 
-    // ─── User Profile ────────────────────────────────────────────────────────────
+    // ─── User Profile ──────────────────────────────────────────────────────────
 
     /**
      * GET /api/user
@@ -51,8 +52,6 @@ public interface ApiService {
      * POST /api/user/change-password
      * Body: { "current_password": "...", "new_password": "...", "new_password_confirmation": "..." }
      * Response: { "success": true, "message": "Kata sandi berhasil diubah" }
-     *
-     * ⚠️ Sesuaikan path jika endpoint backend berbeda.
      */
     @POST("api/user/change-password")
     Call<GenericResponse> changePassword(@Body ChangePasswordRequest request);
@@ -61,13 +60,11 @@ public interface ApiService {
      * PATCH /api/user/update-phone
      * Body: { "nomor_hp": "08123..." }
      * Response: { "success": true, "message": "Nomor HP berhasil diperbarui" }
-     *
-     * ⚠️ Sesuaikan path jika endpoint backend berbeda.
      */
     @PATCH("api/user/update-phone")
     Call<GenericResponse> updatePhone(@Body UpdatePhoneRequest request);
 
-    // ─── Perkara (Kasus) ─────────────────────────────────────────────────────────
+    // ─── Perkara (Kasus) ───────────────────────────────────────────────────────
 
     /**
      * GET /api/perkara
@@ -79,17 +76,29 @@ public interface ApiService {
     Call<PerkaraResponse> getPerkaras(@Query("page") int page);
 
     /**
-     * Overload tanpa parameter page — memanggil halaman pertama.
+     * Overload tanpa parameter page – memanggil halaman pertama.
      */
     @GET("api/perkara")
     Call<PerkaraResponse> getPerkaras();
 
-    // ─── Reminder (SLA & Overdue) ────────────────────────────────────────────────
+    // ─── Reminder (SLA & Overdue) ──────────────────────────────────────────────
     
     /**
      * GET /api/reminders
      * Parameter: "urgensi" (misal: "semua_mendesak")
      */
     @GET("api/reminders")
-    Call<com.kejaksaan.reminder.model.ReminderResponse> getReminders(@Query("urgensi") String urgensi);
+    Call<ReminderResponse> getReminders(@Query("urgensi") String urgensi);
+
+    /**
+     * GET /api/reminders dengan pagination dan filter urgensi.
+     *
+     * @param urgensi  Filter urgensi (null untuk semua, "semua_mendesak", "Overdue", "H-3", "Aman")
+     * @param page     Nomor halaman (mulai dari 1)
+     */
+    @GET("api/reminders")
+    Call<ReminderResponse> getReminders(
+        @Query("urgensi") String urgensi,
+        @Query("page") Integer page
+    );
 }

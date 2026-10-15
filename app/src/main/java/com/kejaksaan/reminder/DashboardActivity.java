@@ -50,7 +50,7 @@ public class DashboardActivity extends AppCompatActivity {
         // Bottom padding for navigation bar background (so background reaches bottom)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.navBarBackground), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(v.getPaddingLeft(), v.getPaddingTop(), v.getPaddingRight(), systemBars.bottom + 12); // Add initial 12dp padding
+            v.setPadding(v.getPaddingLeft(), v.getPaddingTop(), v.getPaddingRight(), systemBars.bottom + 12);
             return insets;
         });
 
@@ -125,19 +125,25 @@ public class DashboardActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-        // View All SLA Reminders (Arahkan ke PerkaraListActivity)
+        // View All SLA Reminders -> Buka ReminderListActivity
         findViewById(R.id.tvViewAllSla).setOnClickListener(v -> {
-            android.content.Intent intent = new android.content.Intent(this, com.kejaksaan.reminder.PerkaraListActivity.class);
+            android.content.Intent intent = new android.content.Intent(this, com.kejaksaan.reminder.ReminderListActivity.class);
             startActivity(intent);
         });
 
-        // Card User Profile → Buka ProfileActivity
+        // Menu Reminder -> Buka ReminderListActivity
+        findViewById(R.id.menuReminder).setOnClickListener(v -> {
+            android.content.Intent intent = new android.content.Intent(this, com.kejaksaan.reminder.ReminderListActivity.class);
+            startActivity(intent);
+        });
+
+        // Card User Profile -> Buka ProfileActivity
         findViewById(R.id.cardUserProfile).setOnClickListener(v -> {
             android.content.Intent intent = new android.content.Intent(this, com.kejaksaan.reminder.ProfileActivity.class);
             startActivity(intent);
         });
 
-        // Grid Menu: Profile → Buka ProfileActivity
+        // Grid Menu: Profile -> Buka ProfileActivity
         findViewById(R.id.menuProfile).setOnClickListener(v -> {
             android.content.Intent intent = new android.content.Intent(this, com.kejaksaan.reminder.ProfileActivity.class);
             startActivity(intent);
@@ -153,8 +159,7 @@ public class DashboardActivity extends AppCompatActivity {
             : user.getRole();
         tvUserRole.setText(jabatanOrRole);
 
-        // Load image using Glide — gunakan getResolvedPhotoUrl() yang sudah handle
-        // prioritas foto_profil_url (full URL) vs foto_profil (path relatif)
+        // Load image using Glide
         String photoUrl = user.getResolvedPhotoUrl();
         if (photoUrl != null) {
             Glide.with(this)
