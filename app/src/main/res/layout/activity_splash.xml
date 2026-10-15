@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_splash_gradient">
+
+    <!-- 1. Motif Batik Atas -->
+    <ImageView
+        android:id="@+id/ivSplashBatik"
+        android:layout_width="match_parent"
+        android:layout_height="105dp"
+        android:scaleType="fitXY"
+        android:src="@drawable/ic_splash_top_batik"
+        android:contentDescription="Motif Batik Header"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- 2. Bagian Judul (Tanpa Garis Kotak) -->
+    <LinearLayout
+        android:id="@+id/layoutTitleBox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:layout_marginTop="42dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <TextView
+            android:id="@+id/tvSplashWelcome"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="SELAMAT DATANG DI"
+            android:fontFamily="serif"
+            android:textColor="#E5C77A"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:letterSpacing="0.08"
+            android:lineSpacingMultiplier="0.9"
+            android:shadowColor="#80000000"
+            android:shadowDx="0"
+            android:shadowDy="2"
+            android:shadowRadius="3" />
+
+        <TextView
+            android:id="@+id/tvSplashAppName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="SIPETA"
+            android:fontFamily="serif"
+            android:textColor="#E5C77A"
+            android:textSize="40sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:letterSpacing="0.06"
+            android:layout_marginTop="2dp"
+            android:shadowColor="#80000000"
+            android:shadowDx="0"
+            android:shadowDy="3"
+            android:shadowRadius="4" />
+    </LinearLayout>
+
+    <!-- Subtitle: Logo Kejaksaan & Teks "MOBILE" -->
+    <LinearLayout
+        android:id="@+id/layoutSplashSubtitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginTop="8dp"
+        app:layout_constraintTop_toBottomOf="@id/layoutTitleBox"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <ImageView
+            android:id="@+id/ivSplashLogo"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:src="@drawable/lambang_kejaksaan"
+            android:contentDescription="Logo Kejaksaan"
+            android:layout_marginEnd="8dp" />
+
+        <TextView
+            android:id="@+id/tvSplashMobile"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="MOBILE"
+            android:fontFamily="serif"
+            android:textColor="#E5C77A"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:letterSpacing="0.12"
+            android:shadowColor="#80000000"
+            android:shadowDx="0"
+            android:shadowDy="2"
+            android:shadowRadius="3" />
+    </LinearLayout>
+
+    <!-- 3. Foto Pejabat (Bisa diganti foto lain kapan saja di XML / Java / Glide) -->
+    <ImageView
+        android:id="@+id/ivOfficerPhoto"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:scaleType="fitCenter"
+        android:src="@drawable/img_officer_photo"
+        android:contentDescription="Foto Pejabat"
+        android:layout_marginTop="6dp"
+        android:layout_marginBottom="6dp"
+        app:layout_constraintTop_toBottomOf="@id/layoutSplashSubtitle"
+        app:layout_constraintBottom_toTopOf="@id/tvOfficerName"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- 4. Nama Pejabat -->
+    <TextView
+        android:id="@+id/tvOfficerName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="KRISTANTO TRINOVIANDRI"
+        android:textColor="#E6C875"
+        android:textSize="17sp"
+        android:textStyle="bold"
+        android:letterSpacing="0.02"
+        android:gravity="center"
+        android:shadowColor="#80000000"
+        android:shadowDx="0"
+        android:shadowDy="2"
+        android:shadowRadius="2"
+        app:layout_constraintBottom_toTopOf="@id/tvOfficerRole"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- 5. Jabatan Pejabat -->
+    <TextView
+        android:id="@+id/tvOfficerRole"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="KEPALA KEJAKSAAN NEGRI OGAN KOMERING ULU"
+        android:textColor="#BFB082"
+        android:textSize="13sp"
+        android:gravity="center"
+        android:layout_marginBottom="16dp"
+        app:layout_constraintBottom_toTopOf="@id/progressBarLoading"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- 6. Animasi Loading Bar Kapsul Emas -->
+    <ProgressBar
+        android:id="@+id/progressBarLoading"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="0dp"
+        android:layout_height="12dp"
+        android:max="100"
+        android:progress="0"
+        android:progressDrawable="@drawable/bg_progress_bar_gold"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintWidth_percent="0.76"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/tvLoadingStatus" />
+
+    <!-- 7. Teks Status Loading Dinamis -->
+    <TextView
+        android:id="@+id/tvLoadingStatus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Memuat Data..."
+        android:textColor="#C2B280"
+        android:textSize="13sp"
+        android:layout_marginBottom="28dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
