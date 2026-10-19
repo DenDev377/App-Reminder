@@ -25,6 +25,9 @@ public class Perkara {
     @SerializedName("penyidik")
     private String penyidik;
 
+    @SerializedName("jaksa")
+    private String jaksa;
+
     @SerializedName("tersangkas")
     private List<Tersangka> tersangkas;
 
@@ -38,5 +41,21 @@ public class Perkara {
 
     public String getPenyidik() { return penyidik; }
 
+    public String getJaksa() { return jaksa; }
+
     public List<Tersangka> getTersangkas() { return tersangkas; }
+
+    public String getTersangkaNames() {
+        if (tersangkas != null && !tersangkas.isEmpty()) {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < tersangkas.size(); i++) {
+                sb.append(tersangkas.get(i).getNama());
+                if (i < tersangkas.size() - 1) {
+                    sb.append(", ");
+                }
+            }
+            return sb.toString();
+        }
+        return "-";
+    }
 }

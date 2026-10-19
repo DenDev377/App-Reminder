@@ -88,6 +88,14 @@ public class ReminderListActivity extends AppCompatActivity {
         ImageView btnRefresh = findViewById(R.id.btnRefresh);
         btnRefresh.setOnClickListener(v -> viewModel.refresh());
 
+        View btnLogReminders = findViewById(R.id.btnLogReminders);
+        if (btnLogReminders != null) {
+            btnLogReminders.setOnClickListener(v -> {
+                Intent intent = new Intent(this, ReminderLogListActivity.class);
+                startActivity(intent);
+            });
+        }
+
         btnRetry.setOnClickListener(v -> viewModel.loadFirstPage(currentSelectedFilter));
     }
 

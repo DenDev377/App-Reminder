@@ -234,9 +234,9 @@
                                     android:textStyle="bold" />
                             </LinearLayout>
 
-                            <!-- Item 4: Riwayat -->
+                            <!-- Item 4: Log SLA -->
                             <LinearLayout
-                                android:id="@+id/menuRiwayat"
+                                android:id="@+id/menuLogReminder"
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
@@ -248,13 +248,14 @@
                                 <ImageView
                                     android:layout_width="36dp"
                                     android:layout_height="36dp"
-                                    android:src="@drawable/ic_dosir" />
+                                    android:src="@drawable/ic_audit_log" 
+                                    app:tint="#DC2626" />
 
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_marginTop="6dp"
-                                    android:text="Riwayat"
+                                    android:text="Log SLA"
                                     android:textColor="#334155"
                                     android:textSize="12sp"
                                     android:textStyle="bold" />
@@ -295,6 +296,22 @@
                                     android:textSize="12sp"
                                     android:textStyle="bold" />
                             </LinearLayout>
+
+                            <!-- Spacers to balance 4-column layout -->
+                            <View
+                                android:layout_width="0dp"
+                                android:layout_height="0dp"
+                                android:layout_weight="1" />
+
+                            <View
+                                android:layout_width="0dp"
+                                android:layout_height="0dp"
+                                android:layout_weight="1" />
+
+                            <View
+                                android:layout_width="0dp"
+                                android:layout_height="0dp"
+                                android:layout_weight="1" />
 
                         </LinearLayout>
                     </LinearLayout>

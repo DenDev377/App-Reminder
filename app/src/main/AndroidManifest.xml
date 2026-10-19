@@ -56,6 +56,10 @@
         <activity
             android:name=".DetailPerkaraActivity"
             android:exported="false" />
+
+        <activity
+            android:name=".ReminderLogListActivity"
+            android:exported="false" />
     </application>
 
 </manifest>

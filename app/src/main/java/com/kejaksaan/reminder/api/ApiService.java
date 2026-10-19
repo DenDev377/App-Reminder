@@ -6,6 +6,7 @@ import com.kejaksaan.reminder.model.LoginRequest;
 import com.kejaksaan.reminder.model.LoginResponse;
 import com.kejaksaan.reminder.model.PerkaraResponse;
 import com.kejaksaan.reminder.model.PerkaraTimelineResponse;
+import com.kejaksaan.reminder.model.ReminderLogResponse;
 import com.kejaksaan.reminder.model.ReminderResponse;
 import com.kejaksaan.reminder.model.TimelinePaginationResponse;
 import com.kejaksaan.reminder.model.UpdatePhoneRequest;
@@ -67,6 +68,17 @@ public interface ApiService {
     Call<ReminderResponse> getReminders(
         @Query("urgensi") String urgensi,
         @Query("page") Integer page
+    );
+
+    // --- Log Reminders (Audit Trail / Riwayat Reminder SLA) ---
+
+    @GET("api/reminders/logs")
+    Call<ReminderLogResponse> getReminderLogs(
+        @Query("status") String status,
+        @Query("search") String search,
+        @Query("tahap") String tahap,
+        @Query("page") Integer page,
+        @Query("per_page") Integer perPage
     );
 
     // --- Timeline (Audit Trail & Riwayat Perkara) ---

@@ -146,15 +146,6 @@ public class DashboardActivity extends AppCompatActivity {
             });
         }
 
-        // Menu Riwayat -> Buka TimelineListActivity
-        View menuRiwayat = findViewById(R.id.menuRiwayat);
-        if (menuRiwayat != null) {
-            menuRiwayat.setOnClickListener(v -> {
-                android.content.Intent intent = new android.content.Intent(this, com.kejaksaan.reminder.TimelineListActivity.class);
-                startActivity(intent);
-            });
-        }
-
         // Card User Profile -> Buka ProfileActivity
         findViewById(R.id.cardUserProfile).setOnClickListener(v -> {
             android.content.Intent intent = new android.content.Intent(this, com.kejaksaan.reminder.ProfileActivity.class);
@@ -166,6 +157,15 @@ public class DashboardActivity extends AppCompatActivity {
             android.content.Intent intent = new android.content.Intent(this, com.kejaksaan.reminder.ProfileActivity.class);
             startActivity(intent);
         });
+
+        // Grid Menu: Log SLA (Audit Trail Reminder SLA) -> Buka ReminderLogListActivity
+        View menuLogReminder = findViewById(R.id.menuLogReminder);
+        if (menuLogReminder != null) {
+            menuLogReminder.setOnClickListener(v -> {
+                android.content.Intent intent = new android.content.Intent(this, com.kejaksaan.reminder.ReminderLogListActivity.class);
+                startActivity(intent);
+            });
+        }
     }
 
     private void bindUserProfile(User user) {
