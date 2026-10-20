@@ -1,6 +1,9 @@
 package com.kejaksaan.reminder;
 
+import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -10,18 +13,20 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.core.widget.NestedScrollView;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.bumptech.glide.Glide;
-import com.kejaksaan.reminder.model.User;
-import com.kejaksaan.reminder.model.Reminder;
-import com.kejaksaan.reminder.viewmodel.PerkaraViewModel;
 import com.kejaksaan.reminder.adapter.ReminderAdapter;
-import androidx.recyclerview.widget.RecyclerView;
+import com.kejaksaan.reminder.model.Reminder;
+import com.kejaksaan.reminder.model.User;
+import com.kejaksaan.reminder.viewmodel.AuthViewModel;
+import com.kejaksaan.reminder.viewmodel.PerkaraViewModel;
 
-import java.util.List;
 import java.util.ArrayList;
-import android.view.View;
+import java.util.List;
 
 public class DashboardActivity extends AppCompatActivity {
 
@@ -30,6 +35,8 @@ public class DashboardActivity extends AppCompatActivity {
     private ImageView imgProfileAvatar;
     private RecyclerView rvSlaReminders;
     private View layoutSlaReminders;
+    private SwipeRefreshLayout swipeRefresh;
+    private NestedScrollView nestedScrollView;
 
     private PerkaraViewModel perkaraViewModel;
     private ReminderAdapter reminderAdapter;
@@ -60,6 +67,39 @@ public class DashboardActivity extends AppCompatActivity {
         imgProfileAvatar = findViewById(R.id.imgProfileAvatar);
         rvSlaReminders = findViewById(R.id.rvSlaReminders);
         layoutSlaReminders = findViewById(R.id.layoutSlaReminders);
+        swipeRefresh = findViewById(R.id.swipeRefresh);
+        nestedScrollView = findViewById(R.id.nestedScrollView);
+
+        // Setup SwipeRefreshLayout
+        if (swipeRefresh != null) {
+            swipeRefresh.setColorSchemeColors(Color.parseColor("#00897B"), Color.parseColor("#D97706"));
+            swipeRefresh.setOnRefreshListener(this::refreshDashboardData);
+        }
+
+        // Setup Header Refresh Button
+        ImageView btnRefreshDashboard = findViewById(R.id.btnRefreshDashboard);
+        if (btnRefreshDashboard != null) {
+            btnRefreshDashboard.setOnClickListener(v -> {
+                if (swipeRefresh != null) {
+                    swipeRefresh.setRefreshing(true);
+                }
+                refreshDashboardData();
+            });
+        }
+
+        // Bottom Nav Dashboard item: tap to scroll top & refresh
+        View navDashboard = findViewById(R.id.navDashboard);
+        if (navDashboard != null) {
+            navDashboard.setOnClickListener(v -> {
+                if (nestedScrollView != null) {
+                    nestedScrollView.smoothScrollTo(0, 0);
+                }
+                if (swipeRefresh != null) {
+                    swipeRefresh.setRefreshing(true);
+                }
+                refreshDashboardData();
+            });
+        }
 
         // Setup RecyclerView
         reminderAdapter = new ReminderAdapter(this);
@@ -70,6 +110,9 @@ public class DashboardActivity extends AppCompatActivity {
 
         // Observe profile changes
         perkaraViewModel.getUserProfileResult().observe(this, result -> {
+            if (swipeRefresh != null) {
+                swipeRefresh.setRefreshing(false);
+            }
             if (result.isSuccess() && result.getData() != null) {
                 bindUserProfile(result.getData());
             } else if (result.isError()) {
@@ -79,14 +122,17 @@ public class DashboardActivity extends AppCompatActivity {
 
         // Observe SLA Reminders
         perkaraViewModel.getSlaRemindersResult().observe(this, result -> {
+            if (swipeRefresh != null) {
+                swipeRefresh.setRefreshing(false);
+            }
             if (result.isSuccess() && result.getData() != null) {
                 List<Reminder> reminders = result.getData();
                 if (reminders.isEmpty()) {
-                    layoutSlaReminders.setVisibility(android.view.View.GONE);
-                    rvSlaReminders.setVisibility(android.view.View.GONE);
+                    layoutSlaReminders.setVisibility(View.GONE);
+                    rvSlaReminders.setVisibility(View.GONE);
                 } else {
-                    layoutSlaReminders.setVisibility(android.view.View.VISIBLE);
-                    rvSlaReminders.setVisibility(android.view.View.VISIBLE);
+                    layoutSlaReminders.setVisibility(View.VISIBLE);
+                    rvSlaReminders.setVisibility(View.VISIBLE);
                     // Ambil maksimal 3
                     List<Reminder> top3 = new ArrayList<>();
                     for (int i = 0; i < Math.min(3, reminders.size()); i++) {
@@ -96,22 +142,21 @@ public class DashboardActivity extends AppCompatActivity {
                 }
             } else if (result.isError()) {
                 // Sembunyikan jika error
-                layoutSlaReminders.setVisibility(android.view.View.GONE);
-                rvSlaReminders.setVisibility(android.view.View.GONE);
+                layoutSlaReminders.setVisibility(View.GONE);
+                rvSlaReminders.setVisibility(View.GONE);
             }
         });
 
-        // Fetch API
-        perkaraViewModel.loadUserProfile();
-        perkaraViewModel.loadSlaReminders("semua_mendesak");
+        // Fetch API on start
+        refreshDashboardData();
 
         // Setup Logout functionality
-        com.kejaksaan.reminder.viewmodel.AuthViewModel authViewModel = new ViewModelProvider(this).get(com.kejaksaan.reminder.viewmodel.AuthViewModel.class);
+        AuthViewModel authViewModel = new ViewModelProvider(this).get(AuthViewModel.class);
         
-        android.view.View.OnClickListener logoutListener = v -> {
+        View.OnClickListener logoutListener = v -> {
             authViewModel.logout();
-            android.content.Intent intent = new android.content.Intent(this, MainActivity.class);
-            intent.setFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK | android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            Intent intent = new Intent(this, MainActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
             finish();
         };
@@ -121,19 +166,19 @@ public class DashboardActivity extends AppCompatActivity {
 
         // Menu Perkara
         findViewById(R.id.menuPerkara).setOnClickListener(v -> {
-            android.content.Intent intent = new android.content.Intent(this, com.kejaksaan.reminder.PerkaraListActivity.class);
+            Intent intent = new Intent(this, PerkaraListActivity.class);
             startActivity(intent);
         });
 
         // View All SLA Reminders -> Buka ReminderListActivity
         findViewById(R.id.tvViewAllSla).setOnClickListener(v -> {
-            android.content.Intent intent = new android.content.Intent(this, com.kejaksaan.reminder.ReminderListActivity.class);
+            Intent intent = new Intent(this, ReminderListActivity.class);
             startActivity(intent);
         });
 
         // Menu Reminder -> Buka ReminderListActivity
         findViewById(R.id.menuReminder).setOnClickListener(v -> {
-            android.content.Intent intent = new android.content.Intent(this, com.kejaksaan.reminder.ReminderListActivity.class);
+            Intent intent = new Intent(this, ReminderListActivity.class);
             startActivity(intent);
         });
 
@@ -141,20 +186,20 @@ public class DashboardActivity extends AppCompatActivity {
         View menuTimeline = findViewById(R.id.menuTimeline);
         if (menuTimeline != null) {
             menuTimeline.setOnClickListener(v -> {
-                android.content.Intent intent = new android.content.Intent(this, com.kejaksaan.reminder.TimelineListActivity.class);
+                Intent intent = new Intent(this, TimelineListActivity.class);
                 startActivity(intent);
             });
         }
 
         // Card User Profile -> Buka ProfileActivity
         findViewById(R.id.cardUserProfile).setOnClickListener(v -> {
-            android.content.Intent intent = new android.content.Intent(this, com.kejaksaan.reminder.ProfileActivity.class);
+            Intent intent = new Intent(this, ProfileActivity.class);
             startActivity(intent);
         });
 
         // Grid Menu: Profile -> Buka ProfileActivity
         findViewById(R.id.menuProfile).setOnClickListener(v -> {
-            android.content.Intent intent = new android.content.Intent(this, com.kejaksaan.reminder.ProfileActivity.class);
+            Intent intent = new Intent(this, ProfileActivity.class);
             startActivity(intent);
         });
 
@@ -162,10 +207,15 @@ public class DashboardActivity extends AppCompatActivity {
         View menuLogReminder = findViewById(R.id.menuLogReminder);
         if (menuLogReminder != null) {
             menuLogReminder.setOnClickListener(v -> {
-                android.content.Intent intent = new android.content.Intent(this, com.kejaksaan.reminder.ReminderLogListActivity.class);
+                Intent intent = new Intent(this, ReminderLogListActivity.class);
                 startActivity(intent);
             });
         }
+    }
+
+    private void refreshDashboardData() {
+        perkaraViewModel.loadUserProfile();
+        perkaraViewModel.loadSlaReminders("semua_mendesak");
     }
 
     private void bindUserProfile(User user) {

@@ -6,12 +6,18 @@
     android:layout_height="match_parent"
     android:background="#F8FAFC">
 
-    <androidx.core.widget.NestedScrollView
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipeRefresh"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:fillViewport="true"
-        android:paddingBottom="90dp"
-        android:clipToPadding="false">
+        android:layout_height="match_parent">
+
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/nestedScrollView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true"
+            android:paddingBottom="90dp"
+            android:clipToPadding="false">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -98,33 +104,55 @@
                                 android:textSize="12sp" />
                         </LinearLayout>
 
-                        <!-- Logout Button Header -->
+                        <!-- Header Actions (Refresh & Logout) -->
                         <LinearLayout
-                            android:id="@+id/btnLogout"
                             android:layout_width="wrap_content"
-                            android:layout_height="34dp"
-                            android:gravity="center"
-                            android:orientation="horizontal"
-                            android:paddingHorizontal="10dp"
-                            android:background="@drawable/bg_logout_badge"
-                            android:clickable="true"
-                            android:focusable="true">
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
 
+                            <!-- Refresh Button Header -->
                             <ImageView
-                                android:layout_width="16dp"
-                                android:layout_height="16dp"
-                                android:src="@drawable/ic_logout"
+                                android:id="@+id/btnRefreshDashboard"
+                                android:layout_width="34dp"
+                                android:layout_height="34dp"
+                                android:layout_marginEnd="8dp"
+                                android:background="@drawable/bg_refresh_badge"
+                                android:clickable="true"
+                                android:focusable="true"
+                                android:padding="7dp"
+                                android:src="@drawable/ic_refresh"
                                 app:tint="#FFFFFF"
-                                android:contentDescription="Keluar Akun" />
+                                android:contentDescription="Segarkan Dashboard" />
 
-                            <TextView
+                            <!-- Logout Button Header -->
+                            <LinearLayout
+                                android:id="@+id/btnLogout"
                                 android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginStart="5dp"
-                                android:text="Keluar"
-                                android:textColor="#FFFFFF"
-                                android:textSize="12sp"
-                                android:textStyle="bold" />
+                                android:layout_height="34dp"
+                                android:gravity="center"
+                                android:orientation="horizontal"
+                                android:paddingHorizontal="10dp"
+                                android:background="@drawable/bg_logout_badge"
+                                android:clickable="true"
+                                android:focusable="true">
+
+                                <ImageView
+                                    android:layout_width="16dp"
+                                    android:layout_height="16dp"
+                                    android:src="@drawable/ic_logout"
+                                    app:tint="#FFFFFF"
+                                    android:contentDescription="Keluar Akun" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="5dp"
+                                    android:text="Keluar"
+                                    android:textColor="#FFFFFF"
+                                    android:textSize="12sp"
+                                    android:textStyle="bold" />
+                            </LinearLayout>
                         </LinearLayout>
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
@@ -538,6 +566,7 @@
             </LinearLayout>
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
     <!-- Bottom Navigation Bar Floating Container -->
     <FrameLayout

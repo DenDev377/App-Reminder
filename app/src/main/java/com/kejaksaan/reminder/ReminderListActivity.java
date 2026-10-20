@@ -41,7 +41,6 @@ public class ReminderListActivity extends AppCompatActivity {
 
     private TextView chipSemua;
     private TextView chipMendesak;
-    private TextView chipOverdue;
     private TextView chipHMin3;
     private TextView chipAman;
 
@@ -78,7 +77,6 @@ public class ReminderListActivity extends AppCompatActivity {
 
         chipSemua    = findViewById(R.id.chipSemua);
         chipMendesak = findViewById(R.id.chipMendesak);
-        chipOverdue  = findViewById(R.id.chipOverdue);
         chipHMin3    = findViewById(R.id.chipHMin3);
         chipAman     = findViewById(R.id.chipAman);
 
@@ -141,7 +139,6 @@ public class ReminderListActivity extends AppCompatActivity {
     private void setupFilterChips() {
         chipSemua.setOnClickListener(v -> selectFilter(null, chipSemua));
         chipMendesak.setOnClickListener(v -> selectFilter("semua_mendesak", chipMendesak));
-        chipOverdue.setOnClickListener(v -> selectFilter("Overdue", chipOverdue));
         chipHMin3.setOnClickListener(v -> selectFilter("H-3", chipHMin3));
         chipAman.setOnClickListener(v -> selectFilter("Aman", chipAman));
     }
@@ -160,7 +157,6 @@ public class ReminderListActivity extends AppCompatActivity {
         // Reset all chip visuals to inactive
         resetChipStyle(chipSemua);
         resetChipStyle(chipMendesak);
-        resetChipStyle(chipOverdue);
         resetChipStyle(chipHMin3);
         resetChipStyle(chipAman);
 

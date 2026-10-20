@@ -37,6 +37,45 @@ public class PerkaraRepository {
     // ─── Daftar Perkara ──────────────────────────────────────────────────────────
 
     /**
+     * Mengambil daftar perkara dengan query search dan paginasi penuh.
+     *
+     * @param page    Halaman yang diminta (mulai dari 1)
+     * @param search  Kata kunci pencarian (bisa null / kosong)
+     * @param result  LiveData yang akan menerima ApiResult<PerkaraResponse.PerkaraPage>
+     */
+    public void getPerkaras(int page, String search, MutableLiveData<ApiResult<PerkaraResponse.PerkaraPage>> result) {
+        result.postValue(ApiResult.loading());
+
+        String query = (search != null && !search.trim().isEmpty()) ? search.trim() : null;
+        apiService.getPerkaras(page, query).enqueue(new Callback<PerkaraResponse>() {
+            @Override
+            public void onResponse(Call<PerkaraResponse> call, Response<PerkaraResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    PerkaraResponse body = response.body();
+                    if (body.isSuccess() && body.getData() != null) {
+                        result.postValue(ApiResult.success(body.getData()));
+                    } else {
+                        result.postValue(ApiResult.error("Data perkara kosong atau tidak tersedia"));
+                    }
+                } else if (response.code() == 401) {
+                    result.postValue(ApiResult.error("UNAUTHORIZED:401:Sesi telah berakhir. Silakan login kembali."));
+                } else {
+                    result.postValue(ApiResult.error(
+                            "Gagal memuat perkara (HTTP " + response.code() + ")"
+                    ));
+                }
+            }
+
+            @Override
+            public void onFailure(Call<PerkaraResponse> call, Throwable t) {
+                result.postValue(ApiResult.error(
+                        "Tidak dapat terhubung ke server: " + t.getMessage()
+                ));
+            }
+        });
+    }
+
+    /**
      * Mengambil daftar perkara (paginated).
      *
      * @param page    Halaman yang diminta (mulai dari 1)

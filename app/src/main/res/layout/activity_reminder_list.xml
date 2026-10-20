@@ -116,21 +116,6 @@
                 android:clickable="true"
                 android:focusable="true" />
 
-            <!-- Filter Overdue -->
-            <TextView
-                android:id="@+id/chipOverdue"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                android:background="@drawable/bg_filter_chip_inactive"
-                android:paddingHorizontal="16dp"
-                android:paddingVertical="8dp"
-                android:text="Overdue"
-                android:textColor="#64748B"
-                android:textSize="12sp"
-                android:textStyle="bold"
-                android:clickable="true"
-                android:focusable="true" />
 
             <!-- Filter H-3 -->
             <TextView
