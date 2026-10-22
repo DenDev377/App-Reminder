@@ -16,6 +16,7 @@
         android:padding="16dp"
         android:background="#FFFFFF"
         android:elevation="4dp"
+        android:gravity="center_vertical"
         app:layout_constraintTop_toTopOf="parent">
 
         <ImageView
@@ -27,17 +28,30 @@
             app:tint="#0F172A"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:clickable="true"
-            android:focusable="true"/>
+            android:focusable="true"
+            android:contentDescription="Kembali" />
 
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:layout_gravity="center_vertical"
+            android:layout_weight="1"
             android:text="Daftar Perkara"
             android:textColor="#0F172A"
             android:textSize="18sp"
             android:textStyle="bold" />
+
+        <ImageView
+            android:id="@+id/btnRefresh"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:src="@drawable/ic_refresh"
+            android:padding="5dp"
+            app:tint="#0F172A"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:focusable="true"
+            android:contentDescription="Muat Ulang" />
     </LinearLayout>
 
     <!-- Search Bar Card -->

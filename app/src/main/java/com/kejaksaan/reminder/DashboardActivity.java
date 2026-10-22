@@ -41,6 +41,9 @@ public class DashboardActivity extends AppCompatActivity {
     private PerkaraViewModel perkaraViewModel;
     private ReminderAdapter reminderAdapter;
 
+    private boolean isProfileRefreshing = false;
+    private boolean isSlaRefreshing = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -72,7 +75,11 @@ public class DashboardActivity extends AppCompatActivity {
 
         // Setup SwipeRefreshLayout
         if (swipeRefresh != null) {
-            swipeRefresh.setColorSchemeColors(Color.parseColor("#00897B"), Color.parseColor("#D97706"));
+            swipeRefresh.setColorSchemeColors(
+                    Color.parseColor("#00897B"),
+                    Color.parseColor("#DC2626"),
+                    Color.parseColor("#D97706")
+            );
             swipeRefresh.setOnRefreshListener(this::refreshDashboardData);
         }
 
@@ -131,41 +138,53 @@ public class DashboardActivity extends AppCompatActivity {
 
         // Observe profile changes
         perkaraViewModel.getUserProfileResult().observe(this, result -> {
-            if (swipeRefresh != null) {
-                swipeRefresh.setRefreshing(false);
-            }
-            if (result.isSuccess() && result.getData() != null) {
-                bindUserProfile(result.getData());
-            } else if (result.isError()) {
-                Toast.makeText(this, result.getMessage(), Toast.LENGTH_SHORT).show();
+            if (result == null) return;
+            if (result.isLoading()) {
+                if (swipeRefresh != null) {
+                    swipeRefresh.setRefreshing(true);
+                }
+            } else {
+                isProfileRefreshing = false;
+                checkStopDashboardRefresh();
+                if (result.isSuccess() && result.getData() != null) {
+                    bindUserProfile(result.getData());
+                } else if (result.isError()) {
+                    Toast.makeText(this, result.getMessage(), Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
         // Observe SLA Reminders
         perkaraViewModel.getSlaRemindersResult().observe(this, result -> {
-            if (swipeRefresh != null) {
-                swipeRefresh.setRefreshing(false);
-            }
-            if (result.isSuccess() && result.getData() != null) {
-                List<Reminder> reminders = result.getData();
-                if (reminders.isEmpty()) {
+            if (result == null) return;
+            if (result.isLoading()) {
+                if (swipeRefresh != null) {
+                    swipeRefresh.setRefreshing(true);
+                }
+            } else {
+                isSlaRefreshing = false;
+                checkStopDashboardRefresh();
+                if (result.isSuccess() && result.getData() != null) {
+                    List<Reminder> reminders = result.getData();
+                    if (reminders.isEmpty()) {
+                        layoutSlaReminders.setVisibility(View.GONE);
+                        rvSlaReminders.setVisibility(View.GONE);
+                    } else {
+                        layoutSlaReminders.setVisibility(View.VISIBLE);
+                        rvSlaReminders.setVisibility(View.VISIBLE);
+                        // Tampilkan reminder mendesak secara horizontal (hingga 10 reminder aktif)
+                        List<Reminder> displayList = new ArrayList<>();
+                        int maxCount = Math.min(10, reminders.size());
+                        for (int i = 0; i < maxCount; i++) {
+                            displayList.add(reminders.get(i));
+                        }
+                        reminderAdapter.setReminderList(displayList);
+                    }
+                } else if (result.isError()) {
+                    // Sembunyikan jika error
                     layoutSlaReminders.setVisibility(View.GONE);
                     rvSlaReminders.setVisibility(View.GONE);
-                } else {
-                    layoutSlaReminders.setVisibility(View.VISIBLE);
-                    rvSlaReminders.setVisibility(View.VISIBLE);
-                    // Tampilkan reminder mendesak secara horizontal (hingga 10 reminder aktif)
-                    List<Reminder> displayList = new ArrayList<>();
-                    int maxCount = Math.min(10, reminders.size());
-                    for (int i = 0; i < maxCount; i++) {
-                        displayList.add(reminders.get(i));
-                    }
-                    reminderAdapter.setReminderList(displayList);
                 }
-            } else if (result.isError()) {
-                // Sembunyikan jika error
-                layoutSlaReminders.setVisibility(View.GONE);
-                rvSlaReminders.setVisibility(View.GONE);
             }
         });
 
@@ -239,8 +258,16 @@ public class DashboardActivity extends AppCompatActivity {
     }
 
     private void refreshDashboardData() {
+        isProfileRefreshing = true;
+        isSlaRefreshing = true;
         perkaraViewModel.loadUserProfile();
         perkaraViewModel.loadSlaReminders("semua_mendesak");
+    }
+
+    private void checkStopDashboardRefresh() {
+        if (!isProfileRefreshing && !isSlaRefreshing && swipeRefresh != null) {
+            swipeRefresh.setRefreshing(false);
+        }
     }
 
     private void bindUserProfile(User user) {
