@@ -354,6 +354,14 @@
                     android:gravity="center_vertical"
                     android:orientation="horizontal">
 
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_marginEnd="6dp"
+                        android:src="@drawable/ic_alarm"
+                        app:tint="#DC2626"
+                        android:contentDescription="Perhatian Ekstra" />
+
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -380,9 +388,12 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="24dp"
+                    android:clipToPadding="false"
                     android:nestedScrollingEnabled="false"
+                    android:orientation="horizontal"
+                    android:scrollbars="none"
                     app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                    android:orientation="vertical" />
+                    tools:listitem="@layout/item_reminder_horizontal_card" />
 
 
                 <!-- 4. Section Berita -->

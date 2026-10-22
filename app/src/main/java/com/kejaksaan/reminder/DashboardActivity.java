@@ -101,9 +101,30 @@ public class DashboardActivity extends AppCompatActivity {
             });
         }
 
-        // Setup RecyclerView
-        reminderAdapter = new ReminderAdapter(this);
+        // Setup RecyclerView SLA Reminders (Horizontal Carousel / Menyamping seperti pada Berita)
+        androidx.recyclerview.widget.LinearLayoutManager slaLayoutManager =
+                new androidx.recyclerview.widget.LinearLayoutManager(this, androidx.recyclerview.widget.LinearLayoutManager.HORIZONTAL, false);
+        rvSlaReminders.setLayoutManager(slaLayoutManager);
+        rvSlaReminders.setNestedScrollingEnabled(false);
+        reminderAdapter = new ReminderAdapter(this, true);
         rvSlaReminders.setAdapter(reminderAdapter);
+
+        // Klik item reminder membuka DetailPerkaraActivity atau ReminderListActivity
+        reminderAdapter.setOnReminderClickListener(reminder -> {
+            if (reminder != null && reminder.getPerkara() != null && reminder.getPerkara().getId() > 0) {
+                Intent intent = new Intent(DashboardActivity.this, DetailPerkaraActivity.class);
+                intent.putExtra(DetailPerkaraActivity.EXTRA_PERKARA_ID, reminder.getPerkara().getId());
+                intent.putExtra(DetailPerkaraActivity.EXTRA_NOMOR_PERKARA, reminder.getPerkara().getNomorPerkara());
+                startActivity(intent);
+            } else if (reminder != null && reminder.getPerkaraId() > 0) {
+                Intent intent = new Intent(DashboardActivity.this, DetailPerkaraActivity.class);
+                intent.putExtra(DetailPerkaraActivity.EXTRA_PERKARA_ID, reminder.getPerkaraId());
+                startActivity(intent);
+            } else {
+                Intent intent = new Intent(DashboardActivity.this, ReminderListActivity.class);
+                startActivity(intent);
+            }
+        });
 
         // Initialize ViewModel
         perkaraViewModel = new ViewModelProvider(this).get(PerkaraViewModel.class);
@@ -133,12 +154,13 @@ public class DashboardActivity extends AppCompatActivity {
                 } else {
                     layoutSlaReminders.setVisibility(View.VISIBLE);
                     rvSlaReminders.setVisibility(View.VISIBLE);
-                    // Ambil maksimal 3
-                    List<Reminder> top3 = new ArrayList<>();
-                    for (int i = 0; i < Math.min(3, reminders.size()); i++) {
-                        top3.add(reminders.get(i));
+                    // Tampilkan reminder mendesak secara horizontal (hingga 10 reminder aktif)
+                    List<Reminder> displayList = new ArrayList<>();
+                    int maxCount = Math.min(10, reminders.size());
+                    for (int i = 0; i < maxCount; i++) {
+                        displayList.add(reminders.get(i));
                     }
-                    reminderAdapter.setReminderList(top3);
+                    reminderAdapter.setReminderList(displayList);
                 }
             } else if (result.isError()) {
                 // Sembunyikan jika error
@@ -148,6 +170,9 @@ public class DashboardActivity extends AppCompatActivity {
         });
 
         // Fetch API on start
+        if (swipeRefresh != null) {
+            swipeRefresh.post(() -> swipeRefresh.setRefreshing(true));
+        }
         refreshDashboardData();
 
         // Setup Logout functionality

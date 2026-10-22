@@ -71,7 +71,6 @@ public class ReminderLogListActivity extends AppCompatActivity {
     // List & States
     private SwipeRefreshLayout swipeRefresh;
     private RecyclerView rvReminderLogs;
-    private ProgressBar progressBarMain;
     private ProgressBar progressBarBottom;
     private LinearLayout layoutEmptyState;
     private TextView tvEmptyTitle;
@@ -101,8 +100,13 @@ public class ReminderLogListActivity extends AppCompatActivity {
         setupSwipeRefresh();
         setupViewModel();
 
+        // Tampilkan animasi mengambang SwipeRefreshLayout saat memuat awal
+        if (swipeRefresh != null) {
+            swipeRefresh.post(() -> swipeRefresh.setRefreshing(true));
+        }
+
         // Load page 1 default
-        loadData(true);
+        loadData();
     }
 
     private void initViews() {
@@ -129,7 +133,6 @@ public class ReminderLogListActivity extends AppCompatActivity {
 
         swipeRefresh       = findViewById(R.id.swipeRefresh);
         rvReminderLogs     = findViewById(R.id.rvReminderLogs);
-        progressBarMain    = findViewById(R.id.progressBarMain);
         progressBarBottom  = findViewById(R.id.progressBarBottom);
 
         layoutEmptyState   = findViewById(R.id.layoutEmptyState);
@@ -142,8 +145,13 @@ public class ReminderLogListActivity extends AppCompatActivity {
         btnRetry           = findViewById(R.id.btnRetry);
 
         btnBack.setOnClickListener(v -> finish());
-        btnRefresh.setOnClickListener(v -> viewModel.refresh());
-        btnRetry.setOnClickListener(v -> loadData(true));
+        btnRefresh.setOnClickListener(v -> {
+            if (swipeRefresh != null) {
+                swipeRefresh.setRefreshing(true);
+            }
+            viewModel.refresh();
+        });
+        btnRetry.setOnClickListener(v -> loadData());
         btnResetFilter.setOnClickListener(v -> resetAllFilters());
     }
 
@@ -203,7 +211,7 @@ public class ReminderLogListActivity extends AppCompatActivity {
         btnClearSearch.setOnClickListener(v -> {
             etSearch.setText("");
             hideKeyboard();
-            loadData(true);
+            loadData();
         });
 
         etSearch.addTextChangedListener(new TextWatcher() {
@@ -222,7 +230,7 @@ public class ReminderLogListActivity extends AppCompatActivity {
         etSearch.setOnEditorActionListener((v, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_SEARCH) {
                 hideKeyboard();
-                loadData(true);
+                loadData();
                 return true;
             }
             return false;
@@ -259,7 +267,7 @@ public class ReminderLogListActivity extends AppCompatActivity {
         activeChip.setTextColor(Color.WHITE);
 
         rvReminderLogs.scrollToPosition(0);
-        loadData(true);
+        loadData();
     }
 
     private void resetChipStyle(TextView chip) {
@@ -279,15 +287,18 @@ public class ReminderLogListActivity extends AppCompatActivity {
         chipSemua.setBackgroundResource(R.drawable.bg_filter_chip_active);
         chipSemua.setTextColor(Color.WHITE);
 
-        loadData(true);
+        loadData();
     }
 
     private void setupSwipeRefresh() {
         swipeRefresh.setColorSchemeColors(Color.parseColor("#00897B"), Color.parseColor("#DC2626"), Color.parseColor("#0284C7"));
-        swipeRefresh.setOnRefreshListener(() -> loadData(false));
+        swipeRefresh.setOnRefreshListener(this::loadData);
     }
 
-    private void loadData(boolean showCenterLoading) {
+    private void loadData() {
+        if (swipeRefresh != null) {
+            swipeRefresh.setRefreshing(true);
+        }
         String query = etSearch.getText().toString().trim();
         viewModel.loadFirstPage(currentSelectedStatus, query);
     }
@@ -303,14 +314,15 @@ public class ReminderLogListActivity extends AppCompatActivity {
             if (result == null) return;
 
             if (result.isLoading()) {
-                if (!swipeRefresh.isRefreshing()) {
-                    progressBarMain.setVisibility(View.VISIBLE);
+                if (swipeRefresh != null) {
+                    swipeRefresh.setRefreshing(true);
                 }
                 layoutEmptyState.setVisibility(View.GONE);
                 layoutErrorState.setVisibility(View.GONE);
             } else if (result.isSuccess()) {
-                swipeRefresh.setRefreshing(false);
-                progressBarMain.setVisibility(View.GONE);
+                if (swipeRefresh != null) {
+                    swipeRefresh.setRefreshing(false);
+                }
                 layoutErrorState.setVisibility(View.GONE);
 
                 List<PerkaraReminderLogGroup> list = result.getData();
@@ -336,8 +348,9 @@ public class ReminderLogListActivity extends AppCompatActivity {
                     adapter.setGroups(list);
                 }
             } else if (result.isError()) {
-                swipeRefresh.setRefreshing(false);
-                progressBarMain.setVisibility(View.GONE);
+                if (swipeRefresh != null) {
+                    swipeRefresh.setRefreshing(false);
+                }
 
                 String errorMsg = result.getMessage() != null ? result.getMessage() : "Gagal memuat log reminder";
 

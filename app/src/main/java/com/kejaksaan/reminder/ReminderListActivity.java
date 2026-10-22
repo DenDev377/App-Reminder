@@ -19,6 +19,7 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.material.button.MaterialButton;
 import com.kejaksaan.reminder.adapter.ReminderAdapter;
@@ -30,8 +31,8 @@ import java.util.List;
 
 public class ReminderListActivity extends AppCompatActivity {
 
+    private SwipeRefreshLayout swipeRefresh;
     private RecyclerView rvReminders;
-    private ProgressBar progressBarMain;
     private ProgressBar progressBarBottom;
     private LinearLayout layoutEmptyState;
     private TextView tvEmptyMessage;
@@ -58,16 +59,22 @@ public class ReminderListActivity extends AppCompatActivity {
         initViews();
         setupWindowInsets();
         setupRecyclerView();
+        setupSwipeRefresh();
         setupFilterChips();
         setupViewModel();
+
+        // Tampilkan animasi mengambang SwipeRefreshLayout saat memuat awal
+        if (swipeRefresh != null) {
+            swipeRefresh.post(() -> swipeRefresh.setRefreshing(true));
+        }
 
         // Load first page (Semua)
         viewModel.loadFirstPage(null);
     }
 
     private void initViews() {
+        swipeRefresh       = findViewById(R.id.swipeRefresh);
         rvReminders        = findViewById(R.id.rvReminders);
-        progressBarMain    = findViewById(R.id.progressBarMain);
         progressBarBottom  = findViewById(R.id.progressBarBottom);
         layoutEmptyState   = findViewById(R.id.layoutEmptyState);
         tvEmptyMessage     = findViewById(R.id.tvEmptyMessage);
@@ -84,7 +91,12 @@ public class ReminderListActivity extends AppCompatActivity {
         btnBack.setOnClickListener(v -> finish());
 
         ImageView btnRefresh = findViewById(R.id.btnRefresh);
-        btnRefresh.setOnClickListener(v -> viewModel.refresh());
+        btnRefresh.setOnClickListener(v -> {
+            if (swipeRefresh != null) {
+                swipeRefresh.setRefreshing(true);
+            }
+            viewModel.refresh();
+        });
 
         View btnLogReminders = findViewById(R.id.btnLogReminders);
         if (btnLogReminders != null) {
@@ -94,7 +106,12 @@ public class ReminderListActivity extends AppCompatActivity {
             });
         }
 
-        btnRetry.setOnClickListener(v -> viewModel.loadFirstPage(currentSelectedFilter));
+        btnRetry.setOnClickListener(v -> {
+            if (swipeRefresh != null) {
+                swipeRefresh.setRefreshing(true);
+            }
+            viewModel.loadFirstPage(currentSelectedFilter);
+        });
     }
 
     private void setupWindowInsets() {
@@ -117,6 +134,20 @@ public class ReminderListActivity extends AppCompatActivity {
         adapter = new ReminderAdapter(this);
         rvReminders.setAdapter(adapter);
 
+        // Klik item reminder membuka DetailPerkaraActivity jika perkara tersedia
+        adapter.setOnReminderClickListener(reminder -> {
+            if (reminder != null && reminder.getPerkara() != null && reminder.getPerkara().getId() > 0) {
+                Intent intent = new Intent(ReminderListActivity.this, DetailPerkaraActivity.class);
+                intent.putExtra(DetailPerkaraActivity.EXTRA_PERKARA_ID, reminder.getPerkara().getId());
+                intent.putExtra(DetailPerkaraActivity.EXTRA_NOMOR_PERKARA, reminder.getPerkara().getNomorPerkara());
+                startActivity(intent);
+            } else if (reminder != null && reminder.getPerkaraId() > 0) {
+                Intent intent = new Intent(ReminderListActivity.this, DetailPerkaraActivity.class);
+                intent.putExtra(DetailPerkaraActivity.EXTRA_PERKARA_ID, reminder.getPerkaraId());
+                startActivity(intent);
+            }
+        });
+
         // Infinite scroll / pagination listener
         rvReminders.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
@@ -134,6 +165,17 @@ public class ReminderListActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    private void setupSwipeRefresh() {
+        if (swipeRefresh != null) {
+            swipeRefresh.setColorSchemeColors(
+                    Color.parseColor("#00897B"),
+                    Color.parseColor("#DC2626"),
+                    Color.parseColor("#D97706")
+            );
+            swipeRefresh.setOnRefreshListener(() -> viewModel.refresh());
+        }
     }
 
     private void setupFilterChips() {
@@ -166,6 +208,9 @@ public class ReminderListActivity extends AppCompatActivity {
 
         // Scroll RecyclerView to top and reload page 1
         rvReminders.scrollToPosition(0);
+        if (swipeRefresh != null && adapter.getItemCount() > 0) {
+            swipeRefresh.setRefreshing(true);
+        }
         viewModel.loadFirstPage(filterValue);
     }
 
@@ -181,42 +226,48 @@ public class ReminderListActivity extends AppCompatActivity {
             if (result == null) return;
 
             if (result.isLoading()) {
-                progressBarMain.setVisibility(View.VISIBLE);
+                if (swipeRefresh != null) {
+                    swipeRefresh.setRefreshing(true);
+                }
                 layoutEmptyState.setVisibility(View.GONE);
                 layoutErrorState.setVisibility(View.GONE);
-            } else if (result.isSuccess()) {
-                progressBarMain.setVisibility(View.GONE);
-                layoutErrorState.setVisibility(View.GONE);
+            } else {
+                if (swipeRefresh != null) {
+                    swipeRefresh.setRefreshing(false);
+                }
 
-                List<Reminder> list = result.getData();
-                if (list == null || list.isEmpty()) {
-                    layoutEmptyState.setVisibility(View.VISIBLE);
-                    rvReminders.setVisibility(View.GONE);
-                    tvEmptyMessage.setText("Tidak ada reminder aktif" + (currentSelectedFilter != null ? " untuk filter ini" : ""));
-                } else {
+                if (result.isSuccess()) {
+                    layoutErrorState.setVisibility(View.GONE);
+
+                    List<Reminder> list = result.getData();
+                    if (list == null || list.isEmpty()) {
+                        layoutEmptyState.setVisibility(View.VISIBLE);
+                        rvReminders.setVisibility(View.GONE);
+                        tvEmptyMessage.setText("Tidak ada reminder aktif" + (currentSelectedFilter != null ? " untuk filter ini" : ""));
+                    } else {
+                        layoutEmptyState.setVisibility(View.GONE);
+                        rvReminders.setVisibility(View.VISIBLE);
+                        adapter.setReminderList(list);
+                    }
+                } else if (result.isError()) {
+                    String errorMsg = result.getMessage() != null ? result.getMessage() : "Terjadi kesalahan";
+
+                    // Tangani 401 Unauthorized
+                    if (errorMsg.contains("401") || errorMsg.contains("UNAUTHORIZED")) {
+                        Toast.makeText(this, "Sesi telah berakhir. Silakan login kembali.", Toast.LENGTH_LONG).show();
+                        new SessionManager(this).clearSession();
+                        Intent intent = new Intent(this, MainActivity.class);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        startActivity(intent);
+                        finish();
+                        return;
+                    }
+
                     layoutEmptyState.setVisibility(View.GONE);
-                    rvReminders.setVisibility(View.VISIBLE);
-                    adapter.setReminderList(list);
+                    rvReminders.setVisibility(View.GONE);
+                    layoutErrorState.setVisibility(View.VISIBLE);
+                    tvErrorMessage.setText(errorMsg);
                 }
-            } else if (result.isError()) {
-                progressBarMain.setVisibility(View.GONE);
-                String errorMsg = result.getMessage() != null ? result.getMessage() : "Terjadi kesalahan";
-
-                // Tangani 401 Unauthorized
-                if (errorMsg.contains("401") || errorMsg.contains("UNAUTHORIZED")) {
-                    Toast.makeText(this, "Sesi telah berakhir. Silakan login kembali.", Toast.LENGTH_LONG).show();
-                    new SessionManager(this).clearSession();
-                    Intent intent = new Intent(this, MainActivity.class);
-                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                    startActivity(intent);
-                    finish();
-                    return;
-                }
-
-                layoutEmptyState.setVisibility(View.GONE);
-                rvReminders.setVisibility(View.GONE);
-                layoutErrorState.setVisibility(View.VISIBLE);
-                tvErrorMessage.setText(errorMsg);
             }
         });
 

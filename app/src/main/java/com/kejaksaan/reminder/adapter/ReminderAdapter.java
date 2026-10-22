@@ -26,12 +26,27 @@ import java.util.Set;
 
 public class ReminderAdapter extends RecyclerView.Adapter<ReminderAdapter.ReminderViewHolder> {
 
+    public interface OnReminderClickListener {
+        void onReminderClick(Reminder reminder);
+    }
+
     private final Context context;
+    private final boolean isHorizontal;
     private final List<Reminder> reminderList = new ArrayList<>();
     private final Set<Integer> reminderIds = new HashSet<>();
+    private OnReminderClickListener onReminderClickListener;
 
     public ReminderAdapter(Context context) {
+        this(context, false);
+    }
+
+    public ReminderAdapter(Context context, boolean isHorizontal) {
         this.context = context;
+        this.isHorizontal = isHorizontal;
+    }
+
+    public void setOnReminderClickListener(OnReminderClickListener listener) {
+        this.onReminderClickListener = listener;
     }
 
     /**
@@ -76,7 +91,8 @@ public class ReminderAdapter extends RecyclerView.Adapter<ReminderAdapter.Remind
     @NonNull
     @Override
     public ReminderViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(context).inflate(R.layout.item_reminder_card, parent, false);
+        int layoutId = isHorizontal ? R.layout.item_reminder_horizontal_card : R.layout.item_reminder_card;
+        View view = LayoutInflater.from(context).inflate(layoutId, parent, false);
         return new ReminderViewHolder(view);
     }
 
@@ -84,6 +100,11 @@ public class ReminderAdapter extends RecyclerView.Adapter<ReminderAdapter.Remind
     public void onBindViewHolder(@NonNull ReminderViewHolder holder, int position) {
         Reminder reminder = reminderList.get(position);
         holder.bind(reminder);
+        holder.itemView.setOnClickListener(v -> {
+            if (onReminderClickListener != null) {
+                onReminderClickListener.onReminderClick(reminder);
+            }
+        });
     }
 
     @Override
