@@ -1,7 +1,10 @@
 package com.kejaksaan.reminder;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
@@ -9,7 +12,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -22,6 +28,8 @@ import com.bumptech.glide.Glide;
 import com.kejaksaan.reminder.adapter.ReminderAdapter;
 import com.kejaksaan.reminder.model.Reminder;
 import com.kejaksaan.reminder.model.User;
+import com.kejaksaan.reminder.util.FcmTokenManager;
+import com.kejaksaan.reminder.util.NotificationHelper;
 import com.kejaksaan.reminder.viewmodel.AuthViewModel;
 import com.kejaksaan.reminder.viewmodel.PerkaraViewModel;
 
@@ -44,11 +52,34 @@ public class DashboardActivity extends AppCompatActivity {
     private boolean isProfileRefreshing = false;
     private boolean isSlaRefreshing = false;
 
+    private final ActivityResultLauncher<String> requestPermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+                // Hasil izin POST_NOTIFICATIONS (Android 13+)
+            });
+
+    private void checkNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+                    != PackageManager.PERMISSION_GRANTED) {
+                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS);
+            }
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_dashboard);
+
+        // Inisialisasi Notification Channel untuk notifikasi pengingat SIPETA
+        NotificationHelper.createNotificationChannel(this);
+
+        // Cek dan minta runtime permission POST_NOTIFICATIONS untuk Android 13+
+        checkNotificationPermission();
+
+        // Pastikan token FCM perangkat terdaftar/disinkronkan dengan backend
+        FcmTokenManager.registerCurrentTokenToServer(this, null);
 
         // Top padding for status bar (applied to profile card to avoid pushing background)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.cardUserProfile), (v, insets) -> {
@@ -198,11 +229,14 @@ public class DashboardActivity extends AppCompatActivity {
         AuthViewModel authViewModel = new ViewModelProvider(this).get(AuthViewModel.class);
         
         View.OnClickListener logoutListener = v -> {
-            authViewModel.logout();
-            Intent intent = new Intent(this, MainActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(intent);
-            finish();
+            v.setEnabled(false);
+            Toast.makeText(this, "Keluar dari sesi...", Toast.LENGTH_SHORT).show();
+            authViewModel.logout(() -> runOnUiThread(() -> {
+                Intent intent = new Intent(DashboardActivity.this, MainActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
+                finish();
+            }));
         };
 
         findViewById(R.id.btnLogout).setOnClickListener(logoutListener);

@@ -26,6 +26,10 @@ public class SessionManager {
     private static final String KEY_USER_PANGKAT        = "user_pangkat_golongan";
     private static final String KEY_USER_FOTO_PROFIL    = "user_foto_profil";
 
+    private static final String KEY_FCM_TOKEN           = "fcm_device_token";
+    private static final String KEY_FCM_TOKEN_REGISTERED = "fcm_token_registered";
+    private static final String KEY_DEVICE_ID           = "device_unique_id";
+
     private final SharedPreferences prefs;
 
     public SessionManager(Context context) {
@@ -45,6 +49,37 @@ public class SessionManager {
 
     public boolean isLoggedIn() {
         return fetchToken() != null;
+    }
+
+    // ─── FCM Device Token ────────────────────────────────────────────────────────
+
+    public void saveFcmToken(String fcmToken) {
+        prefs.edit().putString(KEY_FCM_TOKEN, fcmToken).apply();
+    }
+
+    public String fetchFcmToken() {
+        return prefs.getString(KEY_FCM_TOKEN, null);
+    }
+
+    public boolean isFcmTokenRegistered() {
+        return prefs.getBoolean(KEY_FCM_TOKEN_REGISTERED, false);
+    }
+
+    public void setFcmTokenRegistered(boolean registered) {
+        prefs.edit().putBoolean(KEY_FCM_TOKEN_REGISTERED, registered).apply();
+    }
+
+    /**
+     * Mengambil ID perangkat yang konsisten untuk instalasi aplikasi ini,
+     * atau menghasilkan UUID acak baru jika belum pernah dibuat.
+     */
+    public String getOrCreateDeviceId() {
+        String deviceId = prefs.getString(KEY_DEVICE_ID, null);
+        if (deviceId == null || deviceId.trim().isEmpty()) {
+            deviceId = java.util.UUID.randomUUID().toString();
+            prefs.edit().putString(KEY_DEVICE_ID, deviceId).apply();
+        }
+        return deviceId;
     }
 
     // ─── User Info ───────────────────────────────────────────────────────────────
@@ -78,8 +113,23 @@ public class SessionManager {
 
     // ─── Session Reset ───────────────────────────────────────────────────────────
 
-    /** Hapus semua data sesi — dipanggil saat logout. */
+    /**
+     * Hapus sesi pengguna saat logout.
+     * Token FCM dan Device ID perangkat dipertahankan secara aman agar perangkat
+     * dapat langsung mendaftarkan token untuk user berikutnya setelah login baru.
+     */
     public void clearSession() {
+        String fcmToken = fetchFcmToken();
+        String deviceId = prefs.getString(KEY_DEVICE_ID, null);
+
         prefs.edit().clear().apply();
+
+        if (fcmToken != null) {
+            saveFcmToken(fcmToken);
+        }
+        if (deviceId != null) {
+            prefs.edit().putString(KEY_DEVICE_ID, deviceId).apply();
+        }
+        setFcmTokenRegistered(false);
     }
 }

@@ -62,8 +62,24 @@ public class DetailPerkaraActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_detail_perkara);
 
-        perkaraId = getIntent().getIntExtra(EXTRA_PERKARA_ID, -1);
-        nomorPerkaraInitial = getIntent().getStringExtra(EXTRA_NOMOR_PERKARA);
+        extractIntentData(getIntent());
+
+        // Verifikasi sesi autentikasi pengguna
+        SessionManager sessionManager = new SessionManager(this);
+        if (!sessionManager.isLoggedIn()) {
+            Toast.makeText(this, "Silakan login terlebih dahulu untuk mengakses data perkara.", Toast.LENGTH_LONG).show();
+            Intent loginIntent = new Intent(this, MainActivity.class);
+            if (perkaraId > 0) {
+                loginIntent.putExtra("pending_perkara_id", perkaraId);
+            }
+            if (nomorPerkaraInitial != null) {
+                loginIntent.putExtra("pending_nomor_perkara", nomorPerkaraInitial);
+            }
+            loginIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(loginIntent);
+            finish();
+            return;
+        }
 
         if (perkaraId <= 0) {
             Toast.makeText(this, "ID Perkara tidak valid", Toast.LENGTH_SHORT).show();
@@ -84,6 +100,47 @@ public class DetailPerkaraActivity extends AppCompatActivity {
 
         // Initial fetch
         loadTimeline();
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        extractIntentData(intent);
+        if (perkaraId > 0) {
+            if (tvNomorPerkara != null) {
+                if (nomorPerkaraInitial != null && !nomorPerkaraInitial.isEmpty()) {
+                    tvNomorPerkara.setText(nomorPerkaraInitial);
+                } else {
+                    tvNomorPerkara.setText("Perkara #" + perkaraId);
+                }
+            }
+            if (swipeRefresh != null) {
+                swipeRefresh.setRefreshing(true);
+            }
+            loadTimeline();
+        }
+    }
+
+    private void extractIntentData(Intent intent) {
+        if (intent == null) return;
+
+        perkaraId = intent.getIntExtra(EXTRA_PERKARA_ID, -1);
+        nomorPerkaraInitial = intent.getStringExtra(EXTRA_NOMOR_PERKARA);
+
+        // Jika dibuka dari FCM (data payload dikirim sebagai String di extras)
+        if (perkaraId <= 0) {
+            String strPerkaraId = intent.getStringExtra("perkara_id");
+            if (strPerkaraId != null && !strPerkaraId.trim().isEmpty()) {
+                try {
+                    perkaraId = Integer.parseInt(strPerkaraId.trim());
+                } catch (NumberFormatException ignored) {}
+            }
+        }
+
+        if (nomorPerkaraInitial == null || nomorPerkaraInitial.isEmpty()) {
+            nomorPerkaraInitial = intent.getStringExtra("nomor_perkara");
+        }
     }
 
     private void initViews() {

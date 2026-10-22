@@ -2,6 +2,7 @@ package com.kejaksaan.reminder.repository;
 
 import android.content.Context;
 
+import androidx.annotation.Nullable;
 import androidx.lifecycle.MutableLiveData;
 
 import com.kejaksaan.reminder.api.ApiService;
@@ -10,6 +11,7 @@ import com.kejaksaan.reminder.model.LoginRequest;
 import com.kejaksaan.reminder.model.LoginResponse;
 import com.kejaksaan.reminder.model.User;
 import com.kejaksaan.reminder.util.ApiResult;
+import com.kejaksaan.reminder.util.FcmTokenManager;
 import com.kejaksaan.reminder.util.SessionManager;
 
 import retrofit2.Call;
@@ -18,8 +20,8 @@ import retrofit2.Response;
 
 /**
  * AuthRepository — mengelola semua operasi otentikasi:
- * - Login dan penyimpanan token
- * - Logout dan pembersihan sesi
+ * - Login dan penyimpanan token (serta registrasi token FCM perangkat)
+ * - Logout dan pembersihan sesi (serta pencabutan token FCM perangkat)
  *
  * Pola:
  *   AuthRepository repo = new AuthRepository(context);
@@ -27,10 +29,12 @@ import retrofit2.Response;
  */
 public class AuthRepository {
 
+    private final Context context;
     private final ApiService apiService;
     private final SessionManager sessionManager;
 
     public AuthRepository(Context context) {
+        this.context        = context.getApplicationContext();
         this.apiService     = RetrofitClient.getApiService(context);
         this.sessionManager = new SessionManager(context);
     }
@@ -39,7 +43,8 @@ public class AuthRepository {
 
     /**
      * Melakukan login ke server.
-     * Jika berhasil, token dan data user disimpan di SessionManager.
+     * Jika berhasil, token dan data user disimpan di SessionManager,
+     * serta token perangkat FCM didaftarkan ke backend menggunakan token Sanctum yang baru.
      *
      * @param request  Body login { email, password }
      * @param result   LiveData yang akan diupdate dengan ApiResult<User>
@@ -58,6 +63,9 @@ public class AuthRepository {
                         sessionManager.saveToken(body.getToken());
                         // Simpan info user
                         sessionManager.saveUserInfo(body.getUser());
+
+                        // Daftarkan token FCM perangkat ke backend menggunakan sesi autentikasi yang baru
+                        FcmTokenManager.registerCurrentTokenToServer(context, null);
 
                         result.postValue(ApiResult.success(body.getUser()));
                     } else {
@@ -88,24 +96,38 @@ public class AuthRepository {
     // ─── Logout ──────────────────────────────────────────────────────────────────
 
     /**
-     * Melakukan logout: hapus sesi lokal dan panggil API logout.
-     * Retrofit singleton di-reset agar token lama tidak tersisa di cache OkHttp.
+     * Melakukan logout:
+     * 1. Cabut token perangkat FCM di backend selagi otentikasi Sanctum masih berlaku (DELETE /api/device-token).
+     * 2. Panggil API logout backend (/api/logout).
+     * 3. Hapus sesi lokal dan reset RetrofitClient singleton.
      */
-    public void logout(Context context) {
-        // Hapus lokal dulu
-        sessionManager.clearSession();
+    public void logout(Context context, @Nullable Runnable onComplete) {
+        // Cabut token FCM di server terlebih dahulu selagi token Sanctum masih aktif
+        FcmTokenManager.revokeTokenFromServer(context, () -> {
+            apiService.logout().enqueue(new Callback<Void>() {
+                @Override
+                public void onResponse(Call<Void> call, Response<Void> response) {
+                    finalizeLogout(onComplete);
+                }
 
-        // Hit endpoint logout (best-effort, tidak perlu await)
-        apiService.logout().enqueue(new Callback<Void>() {
-            @Override
-            public void onResponse(Call<Void> call, Response<Void> response) { /* no-op */ }
-
-            @Override
-            public void onFailure(Call<Void> call, Throwable t) { /* no-op */ }
+                @Override
+                public void onFailure(Call<Void> call, Throwable t) {
+                    finalizeLogout(onComplete);
+                }
+            });
         });
+    }
 
-        // Reset singleton agar interceptor membaca token kosong di sesi berikutnya
+    public void logout(Context context) {
+        logout(context, null);
+    }
+
+    private void finalizeLogout(@Nullable Runnable onComplete) {
+        sessionManager.clearSession();
         RetrofitClient.reset();
+        if (onComplete != null) {
+            onComplete.run();
+        }
     }
 
     // ─── Getters helper ──────────────────────────────────────────────────────────

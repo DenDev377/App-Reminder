@@ -55,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Jika sudah login, langsung ke dashboard
         if (authViewModel.isLoggedIn()) {
-            navigateToDashboard(authViewModel.getSavedRole());
+            navigateAfterLogin(authViewModel.getSavedRole());
             return;
         }
 
@@ -125,7 +125,7 @@ public class MainActivity extends AppCompatActivity {
             User user = result.getData();
             String greeting = "Selamat datang, " + (user != null ? user.getName() : "");
             Toast.makeText(this, greeting, Toast.LENGTH_SHORT).show();
-            navigateToDashboard(user != null ? user.getRole() : "");
+            navigateAfterLogin(user != null ? user.getRole() : "");
 
         } else {
             setLoadingState(false);
@@ -154,12 +154,26 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * Navigasi ke layar dashboard berdasarkan role user.
-     * TODO: Ganti Intent sesuai Activity Dashboard Anda.
+     * Navigasi ke layar dashboard setelah login.
+     * Jika ada pending_perkara_id dari notifikasi push FCM saat user belum login,
+     * otomatis teruskan pengguna langsung ke DetailPerkaraActivity.
      */
-    private void navigateToDashboard(String role) {
-        android.content.Intent intent = new android.content.Intent(this, DashboardActivity.class);
-        startActivity(intent);
+    private void navigateAfterLogin(String role) {
+        int pendingPerkaraId = getIntent().getIntExtra("pending_perkara_id", -1);
+        String pendingNomorPerkara = getIntent().getStringExtra("pending_nomor_perkara");
+
+        android.content.Intent dashboardIntent = new android.content.Intent(this, DashboardActivity.class);
+        startActivity(dashboardIntent);
+
+        if (pendingPerkaraId > 0) {
+            android.content.Intent detailIntent = new android.content.Intent(this, DetailPerkaraActivity.class);
+            detailIntent.putExtra(DetailPerkaraActivity.EXTRA_PERKARA_ID, pendingPerkaraId);
+            if (pendingNomorPerkara != null) {
+                detailIntent.putExtra(DetailPerkaraActivity.EXTRA_NOMOR_PERKARA, pendingNomorPerkara);
+            }
+            startActivity(detailIntent);
+        }
+
         finish();
     }
 }
