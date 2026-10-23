@@ -59,10 +59,14 @@ public class AuthViewModel extends AndroidViewModel {
     }
 
     /**
-     * Logout: hapus sesi & panggil API.
+     * Logout: cabut token FCM, panggil API logout, dan hapus sesi lokal.
      */
+    public void logout(Runnable onComplete) {
+        authRepository.logout(getApplication(), onComplete);
+    }
+
     public void logout() {
-        authRepository.logout(getApplication());
+        logout(null);
     }
 
     /**

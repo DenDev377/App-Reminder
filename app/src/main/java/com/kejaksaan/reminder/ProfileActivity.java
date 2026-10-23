@@ -11,10 +11,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import android.graphics.Color;
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.ViewCompat;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.bumptech.glide.Glide;
 import com.kejaksaan.reminder.api.RetrofitClient;
@@ -49,6 +51,7 @@ public class ProfileActivity extends AppCompatActivity {
     private TextView tvInfoEmail;    // subtitle Kata Sandi
     private TextView tvInfoNomorHp;  // subtitle Nomor HP
 
+    private SwipeRefreshLayout swipeRefresh;
     private PerkaraViewModel perkaraViewModel;
 
     // ─────────────────────────────────────────────────────────────────────────────
@@ -78,6 +81,16 @@ public class ProfileActivity extends AppCompatActivity {
         tvKtaPangkat  = findViewById(R.id.tvKtaPangkat);
         tvInfoEmail   = findViewById(R.id.tvInfoEmail);
         tvInfoNomorHp = findViewById(R.id.tvInfoNomorHp);
+        swipeRefresh  = findViewById(R.id.swipeRefresh);
+
+        if (swipeRefresh != null) {
+            swipeRefresh.setColorSchemeColors(
+                    Color.parseColor("#00897B"),
+                    Color.parseColor("#DC2626"),
+                    Color.parseColor("#D97706")
+            );
+            swipeRefresh.setOnRefreshListener(() -> perkaraViewModel.loadUserProfile());
+        }
     }
 
     // ─── Listeners ───────────────────────────────────────────────────────────────
@@ -85,6 +98,16 @@ public class ProfileActivity extends AppCompatActivity {
     private void setupListeners() {
         View btnBack = findViewById(R.id.btnBack);
         if (btnBack != null) btnBack.setOnClickListener(v -> finish());
+
+        View btnRefresh = findViewById(R.id.btnRefresh);
+        if (btnRefresh != null) {
+            btnRefresh.setOnClickListener(v -> {
+                if (swipeRefresh != null) {
+                    swipeRefresh.setRefreshing(true);
+                }
+                perkaraViewModel.loadUserProfile();
+            });
+        }
 
         // ── Kata Sandi → tampilkan dialog ganti password ──────────────────────
         View menuKataSandi = findViewById(R.id.menuKataSandi);
@@ -301,15 +324,28 @@ public class ProfileActivity extends AppCompatActivity {
         perkaraViewModel = new ViewModelProvider(this).get(PerkaraViewModel.class);
 
         perkaraViewModel.getUserProfileResult().observe(this, result -> {
-            if (result == null || result.isLoading()) return;
-            if (result.isSuccess() && result.getData() != null) {
-                bindUserProfile(result.getData());
-            } else if (result.isError()) {
-                Toast.makeText(this, "Gagal memuat profil: " + result.getMessage(),
-                        Toast.LENGTH_SHORT).show();
+            if (result == null) return;
+
+            if (result.isLoading()) {
+                if (swipeRefresh != null) {
+                    swipeRefresh.setRefreshing(true);
+                }
+            } else {
+                if (swipeRefresh != null) {
+                    swipeRefresh.setRefreshing(false);
+                }
+                if (result.isSuccess() && result.getData() != null) {
+                    bindUserProfile(result.getData());
+                } else if (result.isError()) {
+                    Toast.makeText(this, "Gagal memuat profil: " + result.getMessage(),
+                            Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
+        if (swipeRefresh != null) {
+            swipeRefresh.post(() -> swipeRefresh.setRefreshing(true));
+        }
         perkaraViewModel.loadUserProfile();
     }
 

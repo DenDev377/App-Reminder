@@ -40,6 +40,18 @@
             android:textColor="#0F172A"
             android:textSize="18sp"
             android:textStyle="bold" />
+
+        <ImageView
+            android:id="@+id/btnRefresh"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:src="@drawable/ic_refresh"
+            android:padding="5dp"
+            app:tint="#0F172A"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:focusable="true"
+            android:contentDescription="Muat Ulang" />
     </LinearLayout>
 
     <!-- Search Bar Card -->
@@ -67,7 +79,7 @@
             <ImageView
                 android:layout_width="20dp"
                 android:layout_height="20dp"
-                android:src="@drawable/ic_sipede"
+                android:src="@drawable/ic_search"
                 app:tint="#94A3B8"
                 android:contentDescription="Search Icon" />
 
@@ -90,7 +102,7 @@
                 android:id="@+id/btnClearSearch"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:src="@drawable/ic_logout"
+                android:src="@drawable/ic_close"
                 android:padding="4dp"
                 android:visibility="gone"
                 app:tint="#94A3B8"

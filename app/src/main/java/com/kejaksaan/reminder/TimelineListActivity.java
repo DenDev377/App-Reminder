@@ -66,6 +66,11 @@ public class TimelineListActivity extends AppCompatActivity {
         setupSwipeRefresh();
         setupViewModel();
 
+        // Tampilkan animasi mengambang SwipeRefreshLayout saat memuat awal
+        if (swipeRefresh != null) {
+            swipeRefresh.post(() -> swipeRefresh.setRefreshing(true));
+        }
+
         viewModel.loadFirstPage("");
     }
 
@@ -84,7 +89,24 @@ public class TimelineListActivity extends AppCompatActivity {
         btnRetry           = findViewById(R.id.btnRetry);
 
         btnBack.setOnClickListener(v -> finish());
-        btnRetry.setOnClickListener(v -> viewModel.loadFirstPage(etSearch.getText().toString().trim()));
+
+        ImageView btnRefresh = findViewById(R.id.btnRefresh);
+        if (btnRefresh != null) {
+            btnRefresh.setOnClickListener(v -> {
+                if (swipeRefresh != null) {
+                    swipeRefresh.setRefreshing(true);
+                }
+                String query = etSearch.getText().toString().trim();
+                viewModel.loadFirstPage(query);
+            });
+        }
+
+        btnRetry.setOnClickListener(v -> {
+            if (swipeRefresh != null) {
+                swipeRefresh.setRefreshing(true);
+            }
+            viewModel.loadFirstPage(etSearch.getText().toString().trim());
+        });
     }
 
     private void setupWindowInsets() {
@@ -142,6 +164,9 @@ public class TimelineListActivity extends AppCompatActivity {
         btnClearSearch.setOnClickListener(v -> {
             etSearch.setText("");
             hideKeyboard();
+            if (swipeRefresh != null) {
+                swipeRefresh.setRefreshing(true);
+            }
             viewModel.loadFirstPage("");
         });
 
@@ -165,6 +190,9 @@ public class TimelineListActivity extends AppCompatActivity {
         etSearch.setOnEditorActionListener((v, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_SEARCH) {
                 hideKeyboard();
+                if (swipeRefresh != null) {
+                    swipeRefresh.setRefreshing(true);
+                }
                 String query = etSearch.getText().toString().trim();
                 viewModel.loadFirstPage(query);
                 return true;
@@ -174,7 +202,11 @@ public class TimelineListActivity extends AppCompatActivity {
     }
 
     private void setupSwipeRefresh() {
-        swipeRefresh.setColorSchemeColors(Color.parseColor("#00897B"), Color.parseColor("#D97706"));
+        swipeRefresh.setColorSchemeColors(
+                Color.parseColor("#00897B"),
+                Color.parseColor("#DC2626"),
+                Color.parseColor("#D97706")
+        );
         swipeRefresh.setOnRefreshListener(() -> {
             String query = etSearch.getText().toString().trim();
             viewModel.loadFirstPage(query);
@@ -188,14 +220,21 @@ public class TimelineListActivity extends AppCompatActivity {
             if (result == null) return;
 
             if (result.isLoading()) {
-                if (!swipeRefresh.isRefreshing()) {
-                    progressBarMain.setVisibility(View.VISIBLE);
+                if (swipeRefresh != null) {
+                    swipeRefresh.setRefreshing(true);
+                }
+                if (progressBarMain != null) {
+                    progressBarMain.setVisibility(View.GONE);
                 }
                 layoutEmptyState.setVisibility(View.GONE);
                 layoutErrorState.setVisibility(View.GONE);
             } else if (result.isSuccess()) {
-                swipeRefresh.setRefreshing(false);
-                progressBarMain.setVisibility(View.GONE);
+                if (swipeRefresh != null) {
+                    swipeRefresh.setRefreshing(false);
+                }
+                if (progressBarMain != null) {
+                    progressBarMain.setVisibility(View.GONE);
+                }
                 layoutErrorState.setVisibility(View.GONE);
 
                 List<Perkara> list = result.getData();

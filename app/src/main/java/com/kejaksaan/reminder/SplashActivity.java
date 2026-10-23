@@ -17,6 +17,7 @@ import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
 
+import com.kejaksaan.reminder.util.NotificationHelper;
 import com.kejaksaan.reminder.util.SessionManager;
 
 /**
@@ -58,6 +59,9 @@ public class SplashActivity extends AppCompatActivity {
         }
 
         setContentView(R.layout.activity_splash);
+
+        // Inisialisasi Notification Channel sejak awal aplikasi terbuka
+        NotificationHelper.createNotificationChannel(this);
 
         progressBarLoading = findViewById(R.id.progressBarLoading);
         tvLoadingStatus = findViewById(R.id.tvLoadingStatus);

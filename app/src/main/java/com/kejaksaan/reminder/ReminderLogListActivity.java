@@ -291,7 +291,11 @@ public class ReminderLogListActivity extends AppCompatActivity {
     }
 
     private void setupSwipeRefresh() {
-        swipeRefresh.setColorSchemeColors(Color.parseColor("#00897B"), Color.parseColor("#DC2626"), Color.parseColor("#0284C7"));
+        swipeRefresh.setColorSchemeColors(
+                Color.parseColor("#00897B"),
+                Color.parseColor("#DC2626"),
+                Color.parseColor("#D97706")
+        );
         swipeRefresh.setOnRefreshListener(this::loadData);
     }
 

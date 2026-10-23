@@ -1,6 +1,7 @@
 package com.kejaksaan.reminder.api;
 
 import com.kejaksaan.reminder.model.ChangePasswordRequest;
+import com.kejaksaan.reminder.model.DeviceTokenRequest;
 import com.kejaksaan.reminder.model.GenericResponse;
 import com.kejaksaan.reminder.model.LoginRequest;
 import com.kejaksaan.reminder.model.LoginResponse;
@@ -15,6 +16,7 @@ import com.kejaksaan.reminder.model.UserResponse;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
+import retrofit2.http.HTTP;
 import retrofit2.http.PATCH;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
@@ -33,6 +35,14 @@ public interface ApiService {
 
     @POST("api/logout")
     Call<Void> logout();
+
+    // --- Device Token (FCM Push Notifications) ---
+
+    @POST("api/device-token")
+    Call<GenericResponse> registerDeviceToken(@Body DeviceTokenRequest request);
+
+    @HTTP(method = "DELETE", path = "api/device-token", hasBody = true)
+    Call<GenericResponse> revokeDeviceToken(@Body DeviceTokenRequest request);
 
     // --- User Profile ---
 

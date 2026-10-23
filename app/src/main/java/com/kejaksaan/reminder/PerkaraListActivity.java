@@ -74,6 +74,11 @@ public class PerkaraListActivity extends AppCompatActivity {
         setupSwipeRefresh();
         setupViewModel();
 
+        // Tampilkan animasi mengambang SwipeRefreshLayout saat memuat awal
+        if (swipeRefresh != null) {
+            swipeRefresh.post(() -> swipeRefresh.setRefreshing(true));
+        }
+
         // Initial load
         perkaraViewModel.loadFirstPage("");
     }
@@ -98,7 +103,22 @@ public class PerkaraListActivity extends AppCompatActivity {
         btnRetry          = findViewById(R.id.btnRetry);
 
         btnBack.setOnClickListener(v -> finish());
+
+        ImageView btnRefresh = findViewById(R.id.btnRefresh);
+        if (btnRefresh != null) {
+            btnRefresh.setOnClickListener(v -> {
+                if (swipeRefresh != null) {
+                    swipeRefresh.setRefreshing(true);
+                }
+                String query = etSearch.getText() != null ? etSearch.getText().toString().trim() : "";
+                perkaraViewModel.loadFirstPage(query);
+            });
+        }
+
         btnRetry.setOnClickListener(v -> {
+            if (swipeRefresh != null) {
+                swipeRefresh.setRefreshing(true);
+            }
             String query = etSearch.getText() != null ? etSearch.getText().toString().trim() : "";
             perkaraViewModel.loadFirstPage(query);
         });
@@ -107,6 +127,9 @@ public class PerkaraListActivity extends AppCompatActivity {
             hideKeyboard();
             if (searchRunnable != null) {
                 searchHandler.removeCallbacks(searchRunnable);
+            }
+            if (swipeRefresh != null) {
+                swipeRefresh.setRefreshing(true);
             }
             perkaraViewModel.loadFirstPage("");
         });
@@ -210,7 +233,11 @@ public class PerkaraListActivity extends AppCompatActivity {
     }
 
     private void setupSwipeRefresh() {
-        swipeRefresh.setColorSchemeColors(Color.parseColor("#00897B"), Color.parseColor("#D97706"));
+        swipeRefresh.setColorSchemeColors(
+                Color.parseColor("#00897B"),
+                Color.parseColor("#DC2626"),
+                Color.parseColor("#D97706")
+        );
         swipeRefresh.setOnRefreshListener(() -> {
             String query = etSearch.getText() != null ? etSearch.getText().toString().trim() : "";
             perkaraViewModel.loadFirstPage(query);
@@ -224,14 +251,21 @@ public class PerkaraListActivity extends AppCompatActivity {
             if (result == null) return;
 
             if (result.isLoading()) {
-                if (!swipeRefresh.isRefreshing() && adapter.getItemCount() == 0) {
-                    progressBar.setVisibility(View.VISIBLE);
+                if (swipeRefresh != null) {
+                    swipeRefresh.setRefreshing(true);
+                }
+                if (progressBar != null) {
+                    progressBar.setVisibility(View.GONE);
                 }
                 layoutEmptyState.setVisibility(View.GONE);
                 layoutErrorState.setVisibility(View.GONE);
             } else {
-                swipeRefresh.setRefreshing(false);
-                progressBar.setVisibility(View.GONE);
+                if (swipeRefresh != null) {
+                    swipeRefresh.setRefreshing(false);
+                }
+                if (progressBar != null) {
+                    progressBar.setVisibility(View.GONE);
+                }
 
                 if (result.isSuccess()) {
                     layoutErrorState.setVisibility(View.GONE);
