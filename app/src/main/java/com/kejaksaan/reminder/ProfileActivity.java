@@ -14,7 +14,9 @@ import android.widget.Toast;
 import android.graphics.Color;
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
@@ -53,6 +55,7 @@ public class ProfileActivity extends AppCompatActivity {
     private TextView tvInfoEmail;    // subtitle Kata Sandi
     private TextView tvInfoNomorHp;  // subtitle Nomor HP
 
+    private ImageView ivRefreshIcon;
     private SwipeRefreshLayout swipeRefresh;
     private PerkaraViewModel perkaraViewModel;
 
@@ -64,9 +67,19 @@ public class ProfileActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_profile);
 
-        ViewCompat.setOnApplyWindowInsetsListener(
-                findViewById(android.R.id.content), (v, insets) -> insets
-        );
+        View topActionBar = findViewById(R.id.topActionBar);
+        if (topActionBar != null) {
+            ViewCompat.setOnApplyWindowInsetsListener(topActionBar, (v, insets) -> {
+                Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+                v.setPadding(
+                        v.getPaddingLeft(),
+                        systemBars.top + 8,
+                        v.getPaddingRight(),
+                        v.getPaddingBottom()
+                );
+                return insets;
+            });
+        }
 
         initViews();
         setupListeners();
@@ -83,6 +96,7 @@ public class ProfileActivity extends AppCompatActivity {
         tvKtaPangkat  = findViewById(R.id.tvKtaPangkat);
         tvInfoEmail   = findViewById(R.id.tvInfoEmail);
         tvInfoNomorHp = findViewById(R.id.tvInfoNomorHp);
+        ivRefreshIcon = findViewById(R.id.ivRefreshIcon);
         swipeRefresh  = findViewById(R.id.swipeRefresh);
 
         if (swipeRefresh != null) {
@@ -91,7 +105,20 @@ public class ProfileActivity extends AppCompatActivity {
                     Color.parseColor("#DC2626"),
                     Color.parseColor("#D97706")
             );
-            swipeRefresh.setOnRefreshListener(() -> perkaraViewModel.loadUserProfile());
+            swipeRefresh.setOnRefreshListener(() -> {
+                triggerRefreshAnimation();
+                perkaraViewModel.loadUserProfile();
+            });
+        }
+    }
+
+    private void triggerRefreshAnimation() {
+        if (ivRefreshIcon != null) {
+            ivRefreshIcon.animate()
+                    .rotationBy(360f)
+                    .setDuration(600)
+                    .withEndAction(() -> ivRefreshIcon.setRotation(0f))
+                    .start();
         }
     }
 
@@ -104,6 +131,7 @@ public class ProfileActivity extends AppCompatActivity {
         View btnRefresh = findViewById(R.id.btnRefresh);
         if (btnRefresh != null) {
             btnRefresh.setOnClickListener(v -> {
+                triggerRefreshAnimation();
                 if (swipeRefresh != null) {
                     swipeRefresh.setRefreshing(true);
                 }

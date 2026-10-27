@@ -289,6 +289,16 @@ public class DashboardActivity extends AppCompatActivity {
                 startActivity(intent);
             });
         }
+
+        // Bottom Navigation Bar - Notifikasi
+        View navNotifikasi = findViewById(R.id.navNotifikasi);
+        if (navNotifikasi != null) {
+            navNotifikasi.setOnClickListener(v -> {
+                Intent intent = new Intent(this, NotificationActivity.class);
+                startActivity(intent);
+                overridePendingTransition(0, 0);
+            });
+        }
     }
 
     private void refreshDashboardData() {

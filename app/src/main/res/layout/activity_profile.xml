@@ -20,7 +20,7 @@
         <!-- 1. Header Container with Batik Pattern -->
         <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="170dp">
+            android:layout_height="180dp">
 
             <!-- Batik Header Background -->
             <ImageView
@@ -31,12 +31,13 @@
                 android:contentDescription="Batik Header" />
 
             <!-- Top Action Bar -->
-
             <LinearLayout
+                android:id="@+id/topActionBar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="28dp"
                 android:paddingHorizontal="20dp"
+                android:paddingTop="12dp"
+                android:paddingBottom="12dp"
                 android:gravity="center_vertical"
                 android:orientation="horizontal">
 
@@ -45,8 +46,7 @@
                     android:id="@+id/btnBack"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
-                    android:background="@drawable/bg_btn_back"
-                    android:elevation="3dp"
+                    android:background="@drawable/bg_glass_circle_btn"
                     android:clickable="true"
                     android:focusable="true">
 
@@ -55,50 +55,57 @@
                         android:layout_height="20dp"
                         android:layout_gravity="center"
                         android:src="@drawable/ic_arrow_back"
-                        app:tint="#00796B"
+                        app:tint="#FFFFFF"
                         android:contentDescription="Kembali" />
                 </FrameLayout>
 
-                <!-- Title Pill "Profil" -->
+                <!-- Clean Integrated Title & Subtitle -->
                 <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="40dp"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
                     android:layout_marginStart="14dp"
-                    android:paddingHorizontal="20dp"
-                    android:gravity="center"
-                    android:background="@drawable/bg_pill_title"
-                    android:elevation="3dp">
+                    android:layout_marginEnd="12dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Profil"
-                        android:textColor="#00796B"
-                        android:textSize="16sp"
-                        android:textStyle="bold" />
-                </LinearLayout>
+                        android:text="Profil Pegawai"
+                        android:textColor="#FFFFFF"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:fontFamily="sans-serif-medium"
+                        android:maxLines="1"
+                        android:ellipsize="end" />
 
-                <View
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:layout_weight="1" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="Kejaksaan Republik Indonesia"
+                        android:textColor="#CCFBF1"
+                        android:textSize="12sp"
+                        android:maxLines="1"
+                        android:ellipsize="end" />
+                </LinearLayout>
 
                 <!-- Refresh Button -->
                 <FrameLayout
                     android:id="@+id/btnRefresh"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
-                    android:background="@drawable/bg_btn_back"
-                    android:elevation="3dp"
+                    android:background="@drawable/bg_glass_circle_btn"
                     android:clickable="true"
                     android:focusable="true">
 
                     <ImageView
+                        android:id="@+id/ivRefreshIcon"
                         android:layout_width="20dp"
                         android:layout_height="20dp"
                         android:layout_gravity="center"
                         android:src="@drawable/ic_refresh"
-                        app:tint="#00796B"
+                        app:tint="#FFFFFF"
                         android:contentDescription="Muat Ulang" />
                 </FrameLayout>
             </LinearLayout>
@@ -110,7 +117,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="20dp"
-            android:layout_marginTop="-65dp"
+            android:layout_marginTop="-60dp"
             app:cardCornerRadius="16dp"
             app:cardElevation="6dp"
             app:cardBackgroundColor="#00897B"

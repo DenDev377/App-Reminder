@@ -5,6 +5,7 @@ import com.kejaksaan.reminder.model.DeviceTokenRequest;
 import com.kejaksaan.reminder.model.GenericResponse;
 import com.kejaksaan.reminder.model.LoginRequest;
 import com.kejaksaan.reminder.model.LoginResponse;
+import com.kejaksaan.reminder.model.NotificationResponse;
 import com.kejaksaan.reminder.model.PerkaraResponse;
 import com.kejaksaan.reminder.model.PerkaraTimelineResponse;
 import com.kejaksaan.reminder.model.ReminderLogResponse;
@@ -44,6 +45,12 @@ public interface ApiService {
 
     @HTTP(method = "DELETE", path = "api/device-token", hasBody = true)
     Call<GenericResponse> revokeDeviceToken(@Body DeviceTokenRequest request);
+
+    @GET("api/notifications")
+    Call<NotificationResponse> getNotifications(
+        @Query("page") Integer page,
+        @Query("per_page") Integer perPage
+    );
 
     // --- User Profile ---
 
