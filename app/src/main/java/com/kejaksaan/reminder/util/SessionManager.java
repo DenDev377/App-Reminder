@@ -22,6 +22,7 @@ public class SessionManager {
     private static final String KEY_USER_EMAIL  = "user_email";
     private static final String KEY_USER_ROLE   = "user_role";
     private static final String KEY_USER_NIP    = "user_nip";
+    private static final String KEY_USER_NOMOR_HP = "user_nomor_hp";
     private static final String KEY_USER_JABATAN        = "user_jabatan";
     private static final String KEY_USER_PANGKAT        = "user_pangkat_golongan";
     private static final String KEY_USER_FOTO_PROFIL    = "user_foto_profil";
@@ -96,6 +97,7 @@ public class SessionManager {
                 .putString(KEY_USER_EMAIL, user.getEmail())
                 .putString(KEY_USER_ROLE, user.getRole())
                 .putString(KEY_USER_NIP, user.getNip())
+                .putString(KEY_USER_NOMOR_HP, user.getNomorHp())
                 .putString(KEY_USER_JABATAN, user.getJabatan())
                 .putString(KEY_USER_PANGKAT, user.getPangkatGolongan())
                 .putString(KEY_USER_FOTO_PROFIL, user.getFotoProfil())
@@ -107,6 +109,7 @@ public class SessionManager {
     public String fetchUserEmail()    { return prefs.getString(KEY_USER_EMAIL, ""); }
     public String fetchUserRole()     { return prefs.getString(KEY_USER_ROLE, ""); }
     public String fetchUserNip()      { return prefs.getString(KEY_USER_NIP, ""); }
+    public String fetchUserNomorHp()  { return prefs.getString(KEY_USER_NOMOR_HP, ""); }
     public String fetchUserJabatan()  { return prefs.getString(KEY_USER_JABATAN, ""); }
     public String fetchUserPangkat()  { return prefs.getString(KEY_USER_PANGKAT, ""); }
     public String fetchFotoProfil()   { return prefs.getString(KEY_USER_FOTO_PROFIL, ""); }

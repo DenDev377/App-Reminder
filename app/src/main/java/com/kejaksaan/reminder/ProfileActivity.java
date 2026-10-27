@@ -23,7 +23,9 @@ import com.kejaksaan.reminder.api.RetrofitClient;
 import com.kejaksaan.reminder.model.ChangePasswordRequest;
 import com.kejaksaan.reminder.model.GenericResponse;
 import com.kejaksaan.reminder.model.UpdatePhoneRequest;
+import com.kejaksaan.reminder.model.UpdatePhoneResponse;
 import com.kejaksaan.reminder.model.User;
+import com.kejaksaan.reminder.util.SessionManager;
 import com.kejaksaan.reminder.viewmodel.PerkaraViewModel;
 
 import retrofit2.Call;
@@ -287,21 +289,43 @@ public class ProfileActivity extends AppCompatActivity {
 
         RetrofitClient.getApiService(this)
                 .updatePhone(req)
-                .enqueue(new Callback<GenericResponse>() {
+                .enqueue(new Callback<UpdatePhoneResponse>() {
                     @Override
-                    public void onResponse(Call<GenericResponse> call, Response<GenericResponse> response) {
+                    public void onResponse(Call<UpdatePhoneResponse> call, Response<UpdatePhoneResponse> response) {
                         runOnUiThread(() -> {
                             if (response.isSuccessful() && response.body() != null
                                     && response.body().isSuccess()) {
                                 // Update subtitle langsung tanpa reload
                                 if (tvInfoNomorHp != null) tvInfoNomorHp.setText(hp);
+
+                                // Sinkronkan ke SessionManager jika response menyertakan user
+                                if (response.body().getData() != null && response.body().getData().getUser() != null) {
+                                    new SessionManager(ProfileActivity.this)
+                                            .saveUserInfo(response.body().getData().getUser());
+                                }
+
+                                String msg = response.body().getMessage();
                                 Toast.makeText(ProfileActivity.this,
-                                        "Nomor HP berhasil diperbarui", Toast.LENGTH_SHORT).show();
+                                        (msg != null && !msg.isEmpty()) ? msg : "Nomor HP berhasil diperbarui",
+                                        Toast.LENGTH_SHORT).show();
                                 dialog.dismiss();
                             } else {
-                                String msg = (response.body() != null && response.body().getMessage() != null)
-                                        ? response.body().getMessage()
-                                        : "Gagal memperbarui nomor HP (HTTP " + response.code() + ")";
+                                String msg = null;
+                                if (response.body() != null && response.body().getMessage() != null) {
+                                    msg = response.body().getMessage();
+                                } else if (response.errorBody() != null) {
+                                    try {
+                                        String errStr = response.errorBody().string();
+                                        org.json.JSONObject obj = new org.json.JSONObject(errStr);
+                                        if (obj.has("message")) {
+                                            msg = obj.getString("message");
+                                        }
+                                    } catch (Exception ignored) {
+                                    }
+                                }
+                                if (msg == null || msg.trim().isEmpty()) {
+                                    msg = "Gagal memperbarui nomor HP (HTTP " + response.code() + ")";
+                                }
                                 showError(tvError, msg);
                                 resetPositiveButton(dialog, "Simpan");
                             }
@@ -309,7 +333,7 @@ public class ProfileActivity extends AppCompatActivity {
                     }
 
                     @Override
-                    public void onFailure(Call<GenericResponse> call, Throwable t) {
+                    public void onFailure(Call<UpdatePhoneResponse> call, Throwable t) {
                         runOnUiThread(() -> {
                             showError(tvError, "Tidak dapat terhubung ke server");
                             resetPositiveButton(dialog, "Simpan");

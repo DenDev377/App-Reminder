@@ -16,17 +16,17 @@ import retrofit2.converter.gson.GsonConverterFactory;
  * Singleton factory untuk Retrofit.
  *
  * Cara pakai:
- *   ApiService api = RetrofitClient.getApiService(context);
+ * ApiService api = RetrofitClient.getApiService(context);
  *
  * Ganti BASE_URL sesuai lingkungan:
- *   - Emulator Android Studio : "http://10.0.2.2:8000/"
- *   - Perangkat fisik (LAN)   : "http://192.168.x.x:8000/"
- *   - Production              : "https://sipeta.kejaksaan.go.id/"
+ * - Emulator Android Studio : "http://10.0.2.2:8000/"
+ * - Perangkat fisik (LAN) : "http://192.168.x.x:8000/"
+ * - Production : "https://sipeta.kejaksaan.go.id/"
  */
 public class RetrofitClient {
 
     // ─── Konfigurasi ─────────────────────────────────────────────────────────────
-    public static final String BASE_URL = "http://192.168.1.14:8000/";
+    public static final String BASE_URL = "http://192.168.1.19:8000/";
 
     private static Retrofit retrofitInstance = null;
 
@@ -60,8 +60,8 @@ public class RetrofitClient {
                 : HttpLoggingInterceptor.Level.NONE);
 
         OkHttpClient okHttpClient = new OkHttpClient.Builder()
-                .addInterceptor(new AuthInterceptor(context))   // Auth header
-                .addInterceptor(logging)                         // Logging (DEBUG saja)
+                .addInterceptor(new AuthInterceptor(context)) // Auth header
+                .addInterceptor(logging) // Logging (DEBUG saja)
                 .connectTimeout(30, TimeUnit.SECONDS)
                 .readTimeout(30, TimeUnit.SECONDS)
                 .writeTimeout(30, TimeUnit.SECONDS)
@@ -72,9 +72,8 @@ public class RetrofitClient {
                 .client(okHttpClient)
                 .addConverterFactory(GsonConverterFactory.create(
                         new GsonBuilder()
-                                .setLenient()  // Toleran terhadap JSON tidak sempurna
-                                .create()
-                ))
+                                .setLenient() // Toleran terhadap JSON tidak sempurna
+                                .create()))
                 .build();
     }
 

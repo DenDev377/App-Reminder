@@ -4,7 +4,7 @@ import com.google.gson.annotations.SerializedName;
 
 /**
  * Request body untuk update nomor HP.
- * PATCH /api/user/update-phone
+ * POST /api/profile/nomor-hp
  * Body: { "nomor_hp": "08123..." }
  */
 public class UpdatePhoneRequest {
@@ -14,5 +14,9 @@ public class UpdatePhoneRequest {
 
     public UpdatePhoneRequest(String nomorHp) {
         this.nomorHp = nomorHp;
+    }
+
+    public String getNomorHp() {
+        return nomorHp;
     }
 }

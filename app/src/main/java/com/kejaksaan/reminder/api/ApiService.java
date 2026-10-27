@@ -11,6 +11,7 @@ import com.kejaksaan.reminder.model.ReminderLogResponse;
 import com.kejaksaan.reminder.model.ReminderResponse;
 import com.kejaksaan.reminder.model.TimelinePaginationResponse;
 import com.kejaksaan.reminder.model.UpdatePhoneRequest;
+import com.kejaksaan.reminder.model.UpdatePhoneResponse;
 import com.kejaksaan.reminder.model.UserResponse;
 
 import retrofit2.Call;
@@ -52,8 +53,8 @@ public interface ApiService {
     @POST("api/user/change-password")
     Call<GenericResponse> changePassword(@Body ChangePasswordRequest request);
 
-    @PATCH("api/user/update-phone")
-    Call<GenericResponse> updatePhone(@Body UpdatePhoneRequest request);
+    @POST("api/profile/nomor-hp")
+    Call<UpdatePhoneResponse> updatePhone(@Body UpdatePhoneRequest request);
 
     // --- Perkara (Kasus) ---
 
