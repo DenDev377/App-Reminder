@@ -7,9 +7,12 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.kejaksaan.reminder.model.AvailableActionsResponse;
+import com.kejaksaan.reminder.model.GenericResponse;
 import com.kejaksaan.reminder.model.Perkara;
 import com.kejaksaan.reminder.model.PerkaraResponse;
 import com.kejaksaan.reminder.model.PerkaraTimelineResponse;
+import com.kejaksaan.reminder.model.ProcessActionRequest;
 import com.kejaksaan.reminder.repository.TimelineRepository;
 import com.kejaksaan.reminder.util.ApiResult;
 
@@ -29,6 +32,10 @@ public class TimelineViewModel extends AndroidViewModel {
 
     // Per-Perkara Timeline Detail LiveData
     private final MutableLiveData<ApiResult<PerkaraTimelineResponse>> perkaraTimelineResult = new MutableLiveData<>();
+
+    // Workflow Actions LiveData (Trigger Button SIPETA)
+    private final MutableLiveData<ApiResult<AvailableActionsResponse>> availableActionsResult = new MutableLiveData<>();
+    private final MutableLiveData<ApiResult<GenericResponse>> processActionResult = new MutableLiveData<>();
 
     private final List<Perkara> accumulatedPerkaras = new ArrayList<>();
     private final Set<Integer> existingPerkaraIds = new HashSet<>();
@@ -163,10 +170,33 @@ public class TimelineViewModel extends AndroidViewModel {
 
     // --- Detail Timeline Per-Perkara ---
 
+    public LiveData<ApiResult<AvailableActionsResponse>> getAvailableActionsResult() {
+        return availableActionsResult;
+    }
+
+    public LiveData<ApiResult<GenericResponse>> getProcessActionResult() {
+        return processActionResult;
+    }
+
     /**
      * Memuat seluruh timeline kronologis untuk satu perkara tertentu.
      */
     public void loadPerkaraTimeline(int perkaraId) {
         repository.getPerkaraTimeline(perkaraId, perkaraTimelineResult);
+    }
+
+    /**
+     * Memuat daftar aksi workflow alur perkara yang dapat dieksekusi Jaksa.
+     */
+    public void loadAvailableActions(int perkaraId) {
+        repository.getAvailableActions(perkaraId, availableActionsResult);
+    }
+
+    /**
+     * Mengeksekusi aksi alur perkara berdasarkan action_id dari backend.
+     */
+    public void executeAction(int perkaraId, String actionId, String tanggal, String catatan) {
+        ProcessActionRequest request = new ProcessActionRequest(actionId, tanggal, catatan);
+        repository.processAction(perkaraId, request, processActionResult);
     }
 }

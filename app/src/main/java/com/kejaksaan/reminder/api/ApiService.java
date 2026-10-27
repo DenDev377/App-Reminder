@@ -1,5 +1,6 @@
 package com.kejaksaan.reminder.api;
 
+import com.kejaksaan.reminder.model.AvailableActionsResponse;
 import com.kejaksaan.reminder.model.ChangePasswordRequest;
 import com.kejaksaan.reminder.model.DeviceTokenRequest;
 import com.kejaksaan.reminder.model.GenericResponse;
@@ -8,6 +9,7 @@ import com.kejaksaan.reminder.model.LoginResponse;
 import com.kejaksaan.reminder.model.NotificationResponse;
 import com.kejaksaan.reminder.model.PerkaraResponse;
 import com.kejaksaan.reminder.model.PerkaraTimelineResponse;
+import com.kejaksaan.reminder.model.ProcessActionRequest;
 import com.kejaksaan.reminder.model.ReminderLogResponse;
 import com.kejaksaan.reminder.model.ReminderResponse;
 import com.kejaksaan.reminder.model.TimelinePaginationResponse;
@@ -109,4 +111,15 @@ public interface ApiService {
 
     @GET("api/perkara/{id}/timeline")
     Call<PerkaraTimelineResponse> getPerkaraTimeline(@Path("id") int perkaraId);
+
+    // --- Workflow Actions (Trigger Button SIPETA) ---
+
+    @GET("api/perkara/{id}/available-actions")
+    Call<AvailableActionsResponse> getAvailableActions(@Path("id") int perkaraId);
+
+    @POST("api/perkara/{id}/actions")
+    Call<GenericResponse> processAction(
+        @Path("id") int perkaraId,
+        @Body ProcessActionRequest request
+    );
 }

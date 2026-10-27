@@ -5,11 +5,16 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.kejaksaan.reminder.api.ApiService;
 import com.kejaksaan.reminder.api.RetrofitClient;
+import com.kejaksaan.reminder.model.AvailableActionsResponse;
+import com.kejaksaan.reminder.model.GenericResponse;
 import com.kejaksaan.reminder.model.PerkaraResponse;
 import com.kejaksaan.reminder.model.PerkaraTimelineResponse;
+import com.kejaksaan.reminder.model.ProcessActionRequest;
 import com.kejaksaan.reminder.model.TimelinePagination;
 import com.kejaksaan.reminder.model.TimelinePaginationResponse;
 import com.kejaksaan.reminder.util.ApiResult;
+
+import org.json.JSONObject;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -111,5 +116,97 @@ public class TimelineRepository {
                 result.postValue(ApiResult.error("Tidak dapat terhubung ke server: " + t.getMessage()));
             }
         });
+    }
+
+    // ─── Workflow Actions (Trigger Button SIPETA) ────────────────────────────────
+
+    /**
+     * Mengambil daftar aksi alur perkara yang dapat dieksekusi (GET /api/perkara/{id}/available-actions).
+     */
+    public void getAvailableActions(int perkaraId, MutableLiveData<ApiResult<AvailableActionsResponse>> result) {
+        result.postValue(ApiResult.loading());
+
+        apiService.getAvailableActions(perkaraId).enqueue(new Callback<AvailableActionsResponse>() {
+            @Override
+            public void onResponse(Call<AvailableActionsResponse> call, Response<AvailableActionsResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    AvailableActionsResponse body = response.body();
+                    if (body.isSuccess()) {
+                        result.postValue(ApiResult.success(body));
+                    } else {
+                        String msg = body.getMessage() != null ? body.getMessage() : "Gagal memuat aksi perkara";
+                        result.postValue(ApiResult.error(msg));
+                    }
+                } else if (response.code() == 401) {
+                    result.postValue(ApiResult.error("UNAUTHORIZED:401:Sesi telah berakhir. Silakan login kembali."));
+                } else if (response.code() == 403) {
+                    String msg = parseErrorMessage(response, "Akses ditolak: Anda tidak memiliki wewenang pada perkara ini.");
+                    result.postValue(ApiResult.error("FORBIDDEN:403:" + msg));
+                } else {
+                    String msg = parseErrorMessage(response, "Gagal memuat aksi alur perkara (HTTP " + response.code() + ")");
+                    result.postValue(ApiResult.error(msg));
+                }
+            }
+
+            @Override
+            public void onFailure(Call<AvailableActionsResponse> call, Throwable t) {
+                result.postValue(ApiResult.error("Tidak dapat terhubung ke server: " + t.getMessage()));
+            }
+        });
+    }
+
+    /**
+     * Mengeksekusi aksi workflow alur perkara (POST /api/perkara/{id}/actions).
+     */
+    public void processAction(int perkaraId, ProcessActionRequest request, MutableLiveData<ApiResult<GenericResponse>> result) {
+        result.postValue(ApiResult.loading());
+
+        apiService.processAction(perkaraId, request).enqueue(new Callback<GenericResponse>() {
+            @Override
+            public void onResponse(Call<GenericResponse> call, Response<GenericResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    GenericResponse body = response.body();
+                    if (body.isSuccess()) {
+                        result.postValue(ApiResult.success(body));
+                    } else {
+                        String msg = body.getMessage() != null ? body.getMessage() : "Gagal memproses aksi perkara";
+                        result.postValue(ApiResult.error(msg));
+                    }
+                } else if (response.code() == 401) {
+                    result.postValue(ApiResult.error("UNAUTHORIZED:401:Sesi telah berakhir. Silakan login kembali."));
+                } else if (response.code() == 403) {
+                    String msg = parseErrorMessage(response, "Akses ditolak: Anda tidak ditugaskan sebagai jaksa pada perkara ini.");
+                    result.postValue(ApiResult.error("FORBIDDEN:403:" + msg));
+                } else if (response.code() == 409) {
+                    String msg = parseErrorMessage(response, "Tahap atau status perkara telah berubah. Silakan segarkan data perkara Anda.");
+                    result.postValue(ApiResult.error("CONFLICT:409:" + msg));
+                } else if (response.code() == 422) {
+                    String msg = parseErrorMessage(response, "Data yang dikirimkan tidak valid.");
+                    result.postValue(ApiResult.error("VALIDATION:422:" + msg));
+                } else {
+                    String msg = parseErrorMessage(response, "Gagal memproses aksi perkara (HTTP " + response.code() + ")");
+                    result.postValue(ApiResult.error(msg));
+                }
+            }
+
+            @Override
+            public void onFailure(Call<GenericResponse> call, Throwable t) {
+                result.postValue(ApiResult.error("Tidak dapat terhubung ke server: " + t.getMessage()));
+            }
+        });
+    }
+
+    private String parseErrorMessage(Response<?> response, String defaultMessage) {
+        try {
+            if (response.errorBody() != null) {
+                String errorJson = response.errorBody().string();
+                JSONObject obj = new JSONObject(errorJson);
+                if (obj.has("message")) {
+                    return obj.getString("message");
+                }
+            }
+        } catch (Exception ignored) {
+        }
+        return defaultMessage;
     }
 }
