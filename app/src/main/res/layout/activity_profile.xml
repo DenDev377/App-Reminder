@@ -115,28 +115,34 @@
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/cardKta"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="120dp"
             android:layout_marginHorizontal="20dp"
             android:layout_marginTop="-60dp"
             app:cardCornerRadius="16dp"
             app:cardElevation="6dp"
-            app:cardBackgroundColor="#00897B"
+            app:cardBackgroundColor="#003D33"
             app:strokeWidth="0dp">
 
-            <!-- KTA Card dengan overlay data user -->
+            <!-- KTA Card dengan background cardprofile dan overlay data user -->
             <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="match_parent">
 
+                <!-- Background Gambar Kartu Profil -->
+                <ImageView
+                    android:id="@+id/imgCardProfileBg"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/cardprofile"
+                    android:contentDescription="Kartu Profil Pegawai" />
 
                 <!-- Overlay data user di atas KTA -->
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="bottom"
+                    android:layout_height="match_parent"
                     android:orientation="horizontal"
-                    android:padding="16dp"
-                    android:layout_marginBottom="4dp"
+                    android:paddingHorizontal="16dp"
                     android:gravity="center_vertical">
 
                     <!-- Foto Profil (circle) -->
@@ -173,10 +179,10 @@
                             android:textColor="#FFFFFF"
                             android:textSize="14sp"
                             android:textStyle="bold"
-                            android:shadowColor="#66000000"
+                            android:shadowColor="#99000000"
                             android:shadowDx="1"
                             android:shadowDy="1"
-                            android:shadowRadius="2" />
+                            android:shadowRadius="3" />
 
                         <TextView
                             android:id="@+id/tvKtaJabatan"
@@ -186,10 +192,10 @@
                             android:text="Jabatan"
                             android:textColor="#E0F2F1"
                             android:textSize="11sp"
-                            android:shadowColor="#66000000"
+                            android:shadowColor="#99000000"
                             android:shadowDx="1"
                             android:shadowDy="1"
-                            android:shadowRadius="2" />
+                            android:shadowRadius="3" />
 
                         <TextView
                             android:id="@+id/tvKtaNip"
@@ -199,10 +205,10 @@
                             android:text="NIP/NRP: -"
                             android:textColor="#B2DFDB"
                             android:textSize="10sp"
-                            android:shadowColor="#66000000"
+                            android:shadowColor="#99000000"
                             android:shadowDx="1"
                             android:shadowDy="1"
-                            android:shadowRadius="2" />
+                            android:shadowRadius="3" />
 
                         <TextView
                             android:id="@+id/tvKtaPangkat"
@@ -212,10 +218,10 @@
                             android:text="Pangkat/Golongan: -"
                             android:textColor="#B2DFDB"
                             android:textSize="10sp"
-                            android:shadowColor="#66000000"
+                            android:shadowColor="#99000000"
                             android:shadowDx="1"
                             android:shadowDy="1"
-                            android:shadowRadius="2" />
+                            android:shadowRadius="3" />
                     </LinearLayout>
                 </LinearLayout>
 
