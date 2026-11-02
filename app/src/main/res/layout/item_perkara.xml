@@ -19,6 +19,7 @@
         android:orientation="vertical"
         android:padding="16dp">
 
+        <!-- Header Row: Icon, Nomor Perkara, Compact Status Badge -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -26,39 +27,82 @@
             android:gravity="center_vertical">
 
             <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
+                android:layout_width="22dp"
+                android:layout_height="22dp"
                 android:src="@drawable/ic_perkara"
-                app:tint="#0F172A" />
+                app:tint="#00897B"
+                android:contentDescription="Icon Perkara" />
 
             <TextView
                 android:id="@+id/tvNomorPerkara"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:layout_marginStart="12dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="8dp"
                 tools:text="PDM-123/JKT/10/2026"
                 android:textColor="#0F172A"
-                android:textSize="15sp"
-                android:textStyle="bold" />
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:maxLines="2"
+                android:ellipsize="end" />
 
             <TextView
                 android:id="@+id/tvStatusSaatIni"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="#EF4444"
+                android:background="@drawable/bg_badge_pill"
                 android:paddingHorizontal="10dp"
                 android:paddingVertical="4dp"
-                tools:text="P-21"
-                android:textColor="#FFFFFF"
-                android:textSize="10sp"
+                tools:text="P-20"
+                android:textColor="#DC2626"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:maxWidth="120dp" />
+        </LinearLayout>
+
+        <!-- Divider line -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="10dp"
+            android:background="#F1F5F9" />
+
+        <!-- Status Kegiatan Detail (Tampil jika ada penjelasan panjang) -->
+        <LinearLayout
+            android:id="@+id/layoutStatusDetail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:orientation="vertical"
+            android:visibility="gone"
+            tools:visibility="visible">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Status Kegiatan:"
+                android:textColor="#64748B"
+                android:textSize="11sp" />
+
+            <TextView
+                android:id="@+id/tvStatusDetail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                tools:text="P-20 (Pengembalian SPDP)"
+                android:textColor="#1E293B"
+                android:textSize="13sp"
                 android:textStyle="bold" />
         </LinearLayout>
 
+        <!-- Tahap Saat Ini -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
             android:text="Tahap Saat Ini:"
             android:textColor="#64748B"
             android:textSize="11sp" />
@@ -73,10 +117,11 @@
             android:textSize="13sp"
             android:textStyle="bold" />
             
+        <!-- Tersangka -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="10dp"
             android:text="Tersangka:"
             android:textColor="#64748B"
             android:textSize="11sp" />

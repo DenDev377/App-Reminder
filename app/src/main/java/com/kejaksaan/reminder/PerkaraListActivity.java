@@ -297,6 +297,19 @@ public class PerkaraListActivity extends AppCompatActivity {
                     }
                 } else if (result.isError()) {
                     String errorMsg = result.getMessage() != null ? result.getMessage() : "Terjadi kesalahan";
+
+                    // Tangani sesi kedaluwarsa 401
+                    if (errorMsg.contains("401") || errorMsg.contains("UNAUTHORIZED")) {
+                        com.kejaksaan.reminder.util.SessionManager sessionManager = new com.kejaksaan.reminder.util.SessionManager(this);
+                        sessionManager.clearSession();
+                        Toast.makeText(this, "Sesi telah berakhir. Silakan login kembali.", Toast.LENGTH_LONG).show();
+                        Intent intent = new Intent(this, MainActivity.class);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        startActivity(intent);
+                        finish();
+                        return;
+                    }
+
                     if (adapter.getItemCount() == 0) {
                         layoutErrorState.setVisibility(View.VISIBLE);
                         tvErrorMessage.setText(errorMsg);

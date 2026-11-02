@@ -35,7 +35,7 @@ public class ReminderLogAdapter extends RecyclerView.Adapter<ReminderLogAdapter.
 
     private final Context context;
     private final List<PerkaraReminderLogGroup> groupList = new ArrayList<>();
-    private final Set<Integer> perkaraIds = new HashSet<>();
+    private final Set<String> groupKeys = new HashSet<>();
     private OnItemClickListener listener;
 
     public ReminderLogAdapter(Context context) {
@@ -46,17 +46,31 @@ public class ReminderLogAdapter extends RecyclerView.Adapter<ReminderLogAdapter.
         this.listener = listener;
     }
 
+    private String getGroupKey(PerkaraReminderLogGroup g) {
+        if (g == null) return "";
+        if (g.getPerkaraId() > 0) {
+            return "id_" + g.getPerkaraId();
+        }
+        if (g.getNomorPerkara() != null && !g.getNomorPerkara().trim().isEmpty()) {
+            return "no_" + g.getNomorPerkara().trim().toLowerCase();
+        }
+        return "obj_" + System.identityHashCode(g);
+    }
+
     /**
      * Mengganti seluruh data grup perkara (saat filter berubah atau refresh).
      */
     public void setGroups(List<PerkaraReminderLogGroup> list) {
         this.groupList.clear();
-        this.perkaraIds.clear();
+        this.groupKeys.clear();
         if (list != null) {
             for (PerkaraReminderLogGroup g : list) {
-                if (g != null && !perkaraIds.contains(g.getPerkaraId())) {
-                    perkaraIds.add(g.getPerkaraId());
-                    this.groupList.add(g);
+                if (g != null) {
+                    String key = getGroupKey(g);
+                    if (!groupKeys.contains(key)) {
+                        groupKeys.add(key);
+                        this.groupList.add(g);
+                    }
                 }
             }
         }
@@ -73,10 +87,13 @@ public class ReminderLogAdapter extends RecyclerView.Adapter<ReminderLogAdapter.
         int addedCount = 0;
 
         for (PerkaraReminderLogGroup g : newGroups) {
-            if (g != null && !perkaraIds.contains(g.getPerkaraId())) {
-                perkaraIds.add(g.getPerkaraId());
-                this.groupList.add(g);
-                addedCount++;
+            if (g != null) {
+                String key = getGroupKey(g);
+                if (!groupKeys.contains(key)) {
+                    groupKeys.add(key);
+                    this.groupList.add(g);
+                    addedCount++;
+                }
             }
         }
 

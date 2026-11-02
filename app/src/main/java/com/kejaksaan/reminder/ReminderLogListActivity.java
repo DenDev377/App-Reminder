@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
@@ -84,6 +86,9 @@ public class ReminderLogListActivity extends AppCompatActivity {
     private ReminderLogViewModel viewModel;
 
     private String currentSelectedStatus = "all";
+
+    private final Handler searchHandler = new Handler(Looper.getMainLooper());
+    private Runnable searchRunnable;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -211,6 +216,9 @@ public class ReminderLogListActivity extends AppCompatActivity {
         btnClearSearch.setOnClickListener(v -> {
             etSearch.setText("");
             hideKeyboard();
+            if (searchRunnable != null) {
+                searchHandler.removeCallbacks(searchRunnable);
+            }
             loadData();
         });
 
@@ -224,11 +232,20 @@ public class ReminderLogListActivity extends AppCompatActivity {
             }
 
             @Override
-            public void afterTextChanged(Editable s) {}
+            public void afterTextChanged(Editable s) {
+                if (searchRunnable != null) {
+                    searchHandler.removeCallbacks(searchRunnable);
+                }
+                searchRunnable = () -> loadData();
+                searchHandler.postDelayed(searchRunnable, 400);
+            }
         });
 
         etSearch.setOnEditorActionListener((v, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                if (searchRunnable != null) {
+                    searchHandler.removeCallbacks(searchRunnable);
+                }
                 hideKeyboard();
                 loadData();
                 return true;
@@ -412,6 +429,14 @@ public class ReminderLogListActivity extends AppCompatActivity {
             if (imm != null) {
                 imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
             }
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (searchRunnable != null) {
+            searchHandler.removeCallbacks(searchRunnable);
         }
     }
 }

@@ -14,6 +14,8 @@ import com.kejaksaan.reminder.util.ApiResult;
 import com.kejaksaan.reminder.util.FcmTokenManager;
 import com.kejaksaan.reminder.util.SessionManager;
 
+import org.json.JSONObject;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -78,19 +80,46 @@ public class AuthRepository {
                     }
                 } else {
                     // HTTP error (401, 422, dll.)
-                    result.postValue(ApiResult.error(
-                            "Login gagal (HTTP " + response.code() + ")"
-                    ));
+                    String defaultMsg = (response.code() == 401 || response.code() == 422)
+                            ? "Email/username atau kata sandi tidak sesuai. Silakan coba lagi."
+                            : "Login gagal (HTTP " + response.code() + ")";
+                    String errorMsg = parseErrorMessage(response, defaultMsg);
+                    result.postValue(ApiResult.error(errorMsg));
                 }
             }
 
             @Override
             public void onFailure(Call<LoginResponse> call, Throwable t) {
-                result.postValue(ApiResult.error(
-                        "Tidak dapat terhubung ke server: " + t.getMessage()
-                ));
+                String networkMsg = "Tidak dapat terhubung ke server. Periksa koneksi internet Anda.";
+                if (t != null && t.getMessage() != null && !t.getMessage().trim().isEmpty()) {
+                    networkMsg += " (" + t.getMessage() + ")";
+                }
+                result.postValue(ApiResult.error(networkMsg));
             }
         });
+    }
+
+    private String parseErrorMessage(Response<?> response, String defaultMessage) {
+        try {
+            if (response.errorBody() != null) {
+                String errorJson = response.errorBody().string();
+                JSONObject obj = new JSONObject(errorJson);
+                if (obj.has("message")) {
+                    String msg = obj.getString("message");
+                    if (msg != null && !msg.trim().isEmpty()) {
+                        return msg;
+                    }
+                }
+                if (obj.has("error")) {
+                    String err = obj.getString("error");
+                    if (err != null && !err.trim().isEmpty()) {
+                        return err;
+                    }
+                }
+            }
+        } catch (Exception ignored) {
+        }
+        return defaultMessage;
     }
 
     // ─── Logout ──────────────────────────────────────────────────────────────────

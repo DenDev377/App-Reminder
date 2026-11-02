@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Error / Alert state -->
+    <item android:state_selected="true">
+        <shape android:shape="rectangle">
+            <corners android:radius="14dp" />
+            <solid android:color="#FEF2F2" />
+            <stroke android:width="1.8dp" android:color="#EF4444" />
+        </shape>
+    </item>
+    <!-- Focused or Activated state -->
+    <item android:state_focused="true">
+        <shape android:shape="rectangle">
+            <corners android:radius="14dp" />
+            <solid android:color="#FFFFFF" />
+            <stroke android:width="1.8dp" android:color="#00897B" />
+        </shape>
+    </item>
+    <item android:state_activated="true">
+        <shape android:shape="rectangle">
+            <corners android:radius="14dp" />
+            <solid android:color="#FFFFFF" />
+            <stroke android:width="1.8dp" android:color="#00897B" />
+        </shape>
+    </item>
+    <!-- Default state -->
+    <item>
+        <shape android:shape="rectangle">
+            <corners android:radius="14dp" />
+            <solid android:color="#F8FAFC" />
+            <stroke android:width="1.2dp" android:color="#CBD5E1" />
+        </shape>
+    </item>
+</selector>

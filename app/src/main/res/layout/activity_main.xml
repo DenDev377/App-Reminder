@@ -1,155 +1,398 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
+<androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mainRootLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFFFFF"
+    android:background="#F8FAFC"
     tools:context=".MainActivity">
 
-    <!-- Logo kecil Kejaksaan -->
+    <!-- 1. Top Decorative Batik Header -->
     <ImageView
-        android:id="@+id/imgLogo"
-        android:layout_width="45dp"
-        android:layout_height="45dp"
-        android:layout_marginTop="120dp"
-        android:contentDescription="Logo SIPETA"
-        android:scaleType="fitCenter"
-        android:src="@drawable/logo_kejaksaan"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:id="@+id/ivBatikHeader"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:scaleType="fitXY"
+        android:src="@drawable/ic_batik_header"
+        android:alpha="0.85"
+        android:contentDescription="Motif Batik Header" />
 
-    <!-- Judul SIPETA -->
-    <TextView
-        android:id="@+id/tvTitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="2dp"
-        android:text="SIPETA"
-        android:textColor="#111111"
-        android:textSize="22sp"
-        android:textStyle="normal"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/imgLogo" />
+    <!-- 2. Scrollable Content Container (Keyboard & Multi-screen safe) -->
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/nestedScrollView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:clipToPadding="false">
 
-    <!-- Subtitle -->
-    <TextView
-        android:id="@+id/tvSubtitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="1dp"
-        android:text="sistem pengingat tahapan perkara"
-        android:textColor="#222222"
-        android:textSize="13sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvTitle" />
-
-    <!-- Lambang Kejaksaan besar -->
-    <ImageView
-        android:id="@+id/imgLambang"
-        android:layout_width="400dp"
-        android:layout_height="400dp"
-        android:layout_marginTop="20dp"
-        android:contentDescription="Lambang Kejaksaan"
-        android:scaleType="fitCenter"
-        android:src="@drawable/lambang_kejaksaan"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvSubtitle" />
-
-    <!-- Username / Email -->
-    <EditText
-        android:id="@+id/etUsername"
-        android:layout_width="0dp"
-        android:layout_height="52dp"
-        android:layout_marginStart="23dp"
-        android:layout_marginTop="130dp"
-        android:layout_marginEnd="23dp"
-        android:background="@drawable/bg_edittext"
-        android:elevation="5dp"
-        android:hint="Username/Email"
-        android:inputType="textEmailAddress"
-        android:paddingStart="18dp"
-        android:paddingEnd="18dp"
-        android:textColor="#333333"
-        android:textColorHint="#AAAAAA"
-        android:textSize="16sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvSubtitle" />
-
-    <!-- Password Container -->
-    <FrameLayout
-        android:id="@+id/flPasswordContainer"
-        android:layout_width="0dp"
-        android:layout_height="52dp"
-        android:layout_marginStart="23dp"
-        android:layout_marginTop="20dp"
-        android:layout_marginEnd="23dp"
-        android:background="@drawable/bg_edittext"
-        android:elevation="5dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/etUsername">
-
-        <EditText
-            android:id="@+id/etPassword"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@null"
-            android:hint="Password"
-            android:inputType="textPassword"
-            android:paddingStart="18dp"
-            android:paddingEnd="48dp"
-            android:textColor="#333333"
-            android:textColorHint="#AAAAAA"
-            android:textSize="16sp" />
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center_horizontal"
+            android:paddingHorizontal="24dp"
+            android:paddingTop="36dp"
+            android:paddingBottom="28dp">
 
-        <ImageView
-            android:id="@+id/ivPasswordToggle"
-            android:layout_width="48dp"
-            android:layout_height="match_parent"
-            android:layout_gravity="end|center_vertical"
-            android:padding="12dp"
-            android:src="@drawable/ic_eye_off"
-            app:tint="#888888"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:clickable="true"
-            android:focusable="true"
-            android:contentDescription="Toggle Password Visibility" />
-    </FrameLayout>
+            <!-- Circular Logo Badge -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="82dp"
+                android:layout_height="82dp"
+                app:cardCornerRadius="41dp"
+                app:cardElevation="6dp"
+                app:cardBackgroundColor="#FFFFFF"
+                app:strokeWidth="1.5dp"
+                app:strokeColor="#E2E8F0">
 
-    <!-- Tombol Login -->
-    <Button
-        android:id="@+id/btnLogin"
-        android:layout_width="0dp"
-        android:layout_height="48dp"
-        android:layout_marginStart="45dp"
-        android:layout_marginTop="50dp"
-        android:layout_marginEnd="45dp"
-        android:background="@drawable/bg_button_login"
-        app:backgroundTint="@null"
-        android:elevation="3dp"
-        android:text="LOGIN"
-        android:textAllCaps="false"
-        android:textColor="#FFFFFF"
-        android:textSize="14sp"
-        android:textStyle="normal"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/flPasswordContainer" />
-    <ProgressBar
-        android:id="@+id/progressBar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:visibility="gone"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btnLogin" />
+                <ImageView
+                    android:id="@+id/imgLogo"
+                    android:layout_width="54dp"
+                    android:layout_height="54dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/logo_kejaksaan"
+                    android:scaleType="fitCenter"
+                    android:contentDescription="Logo Kejaksaan RI" />
+            </com.google.android.material.card.MaterialCardView>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+            <!-- App Title -->
+            <TextView
+                android:id="@+id/tvTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:text="SIPETA"
+                android:textColor="#0F172A"
+                android:textSize="28sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.06" />
+
+            <!-- Subtitle -->
+            <TextView
+                android:id="@+id/tvSubtitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="Sistem Informasi Pengingat Tahapan Perkara"
+                android:textColor="#64748B"
+                android:textSize="13sp"
+                android:textAlignment="center" />
+
+            <!-- Instansi Pill Badge -->
+            <TextView
+                android:id="@+id/tvInstansiBadge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_badge_pill"
+                android:backgroundTint="#CCFBF1"
+                android:paddingHorizontal="14dp"
+                android:paddingVertical="4dp"
+                android:text="KEJAKSAAN NEGERI OGAN KOMERING ULU"
+                android:textColor="#0F766E"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.02" />
+
+            <!-- 3. Login Card Container -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardLogin"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                app:cardCornerRadius="22dp"
+                app:cardElevation="4dp"
+                app:cardBackgroundColor="#FFFFFF"
+                app:strokeWidth="1.2dp"
+                app:strokeColor="#E2E8F0">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingHorizontal="22dp"
+                    android:paddingVertical="26dp">
+
+                    <!-- Welcome Text inside Card -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Masuk ke Akun Anda"
+                        android:textColor="#0F172A"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:layout_marginBottom="20dp"
+                        android:text="Silakan isi email dan kata sandi"
+                        android:textColor="#64748B"
+                        android:textSize="12.5sp" />
+
+                    <!-- Field 1: Username / Email -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="6dp"
+                        android:text="Email"
+                        android:textColor="#334155"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+
+                    <LinearLayout
+                        android:id="@+id/containerUsername"
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:background="@drawable/bg_input_field"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:addStatesFromChildren="true"
+                        android:paddingStart="14dp"
+                        android:paddingEnd="6dp">
+
+                        <ImageView
+                            android:id="@+id/ivUsernameIcon"
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:layout_marginEnd="10dp"
+                            android:src="@drawable/ic_profile"
+                            app:tint="#94A3B8"
+                            android:contentDescription="Username Icon" />
+
+                        <EditText
+                            android:id="@+id/etUsername"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:background="@null"
+                            android:hint="contoh: jaksa@kejaksaan.go.id"
+                            android:imeOptions="actionNext"
+                            android:inputType="textEmailAddress"
+                            android:maxLines="1"
+                            android:textColor="#0F172A"
+                            android:textColorHint="#94A3B8"
+                            android:textSize="14sp" />
+
+                        <ImageView
+                            android:id="@+id/ivUsernameClear"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:padding="11dp"
+                            android:src="@drawable/ic_close"
+                            android:visibility="gone"
+                            app:tint="#94A3B8"
+                            android:contentDescription="Hapus Teks Username" />
+                    </LinearLayout>
+
+                    <!-- Field 2: Kata Sandi -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:layout_marginBottom="6dp"
+                        android:text="Kata Sandi"
+                        android:textColor="#334155"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+
+                    <LinearLayout
+                        android:id="@+id/containerPassword"
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:background="@drawable/bg_input_field"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:addStatesFromChildren="true"
+                        android:paddingStart="14dp"
+                        android:paddingEnd="6dp">
+
+                        <ImageView
+                            android:id="@+id/ivPasswordIcon"
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:layout_marginEnd="10dp"
+                            android:src="@drawable/ic_lock"
+                            app:tint="#94A3B8"
+                            android:contentDescription="Password Icon" />
+
+                        <EditText
+                            android:id="@+id/etPassword"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:background="@null"
+                            android:hint="Masukkan kata sandi"
+                            android:imeOptions="actionDone"
+                            android:inputType="textPassword"
+                            android:maxLines="1"
+                            android:textColor="#0F172A"
+                            android:textColorHint="#94A3B8"
+                            android:textSize="14sp" />
+
+                        <ImageView
+                            android:id="@+id/ivPasswordToggle"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:padding="9dp"
+                            android:src="@drawable/ic_eye_off"
+                            app:tint="#94A3B8"
+                            android:contentDescription="Toggle Password Visibility" />
+                    </LinearLayout>
+
+                    <!-- Row: Ingat Saya & Butuh Bantuan -->
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp">
+
+                        <CheckBox
+                            android:id="@+id/cbRememberMe"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentStart="true"
+                            android:layout_centerVertical="true"
+                            android:buttonTint="#00897B"
+                            android:text="Ingat saya"
+                            android:textColor="#475569"
+                            android:textSize="12.5sp" />
+
+                        <TextView
+                            android:id="@+id/tvHelp"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentEnd="true"
+                            android:layout_centerVertical="true"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:padding="6dp"
+                            android:text="Butuh bantuan?"
+                            android:textColor="#0D9488"
+                            android:textSize="12.5sp"
+                            android:textStyle="bold" />
+                    </RelativeLayout>
+
+                    <!-- Inline Error Alert Message -->
+                    <LinearLayout
+                        android:id="@+id/layoutErrorAlert"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:background="@drawable/bg_badge_pill"
+                        android:backgroundTint="#FEE2E2"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingHorizontal="12dp"
+                        android:paddingVertical="9dp"
+                        android:visibility="gone"
+                        tools:visibility="visible">
+
+                        <ImageView
+                            android:layout_width="18dp"
+                            android:layout_height="18dp"
+                            android:layout_marginEnd="8dp"
+                            android:src="@drawable/ic_alarm"
+                            app:tint="#DC2626"
+                            android:contentDescription="Error Icon" />
+
+                        <TextView
+                            android:id="@+id/tvErrorMessage"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Email atau password salah"
+                            android:textColor="#DC2626"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+
+                        <ImageView
+                            android:id="@+id/ivCloseError"
+                            android:layout_width="26dp"
+                            android:layout_height="26dp"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:padding="5dp"
+                            android:src="@drawable/ic_close"
+                            app:tint="#EF4444"
+                            android:contentDescription="Tutup Notifikasi Error" />
+                    </LinearLayout>
+
+                    <!-- Tombol Login & Loading Container -->
+                    <FrameLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="52dp"
+                        android:layout_marginTop="22dp">
+
+                        <Button
+                            android:id="@+id/btnLogin"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@drawable/bg_button_login"
+                            app:backgroundTint="@null"
+                            android:elevation="2dp"
+                            android:text="MASUK KE SISTEM"
+                            android:textAllCaps="false"
+                            android:textColor="#FFFFFF"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            android:letterSpacing="0.04" />
+
+                        <ProgressBar
+                            android:id="@+id/progressBar"
+                            android:layout_width="26dp"
+                            android:layout_height="26dp"
+                            android:layout_gravity="center"
+                            android:indeterminate="true"
+                            android:indeterminateTint="#FFFFFF"
+                            android:visibility="gone" />
+                    </FrameLayout>
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- 4. Footer Security & Versioning -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="15dp"
+                    android:layout_height="15dp"
+                    android:layout_marginEnd="6dp"
+                    android:src="@drawable/ic_shield"
+                    app:tint="#94A3B8"
+                    android:contentDescription="Security Icon" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Koneksi Aman &amp; Terenkripsi • Kejaksaan RI"
+                    android:textColor="#94A3B8"
+                    android:textSize="11.5sp" />
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="SIPETA Mobile v2.0 • 2026"
+                android:textColor="#CBD5E1"
+                android:textSize="11sp" />
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

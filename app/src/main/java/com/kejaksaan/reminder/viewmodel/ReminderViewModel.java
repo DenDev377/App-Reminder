@@ -131,13 +131,15 @@ public class ReminderViewModel extends AndroidViewModel {
                     isLastPage = currentPage >= lastPage;
 
                     List<Reminder> newItems = data.getData();
-                    if (newItems != null) {
+                    if (newItems != null && !newItems.isEmpty()) {
                         for (Reminder r : newItems) {
                             if (r != null && !existingIds.contains(r.getId())) {
                                 existingIds.add(r.getId());
                                 accumulatedReminders.add(r);
                             }
                         }
+                    } else {
+                        isLastPage = true;
                     }
 
                     remindersResult.setValue(ApiResult.success(new ArrayList<>(accumulatedReminders)));

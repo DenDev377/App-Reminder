@@ -194,7 +194,7 @@ public class ReminderLogViewModel extends AndroidViewModel {
                     isLastPage = currentPage >= lastPage;
 
                     List<ReminderLog> newItems = pageData.getData();
-                    if (newItems != null) {
+                    if (newItems != null && !newItems.isEmpty()) {
                         for (ReminderLog item : newItems) {
                             if (item != null && !existingLogIds.contains(item.getId())) {
                                 existingLogIds.add(item.getId());
@@ -224,7 +224,11 @@ public class ReminderLogViewModel extends AndroidViewModel {
                                 group.addReminderLog(item);
                             }
                         }
+                    } else {
+                        isLastPage = true;
                     }
+                } else {
+                    isLastPage = true;
                 }
 
                 perkaraGroupsResult.setValue(ApiResult.success(new ArrayList<>(perkaraGroupMap.values())));

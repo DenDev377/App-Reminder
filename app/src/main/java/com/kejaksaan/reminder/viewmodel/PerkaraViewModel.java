@@ -162,13 +162,15 @@ public class PerkaraViewModel extends AndroidViewModel {
                 isLastPage = currentPage >= lastPage;
 
                 List<Perkara> newItems = data.getData();
-                if (newItems != null) {
+                if (newItems != null && !newItems.isEmpty()) {
                     for (Perkara item : newItems) {
                         if (item != null && !existingPerkaraIds.contains(item.getId())) {
                             existingPerkaraIds.add(item.getId());
                             accumulatedPerkaras.add(item);
                         }
                     }
+                } else {
+                    isLastPage = true;
                 }
 
                 perkarasResult.setValue(ApiResult.success(new ArrayList<>(accumulatedPerkaras)));
