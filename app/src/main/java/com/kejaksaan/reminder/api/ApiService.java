@@ -1,6 +1,7 @@
 package com.kejaksaan.reminder.api;
 
 import com.kejaksaan.reminder.model.AvailableActionsResponse;
+import com.kejaksaan.reminder.model.BeritaResponse;
 import com.kejaksaan.reminder.model.ChangePasswordRequest;
 import com.kejaksaan.reminder.model.DeviceTokenRequest;
 import com.kejaksaan.reminder.model.GenericResponse;
@@ -121,5 +122,14 @@ public interface ApiService {
     Call<GenericResponse> processAction(
         @Path("id") int perkaraId,
         @Body ProcessActionRequest request
+    );
+
+    // --- Berita ---
+
+    @GET("api/berita")
+    Call<BeritaResponse> getBeritas(
+        @Query("page") Integer page,
+        @Query("per_page") Integer perPage,
+        @Query("search") String search
     );
 }

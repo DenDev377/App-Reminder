@@ -21,16 +21,20 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.widget.NestedScrollView;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.bumptech.glide.Glide;
+import com.kejaksaan.reminder.adapter.BeritaDashboardAdapter;
 import com.kejaksaan.reminder.adapter.ReminderAdapter;
+import com.kejaksaan.reminder.model.Berita;
 import com.kejaksaan.reminder.model.Reminder;
 import com.kejaksaan.reminder.model.User;
 import com.kejaksaan.reminder.util.FcmTokenManager;
 import com.kejaksaan.reminder.util.NotificationHelper;
 import com.kejaksaan.reminder.viewmodel.AuthViewModel;
+import com.kejaksaan.reminder.viewmodel.BeritaViewModel;
 import com.kejaksaan.reminder.viewmodel.PerkaraViewModel;
 
 import java.util.ArrayList;
@@ -43,14 +47,18 @@ public class DashboardActivity extends AppCompatActivity {
     private ImageView imgProfileAvatar;
     private RecyclerView rvSlaReminders;
     private View layoutSlaReminders;
+    private RecyclerView rvBeritaDashboard;
     private SwipeRefreshLayout swipeRefresh;
     private NestedScrollView nestedScrollView;
 
     private PerkaraViewModel perkaraViewModel;
+    private BeritaViewModel beritaViewModel;
     private ReminderAdapter reminderAdapter;
+    private BeritaDashboardAdapter beritaDashboardAdapter;
 
     private boolean isProfileRefreshing = false;
     private boolean isSlaRefreshing = false;
+    private boolean isBeritaRefreshing = false;
 
     private final ActivityResultLauncher<String> requestPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
@@ -101,6 +109,7 @@ public class DashboardActivity extends AppCompatActivity {
         imgProfileAvatar = findViewById(R.id.imgProfileAvatar);
         rvSlaReminders = findViewById(R.id.rvSlaReminders);
         layoutSlaReminders = findViewById(R.id.layoutSlaReminders);
+        rvBeritaDashboard = findViewById(R.id.rvBeritaDashboard);
         swipeRefresh = findViewById(R.id.swipeRefresh);
         nestedScrollView = findViewById(R.id.nestedScrollView);
 
@@ -139,9 +148,9 @@ public class DashboardActivity extends AppCompatActivity {
             });
         }
 
-        // Setup RecyclerView SLA Reminders (Horizontal Carousel / Menyamping seperti pada Berita)
-        androidx.recyclerview.widget.LinearLayoutManager slaLayoutManager =
-                new androidx.recyclerview.widget.LinearLayoutManager(this, androidx.recyclerview.widget.LinearLayoutManager.HORIZONTAL, false);
+        // Setup RecyclerView SLA Reminders (Horizontal Carousel)
+        LinearLayoutManager slaLayoutManager =
+                new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
         rvSlaReminders.setLayoutManager(slaLayoutManager);
         rvSlaReminders.setNestedScrollingEnabled(false);
         reminderAdapter = new ReminderAdapter(this, true);
@@ -164,8 +173,25 @@ public class DashboardActivity extends AppCompatActivity {
             }
         });
 
-        // Initialize ViewModel
+        // Setup RecyclerView Berita Dashboard (Horizontal Carousel)
+        if (rvBeritaDashboard != null) {
+            LinearLayoutManager beritaLayoutManager =
+                    new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+            rvBeritaDashboard.setLayoutManager(beritaLayoutManager);
+            rvBeritaDashboard.setNestedScrollingEnabled(false);
+            beritaDashboardAdapter = new BeritaDashboardAdapter(this);
+            rvBeritaDashboard.setAdapter(beritaDashboardAdapter);
+
+            beritaDashboardAdapter.setOnBeritaClickListener(berita -> {
+                Intent intent = new Intent(DashboardActivity.this, DetailBeritaActivity.class);
+                intent.putExtra(DetailBeritaActivity.EXTRA_BERITA, berita);
+                startActivity(intent);
+            });
+        }
+
+        // Initialize ViewModels
         perkaraViewModel = new ViewModelProvider(this).get(PerkaraViewModel.class);
+        beritaViewModel = new ViewModelProvider(this).get(BeritaViewModel.class);
 
         // Observe profile changes
         perkaraViewModel.getUserProfileResult().observe(this, result -> {
@@ -203,7 +229,6 @@ public class DashboardActivity extends AppCompatActivity {
                     } else {
                         layoutSlaReminders.setVisibility(View.VISIBLE);
                         rvSlaReminders.setVisibility(View.VISIBLE);
-                        // Tampilkan reminder mendesak secara horizontal (hingga 10 reminder aktif)
                         List<Reminder> displayList = new ArrayList<>();
                         int maxCount = Math.min(10, reminders.size());
                         for (int i = 0; i < maxCount; i++) {
@@ -212,9 +237,27 @@ public class DashboardActivity extends AppCompatActivity {
                         reminderAdapter.setReminderList(displayList);
                     }
                 } else if (result.isError()) {
-                    // Sembunyikan jika error
                     layoutSlaReminders.setVisibility(View.GONE);
                     rvSlaReminders.setVisibility(View.GONE);
+                }
+            }
+        });
+
+        // Observe Dashboard Berita
+        beritaViewModel.getDashboardBeritasResult().observe(this, result -> {
+            if (result == null) return;
+            if (result.isLoading()) {
+                if (swipeRefresh != null) {
+                    swipeRefresh.setRefreshing(true);
+                }
+            } else {
+                isBeritaRefreshing = false;
+                checkStopDashboardRefresh();
+                if (result.isSuccess() && result.getData() != null) {
+                    List<Berita> beritas = result.getData();
+                    if (beritaDashboardAdapter != null) {
+                        beritaDashboardAdapter.setBeritaList(beritas);
+                    }
                 }
             }
         });
@@ -281,6 +324,24 @@ public class DashboardActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
+        // Grid Menu: Berita -> Buka BeritaListActivity
+        View menuBerita = findViewById(R.id.menuBerita);
+        if (menuBerita != null) {
+            menuBerita.setOnClickListener(v -> {
+                Intent intent = new Intent(this, BeritaListActivity.class);
+                startActivity(intent);
+            });
+        }
+
+        // View All Berita -> Buka BeritaListActivity
+        View tvViewAllBerita = findViewById(R.id.tvViewAllBerita);
+        if (tvViewAllBerita != null) {
+            tvViewAllBerita.setOnClickListener(v -> {
+                Intent intent = new Intent(this, BeritaListActivity.class);
+                startActivity(intent);
+            });
+        }
+
         // Grid Menu: Log SLA (Audit Trail Reminder SLA) -> Buka ReminderLogListActivity
         View menuLogReminder = findViewById(R.id.menuLogReminder);
         if (menuLogReminder != null) {
@@ -304,12 +365,14 @@ public class DashboardActivity extends AppCompatActivity {
     private void refreshDashboardData() {
         isProfileRefreshing = true;
         isSlaRefreshing = true;
+        isBeritaRefreshing = true;
         perkaraViewModel.loadUserProfile();
         perkaraViewModel.loadSlaReminders("semua_mendesak");
+        beritaViewModel.loadDashboardBeritas(5);
     }
 
     private void checkStopDashboardRefresh() {
-        if (!isProfileRefreshing && !isSlaRefreshing && swipeRefresh != null) {
+        if (!isProfileRefreshing && !isSlaRefreshing && !isBeritaRefreshing && swipeRefresh != null) {
             swipeRefresh.setRefreshing(false);
         }
     }
@@ -317,13 +380,11 @@ public class DashboardActivity extends AppCompatActivity {
     private void bindUserProfile(User user) {
         tvUserName.setText(user.getName());
         
-        // Show jabatan if available, otherwise fallback to role
         String jabatanOrRole = user.getJabatan() != null && !user.getJabatan().isEmpty() 
             ? user.getJabatan() 
             : user.getRole();
         tvUserRole.setText(jabatanOrRole);
 
-        // Load image using Glide
         String photoUrl = user.getResolvedPhotoUrl();
         if (photoUrl != null) {
             Glide.with(this)

@@ -84,6 +84,14 @@
             android:name=".ReminderLogListActivity"
             android:exported="false" />
 
+        <activity
+            android:name=".BeritaListActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".DetailBeritaActivity"
+            android:exported="false" />
+
         <!-- Firebase Cloud Messaging Service -->
         <service
             android:name=".service.SipetaFirebaseMessagingService"
