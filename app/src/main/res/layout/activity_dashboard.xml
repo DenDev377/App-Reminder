@@ -196,7 +196,7 @@
                                 <ImageView
                                     android:layout_width="36dp"
                                     android:layout_height="36dp"
-                                    android:src="@drawable/ic_perkara" />
+                                    android:src="@drawable/palu" />
 
                                 <TextView
                                     android:layout_width="wrap_content"
@@ -352,19 +352,6 @@
                                     android:textStyle="bold" />
                             </LinearLayout>
 
-                            <!-- Item 6: Berita -->
-                            <LinearLayout
-                                android:id="@+id/menuBerita"
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:gravity="center"
-                                android:orientation="vertical"
-                                android:padding="8dp"
-                                android:background="?attr/selectableItemBackground">
-
-                            </LinearLayout>
-
                             <!-- Spacers to balance 4-column layout -->
                             <View
                                 android:layout_width="0dp"
@@ -459,18 +446,6 @@
                         android:background="?attr/selectableItemBackground"
                         android:padding="4dp" />
                 </LinearLayout>
-
-                <!-- Berita Horizontal Preview RecyclerView -->
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/rvBeritaDashboard"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:clipToPadding="false"
-                    android:nestedScrollingEnabled="false"
-                    android:orientation="horizontal"
-                    android:scrollbars="none"
-                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                    tools:listitem="@layout/item_berita_horizontal" />
 
                 <!-- Berita Horizontal Preview RecyclerView -->
                 <androidx.recyclerview.widget.RecyclerView

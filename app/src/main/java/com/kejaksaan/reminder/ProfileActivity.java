@@ -1,6 +1,7 @@
 package com.kejaksaan.reminder;
 
 import android.app.AlertDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.method.HideReturnsTransformationMethod;
 import android.text.method.PasswordTransformationMethod;
@@ -64,6 +65,17 @@ public class ProfileActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Verifikasi sesi pengguna
+        SessionManager sessionManager = new SessionManager(this);
+        if (!sessionManager.isLoggedIn()) {
+            Intent intent = new Intent(this, MainActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
+            return;
+        }
+
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_profile);
 
@@ -218,6 +230,10 @@ public class ProfileActivity extends AppCompatActivity {
                     showError(tvError, "Konfirmasi kata sandi tidak cocok");
                     return;
                 }
+                if (newPass.equals(current)) {
+                    showError(tvError, "Kata sandi baru tidak boleh sama dengan kata sandi saat ini");
+                    return;
+                }
                 tvError.setVisibility(View.GONE);
 
                 dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
@@ -246,9 +262,22 @@ public class ProfileActivity extends AppCompatActivity {
                                         "Kata sandi berhasil diubah", Toast.LENGTH_SHORT).show();
                                 dialog.dismiss();
                             } else {
-                                String msg = (response.body() != null && response.body().getMessage() != null)
-                                        ? response.body().getMessage()
-                                        : "Gagal mengubah kata sandi (HTTP " + response.code() + ")";
+                                String msg = null;
+                                if (response.body() != null && response.body().getMessage() != null) {
+                                    msg = response.body().getMessage();
+                                } else if (response.errorBody() != null) {
+                                    try {
+                                        String errStr = response.errorBody().string();
+                                        org.json.JSONObject obj = new org.json.JSONObject(errStr);
+                                        if (obj.has("message")) {
+                                            msg = obj.getString("message");
+                                        }
+                                    } catch (Exception ignored) {
+                                    }
+                                }
+                                if (msg == null || msg.trim().isEmpty()) {
+                                    msg = "Gagal mengubah kata sandi (HTTP " + response.code() + ")";
+                                }
                                 showError(tvError, msg);
                                 resetPositiveButton(dialog, "Simpan");
                             }

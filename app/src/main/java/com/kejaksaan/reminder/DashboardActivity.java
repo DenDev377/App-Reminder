@@ -33,6 +33,7 @@ import com.kejaksaan.reminder.model.Reminder;
 import com.kejaksaan.reminder.model.User;
 import com.kejaksaan.reminder.util.FcmTokenManager;
 import com.kejaksaan.reminder.util.NotificationHelper;
+import com.kejaksaan.reminder.util.SessionManager;
 import com.kejaksaan.reminder.viewmodel.AuthViewModel;
 import com.kejaksaan.reminder.viewmodel.BeritaViewModel;
 import com.kejaksaan.reminder.viewmodel.PerkaraViewModel;
@@ -65,6 +66,18 @@ public class DashboardActivity extends AppCompatActivity {
                 // Hasil izin POST_NOTIFICATIONS (Android 13+)
             });
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        SessionManager sessionManager = new SessionManager(this);
+        if (!sessionManager.isLoggedIn()) {
+            Intent intent = new Intent(this, MainActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
+        }
+    }
+
     private void checkNotificationPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
@@ -77,6 +90,17 @@ public class DashboardActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Verifikasi sesi pengguna
+        SessionManager sessionManager = new SessionManager(this);
+        if (!sessionManager.isLoggedIn()) {
+            Intent intent = new Intent(this, MainActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
+            return;
+        }
+
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_dashboard);
 
