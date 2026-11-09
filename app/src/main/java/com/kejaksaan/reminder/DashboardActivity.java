@@ -39,6 +39,7 @@ import com.kejaksaan.reminder.viewmodel.BeritaViewModel;
 import com.kejaksaan.reminder.viewmodel.PerkaraViewModel;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class DashboardActivity extends AppCompatActivity {
@@ -253,10 +254,21 @@ public class DashboardActivity extends AppCompatActivity {
                     } else {
                         layoutSlaReminders.setVisibility(View.VISIBLE);
                         rvSlaReminders.setVisibility(View.VISIBLE);
+                        // Prioritaskan P-24 (termasuk yang lewat 7 hari / overdue) dan Overdue di urutan terdepan card
+                        List<Reminder> sortedList = new ArrayList<>(reminders);
+                        Collections.sort(sortedList, (r1, r2) -> {
+                            int p1 = getReminderPriority(r1);
+                            int p2 = getReminderPriority(r2);
+                            if (p1 != p2) {
+                                return Integer.compare(p1, p2);
+                            }
+                            return Integer.compare(r1.getSisaHari(), r2.getSisaHari());
+                        });
+
                         List<Reminder> displayList = new ArrayList<>();
-                        int maxCount = Math.min(10, reminders.size());
+                        int maxCount = Math.min(10, sortedList.size());
                         for (int i = 0; i < maxCount; i++) {
-                            displayList.add(reminders.get(i));
+                            displayList.add(sortedList.get(i));
                         }
                         reminderAdapter.setReminderList(displayList);
                     }
@@ -418,5 +430,32 @@ public class DashboardActivity extends AppCompatActivity {
                  .circleCrop()
                  .into(imgProfileAvatar);
         }
+    }
+
+    private int getReminderPriority(Reminder r) {
+        if (r == null) return 99;
+        boolean isP24 = isP24Reminder(r);
+        int sisa = r.getSisaHari();
+
+        // P-24 yang sudah lewat dari 7 hari (overdue) diprioritaskan paling depan pada card
+        if (isP24 && sisa < 0) return 1;
+        // Reminder Overdue lainnya
+        if (sisa < 0) return 2;
+        // P-24 Jatuh Tempo / H-3
+        if (isP24 && sisa <= 3) return 3;
+        // Jatuh tempo hari ini
+        if (sisa == 0) return 4;
+        // H-3
+        if (sisa <= 3) return 5;
+        // Aman / lainnya
+        return 6;
+    }
+
+    private boolean isP24Reminder(Reminder r) {
+        if (r == null) return false;
+        String tahap = r.getTahap() != null ? r.getTahap() : "";
+        String jenis = r.getJenisReminder() != null ? r.getJenisReminder() : "";
+        return tahap.toUpperCase().contains("P-24") || tahap.toUpperCase().contains("P24")
+                || jenis.toUpperCase().contains("P-24") || jenis.toUpperCase().contains("P24");
     }
 }

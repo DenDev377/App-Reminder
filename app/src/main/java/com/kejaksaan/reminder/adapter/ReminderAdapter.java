@@ -155,9 +155,24 @@ public class ReminderAdapter extends RecyclerView.Adapter<ReminderAdapter.Remind
         }
 
         public void bind(Reminder reminder) {
-            tvReminderJenis.setText(reminder.getJenisReminder() != null ? reminder.getJenisReminder() : "Reminder");
+            String jenis = reminder.getJenisReminder() != null ? reminder.getJenisReminder() : "Reminder";
+            tvReminderJenis.setText(jenis);
 
-            String status = reminder.getStatusUrgensi() != null ? reminder.getStatusUrgensi() : "-";
+            // Sisa Hari (dihitung dinamis dari deadline)
+            int sisa = reminder.getSisaHari();
+
+            // Evaluasi status urgensi dinamis:
+            // Jika sisa hari < 0 (misal P-24 sudah lewat dari 7 hari), status adalah "Overdue"
+            String status = reminder.getStatusUrgensi();
+            if (sisa < 0) {
+                status = "Overdue";
+            } else if (sisa == 0) {
+                status = "Jatuh Tempo";
+            } else if (sisa <= 3) {
+                status = "H-3";
+            } else if (status == null || status.trim().isEmpty() || status.equals("-")) {
+                status = "Aman";
+            }
             tvReminderStatus.setText(status);
 
             if (reminder.getPerkara() != null && reminder.getPerkara().getNomorPerkara() != null) {
@@ -177,8 +192,6 @@ public class ReminderAdapter extends RecyclerView.Adapter<ReminderAdapter.Remind
             // Deadline
             tvReminderDeadline.setText(formatDate(reminder.getDeadline()));
 
-            // Sisa Hari (dihitung dinamis dari deadline)
-            int sisa = reminder.getSisaHari();
             if (sisa < 0) {
                 tvReminderSisaHari.setText("Lewat " + Math.abs(sisa) + " Hari");
             } else if (sisa == 0) {

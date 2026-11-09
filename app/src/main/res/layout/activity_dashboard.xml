@@ -222,8 +222,8 @@
                                 <ImageView
                                     android:layout_width="36dp"
                                     android:layout_height="36dp"
-                                    android:src="@drawable/ic_alarm" 
-                                    app:tint="#D97706" />
+                                    android:src="@drawable/alarm"
+                                    />
 
                                 <TextView
                                     android:layout_width="wrap_content"
@@ -249,8 +249,8 @@
                                 <ImageView
                                     android:layout_width="36dp"
                                     android:layout_height="36dp"
-                                    android:src="@drawable/ic_timeline"
-                                    app:tint="#2563EB" />
+                                    android:src="@drawable/timelinee"
+                                     />
 
                                 <TextView
                                     android:layout_width="wrap_content"
@@ -276,8 +276,8 @@
                                 <ImageView
                                     android:layout_width="36dp"
                                     android:layout_height="36dp"
-                                    android:src="@drawable/ic_audit_log" 
-                                    app:tint="#DC2626" />
+                                    android:src="@drawable/file"
+                                     />
 
                                 <TextView
                                     android:layout_width="wrap_content"
@@ -312,8 +312,8 @@
                                 <ImageView
                                     android:layout_width="36dp"
                                     android:layout_height="36dp"
-                                    android:src="@drawable/ic_profile" 
-                                    app:tint="#6366F1" />
+                                    android:src="@drawable/policeman"
+                                    />
 
                                 <TextView
                                     android:layout_width="wrap_content"
@@ -339,8 +339,8 @@
                                 <ImageView
                                     android:layout_width="36dp"
                                     android:layout_height="36dp"
-                                    android:src="@drawable/ic_berita"
-                                    app:tint="#00897B" />
+                                    android:src="@drawable/newspaper"
+                                     />
 
                                 <TextView
                                     android:layout_width="wrap_content"
