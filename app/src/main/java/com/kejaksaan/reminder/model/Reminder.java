@@ -126,4 +126,44 @@ public class Reminder {
         }
         return "-";
     }
+
+    /**
+     * Memeriksa apakah suatu perkara berada pada Tahap 2 / Tahap II yang SEDANG BERJALAN.
+     * Perkara yang sudah selesai (misal: "Tahap II Selesai") akan diabaikan (return false).
+     */
+    public static boolean isTahap2Active(Perkara perkara) {
+        if (perkara == null) return false;
+        String tahap = perkara.getTahapSaatIni() != null ? perkara.getTahapSaatIni().toLowerCase().trim() : "";
+        String status = perkara.getStatusSaatIni() != null ? perkara.getStatusSaatIni().toLowerCase().trim() : "";
+
+        // Abaikan perkara yang sudah selesai / dihentikan
+        if (status.contains("selesai") || tahap.contains("selesai")) {
+            return false;
+        }
+
+        // Periksa apakah status atau tahap mengindikasikan Tahap 2 yang sedang berjalan
+        return tahap.contains("tahap ii") || tahap.contains("tahap 2")
+                || status.contains("tahap ii") || status.contains("tahap 2")
+                || status.contains("terima_tahap2");
+    }
+
+    /**
+     * Membuat objek Reminder dari Perkara yang berada pada Tahap 2 / Tahap II yang sedang aktif
+     * agar dapat ditampilkan di Menu Reminder SLA secara terpadu.
+     */
+    public static Reminder fromPerkaraTahap2(Perkara perkara) {
+        if (perkara == null || !isTahap2Active(perkara)) return null;
+        Reminder r = new Reminder();
+        r.id = 900000 + perkara.getId();
+        r.perkaraId = perkara.getId();
+        r.perkara = perkara;
+        r.tahap = (perkara.getTahapSaatIni() != null && !perkara.getTahapSaatIni().trim().isEmpty())
+                ? perkara.getTahapSaatIni().trim() : "Tahap II";
+        r.jenisReminder = (perkara.getStatusSaatIni() != null && !perkara.getStatusSaatIni().trim().isEmpty())
+                ? perkara.getStatusSaatIni().trim() : "Pelaksanaan Tahap II";
+        r.statusUrgensi = "Aman";
+        r.isActive = true;
+        r.sisaHari = 0;
+        return r;
+    }
 }

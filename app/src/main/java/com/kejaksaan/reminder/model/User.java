@@ -87,4 +87,12 @@ public class User {
         }
         return null;
     }
+
+    // ─── Setters ────────────────────────────────────────────────────────────────
+
+    public void setName(String name) { this.name = name; }
+    public void setNip(String nip) { this.nip = nip; }
+    public void setPangkatGolongan(String pangkatGolongan) { this.pangkatGolongan = pangkatGolongan; }
+    public void setJabatan(String jabatan) { this.jabatan = jabatan; }
+    public void setNomorHp(String nomorHp) { this.nomorHp = nomorHp; }
 }

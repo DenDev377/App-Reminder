@@ -223,6 +223,25 @@
                             android:shadowDy="1"
                             android:shadowRadius="3" />
                     </LinearLayout>
+
+                    <!-- Edit Button on KTA -->
+                    <FrameLayout
+                        android:id="@+id/btnEditKta"
+                        android:layout_width="34dp"
+                        android:layout_height="34dp"
+                        android:layout_marginStart="8dp"
+                        android:background="@drawable/bg_glass_circle_btn"
+                        android:clickable="true"
+                        android:focusable="true">
+
+                        <ImageView
+                            android:layout_width="16dp"
+                            android:layout_height="16dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_edit"
+                            app:tint="#FFFFFF"
+                            android:contentDescription="Edit Profil" />
+                    </FrameLayout>
                 </LinearLayout>
 
             </FrameLayout>
@@ -257,6 +276,67 @@
                     android:textColor="#64748B"
                     android:textSize="14sp"
                     android:textStyle="bold" />
+
+                <!-- Item: Data Pegawai (Edit Profil) -->
+                <LinearLayout
+                    android:id="@+id/menuEditProfil"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="20dp"
+                    android:paddingVertical="14dp"
+                    android:background="@drawable/bg_menu_item_profile"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <ImageView
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
+                        android:src="@drawable/ic_person"
+                        app:tint="#00897B"
+                        android:contentDescription="Data Pegawai" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Data Pegawai"
+                            android:textColor="#1E293B"
+                            android:textSize="15sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tvInfoDataPegawai"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:text="Nama, NIP, Pangkat &amp; Jabatan"
+                            android:textColor="#64748B"
+                            android:textSize="12sp" />
+                    </LinearLayout>
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_chevron_right"
+                        app:tint="#94A3B8"
+                        android:contentDescription="Next" />
+                </LinearLayout>
+
+                <!-- Divider -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginStart="58dp"
+                    android:layout_marginEnd="20dp"
+                    android:background="#F1F5F9" />
 
                 <!-- Item 1: Kata Sandi -->
                 <LinearLayout
@@ -496,65 +576,6 @@
                         android:contentDescription="Next" />
                 </LinearLayout>
 
-                <!-- Divider -->
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_marginStart="58dp"
-                    android:layout_marginEnd="20dp"
-                    android:background="#F1F5F9" />
-
-                <!-- Item 5: Undang Teman -->
-                <LinearLayout
-                    android:id="@+id/menuUndangTeman"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    android:paddingHorizontal="20dp"
-                    android:paddingVertical="14dp"
-                    android:background="@drawable/bg_menu_item_profile"
-                    android:clickable="true"
-                    android:focusable="true">
-
-                    <ImageView
-                        android:layout_width="22dp"
-                        android:layout_height="22dp"
-                        android:src="@drawable/ic_star"
-                        app:tint="#00897B"
-                        android:contentDescription="Undang Teman" />
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="16dp"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Undang Teman"
-                            android:textColor="#1E293B"
-                            android:textSize="15sp"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="2dp"
-                            android:text="Undang teman anda"
-                            android:textColor="#64748B"
-                            android:textSize="12sp" />
-                    </LinearLayout>
-
-                    <ImageView
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
-                        android:src="@drawable/ic_chevron_right"
-                        app:tint="#94A3B8"
-                        android:contentDescription="Next" />
-                </LinearLayout>
 
                 <!-- Divider -->
                 <View

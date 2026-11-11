@@ -22,11 +22,14 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.bumptech.glide.Glide;
+import com.kejaksaan.reminder.api.ApiService;
 import com.kejaksaan.reminder.api.RetrofitClient;
 import com.kejaksaan.reminder.model.ChangePasswordRequest;
 import com.kejaksaan.reminder.model.GenericResponse;
 import com.kejaksaan.reminder.model.UpdatePhoneRequest;
 import com.kejaksaan.reminder.model.UpdatePhoneResponse;
+import com.kejaksaan.reminder.model.UpdateProfileRequest;
+import com.kejaksaan.reminder.model.UpdateProfileResponse;
 import com.kejaksaan.reminder.model.User;
 import com.kejaksaan.reminder.util.SessionManager;
 import com.kejaksaan.reminder.viewmodel.PerkaraViewModel;
@@ -53,12 +56,14 @@ public class ProfileActivity extends AppCompatActivity {
     private TextView  tvKtaPangkat;
 
     // ─── Settings subtitles ──────────────────────────────────────────────────────
-    private TextView tvInfoEmail;    // subtitle Kata Sandi
-    private TextView tvInfoNomorHp;  // subtitle Nomor HP
+    private TextView tvInfoDataPegawai; // subtitle Data Pegawai (Edit Profil)
+    private TextView tvInfoEmail;       // subtitle Kata Sandi
+    private TextView tvInfoNomorHp;     // subtitle Nomor HP
 
     private ImageView ivRefreshIcon;
     private SwipeRefreshLayout swipeRefresh;
     private PerkaraViewModel perkaraViewModel;
+    private User currentUser;
 
     // ─────────────────────────────────────────────────────────────────────────────
 
@@ -101,15 +106,16 @@ public class ProfileActivity extends AppCompatActivity {
     // ─── Init ────────────────────────────────────────────────────────────────────
 
     private void initViews() {
-        imgProfileKta = findViewById(R.id.imgProfileKta);
-        tvKtaNama     = findViewById(R.id.tvKtaNama);
-        tvKtaJabatan  = findViewById(R.id.tvKtaJabatan);
-        tvKtaNip      = findViewById(R.id.tvKtaNip);
-        tvKtaPangkat  = findViewById(R.id.tvKtaPangkat);
-        tvInfoEmail   = findViewById(R.id.tvInfoEmail);
-        tvInfoNomorHp = findViewById(R.id.tvInfoNomorHp);
-        ivRefreshIcon = findViewById(R.id.ivRefreshIcon);
-        swipeRefresh  = findViewById(R.id.swipeRefresh);
+        imgProfileKta     = findViewById(R.id.imgProfileKta);
+        tvKtaNama         = findViewById(R.id.tvKtaNama);
+        tvKtaJabatan      = findViewById(R.id.tvKtaJabatan);
+        tvKtaNip          = findViewById(R.id.tvKtaNip);
+        tvKtaPangkat      = findViewById(R.id.tvKtaPangkat);
+        tvInfoDataPegawai = findViewById(R.id.tvInfoDataPegawai);
+        tvInfoEmail       = findViewById(R.id.tvInfoEmail);
+        tvInfoNomorHp     = findViewById(R.id.tvInfoNomorHp);
+        ivRefreshIcon     = findViewById(R.id.ivRefreshIcon);
+        swipeRefresh      = findViewById(R.id.swipeRefresh);
 
         if (swipeRefresh != null) {
             swipeRefresh.setColorSchemeColors(
@@ -151,6 +157,22 @@ public class ProfileActivity extends AppCompatActivity {
             });
         }
 
+        // ── Data Pegawai / Edit Profil ────────────────────────────────────────
+        View menuEditProfil = findViewById(R.id.menuEditProfil);
+        if (menuEditProfil != null) {
+            menuEditProfil.setOnClickListener(v -> showDialogEditProfil());
+        }
+
+        View btnEditKta = findViewById(R.id.btnEditKta);
+        if (btnEditKta != null) {
+            btnEditKta.setOnClickListener(v -> showDialogEditProfil());
+        }
+
+        View cardKta = findViewById(R.id.cardKta);
+        if (cardKta != null) {
+            cardKta.setOnClickListener(v -> showDialogEditProfil());
+        }
+
         // ── Kata Sandi → tampilkan dialog ganti password ──────────────────────
         View menuKataSandi = findViewById(R.id.menuKataSandi);
         if (menuKataSandi != null) {
@@ -163,30 +185,27 @@ public class ProfileActivity extends AppCompatActivity {
             menuNomorHp.setOnClickListener(v -> showDialogNomorHp());
         }
 
-        // ── Menu lainnya (placeholder) ────────────────────────────────────────
+        // ── Menu lainnya ─────────────────────────────────────────────────────
         View menuTentangAplikasi = findViewById(R.id.menuTentangAplikasi);
         if (menuTentangAplikasi != null) {
-            menuTentangAplikasi.setOnClickListener(v ->
-                Toast.makeText(this, "SIPETA v1.0", Toast.LENGTH_SHORT).show()
-            );
+            menuTentangAplikasi.setOnClickListener(v -> {
+                Intent intent = new Intent(this, TentangAplikasiActivity.class);
+                startActivity(intent);
+            });
         }
         View menuPrivacyPolicy = findViewById(R.id.menuPrivacyPolicy);
         if (menuPrivacyPolicy != null) {
-            menuPrivacyPolicy.setOnClickListener(v ->
-                Toast.makeText(this, "Privacy Policy segera hadir", Toast.LENGTH_SHORT).show()
-            );
-        }
-        View menuUndangTeman = findViewById(R.id.menuUndangTeman);
-        if (menuUndangTeman != null) {
-            menuUndangTeman.setOnClickListener(v ->
-                Toast.makeText(this, "Fitur Undang Teman segera hadir", Toast.LENGTH_SHORT).show()
-            );
+            menuPrivacyPolicy.setOnClickListener(v -> {
+                Intent intent = new Intent(this, PrivacyPolicyActivity.class);
+                startActivity(intent);
+            });
         }
         View menuFaq = findViewById(R.id.menuFaq);
         if (menuFaq != null) {
-            menuFaq.setOnClickListener(v ->
-                Toast.makeText(this, "FAQ segera hadir", Toast.LENGTH_SHORT).show()
-            );
+            menuFaq.setOnClickListener(v -> {
+                Intent intent = new Intent(this, FaqActivity.class);
+                startActivity(intent);
+            });
         }
     }
 
@@ -399,6 +418,180 @@ public class ProfileActivity extends AppCompatActivity {
                 });
     }
 
+    // ─── Dialog: Edit Data Profil (Nama, NIP, Pangkat, Jabatan) ──────────────────
+
+    private void showDialogEditProfil() {
+        View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_edit_profil, null);
+
+        EditText etNama    = dialogView.findViewById(R.id.etProfileNama);
+        EditText etNip     = dialogView.findViewById(R.id.etProfileNip);
+        EditText etPangkat = dialogView.findViewById(R.id.etProfilePangkat);
+        EditText etJabatan = dialogView.findViewById(R.id.etProfileJabatan);
+        TextView tvError   = dialogView.findViewById(R.id.tvProfileError);
+
+        // Prefill dengan data saat ini
+        SessionManager sessionManager = new SessionManager(this);
+        String currName = (currentUser != null && currentUser.getName() != null)
+                ? currentUser.getName() : sessionManager.fetchUserName();
+        String currNip = (currentUser != null && currentUser.getNip() != null)
+                ? currentUser.getNip() : sessionManager.fetchUserNip();
+        String currPangkat = (currentUser != null && currentUser.getPangkatGolongan() != null)
+                ? currentUser.getPangkatGolongan() : sessionManager.fetchUserPangkat();
+        String currJabatan = (currentUser != null && currentUser.getJabatan() != null)
+                ? currentUser.getJabatan() : sessionManager.fetchUserJabatan();
+
+        if (currName != null && !currName.isEmpty() && !currName.equals("-")) {
+            etNama.setText(currName);
+            etNama.setSelection(currName.length());
+        }
+        if (currNip != null && !currNip.isEmpty() && !currNip.equals("-")) {
+            etNip.setText(currNip);
+        }
+        if (currPangkat != null && !currPangkat.isEmpty() && !currPangkat.equals("-")) {
+            etPangkat.setText(currPangkat);
+        }
+        if (currJabatan != null && !currJabatan.isEmpty() && !currJabatan.equals("-")) {
+            etJabatan.setText(currJabatan);
+        }
+
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setView(dialogView)
+                .setPositiveButton("Simpan", null)
+                .setNegativeButton("Batal", (d, w) -> d.dismiss())
+                .create();
+
+        dialog.setOnShowListener(d -> {
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+                String nama = etNama.getText().toString().trim();
+                String nip = etNip.getText().toString().trim();
+                String pangkat = etPangkat.getText().toString().trim();
+                String jabatan = etJabatan.getText().toString().trim();
+
+                if (nama.isEmpty()) {
+                    showError(tvError, "Nama lengkap tidak boleh kosong");
+                    return;
+                }
+                if (nip.isEmpty()) {
+                    showError(tvError, "NIP / NRP tidak boleh kosong");
+                    return;
+                }
+                if (pangkat.isEmpty()) {
+                    showError(tvError, "Pangkat / Golongan tidak boleh kosong");
+                    return;
+                }
+                if (jabatan.isEmpty()) {
+                    showError(tvError, "Jabatan tidak boleh kosong");
+                    return;
+                }
+
+                tvError.setVisibility(View.GONE);
+                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setText("Menyimpan...");
+
+                callUpdateProfile(nama, nip, pangkat, jabatan, dialog, tvError);
+            });
+        });
+
+        dialog.show();
+    }
+
+    private void callUpdateProfile(String nama, String nip, String pangkat, String jabatan,
+                                   AlertDialog dialog, TextView tvError) {
+        UpdateProfileRequest req = new UpdateProfileRequest(nama, nip, pangkat, jabatan);
+        ApiService apiService = RetrofitClient.getApiService(this);
+
+        // Step 1: Coba POST api/profile
+        executeProfileCall(apiService.updateProfile(req), req, 1, dialog, tvError);
+    }
+
+    private void executeProfileCall(Call<UpdateProfileResponse> call, UpdateProfileRequest req,
+                                    int step, AlertDialog dialog, TextView tvError) {
+        call.enqueue(new Callback<UpdateProfileResponse>() {
+            @Override
+            public void onResponse(Call<UpdateProfileResponse> c, Response<UpdateProfileResponse> response) {
+                runOnUiThread(() -> {
+                    if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
+                        handleProfileUpdateSuccess(req, response.body(), dialog);
+                    } else if (response.code() == 404 || response.code() == 405) {
+                        // Coba fallback endpoint lainnya jika route berbeda
+                        ApiService api = RetrofitClient.getApiService(ProfileActivity.this);
+                        if (step == 1) {
+                            executeProfileCall(api.updateProfilePut(req), req, 2, dialog, tvError);
+                        } else if (step == 2) {
+                            executeProfileCall(api.updateProfilePostUpdate(req), req, 3, dialog, tvError);
+                        } else if (step == 3) {
+                            executeProfileCall(api.updateUserPut(req), req, 4, dialog, tvError);
+                        } else if (step == 4) {
+                            executeProfileCall(api.updateUser(req), req, 5, dialog, tvError);
+                        } else {
+                            handleProfileUpdateError(response, dialog, tvError);
+                        }
+                    } else {
+                        handleProfileUpdateError(response, dialog, tvError);
+                    }
+                });
+            }
+
+            @Override
+            public void onFailure(Call<UpdateProfileResponse> c, Throwable t) {
+                runOnUiThread(() -> {
+                    showError(tvError, "Tidak dapat terhubung ke server");
+                    resetPositiveButton(dialog, "Simpan");
+                });
+            }
+        });
+    }
+
+    private void handleProfileUpdateSuccess(UpdateProfileRequest req, UpdateProfileResponse resp, AlertDialog dialog) {
+        SessionManager sessionManager = new SessionManager(ProfileActivity.this);
+        if (resp.getUser() != null) {
+            currentUser = resp.getUser();
+        } else {
+            if (currentUser == null) {
+                currentUser = new User();
+            }
+            currentUser.setName(req.getName());
+            currentUser.setNip(req.getNip());
+            currentUser.setPangkatGolongan(req.getPangkatGolongan());
+            currentUser.setJabatan(req.getJabatan());
+        }
+
+        sessionManager.saveUserInfo(currentUser);
+        bindUserProfile(currentUser);
+
+        String msg = (resp.getMessage() != null && !resp.getMessage().isEmpty())
+                ? resp.getMessage()
+                : "Data profil berhasil diperbarui";
+        Toast.makeText(ProfileActivity.this, msg, Toast.LENGTH_SHORT).show();
+        dialog.dismiss();
+
+        // Sync ulang dari server
+        if (perkaraViewModel != null) {
+            perkaraViewModel.loadUserProfile();
+        }
+    }
+
+    private void handleProfileUpdateError(Response<UpdateProfileResponse> response, AlertDialog dialog, TextView tvError) {
+        String msg = null;
+        if (response.body() != null && response.body().getMessage() != null) {
+            msg = response.body().getMessage();
+        } else if (response.errorBody() != null) {
+            try {
+                String errStr = response.errorBody().string();
+                org.json.JSONObject obj = new org.json.JSONObject(errStr);
+                if (obj.has("message")) {
+                    msg = obj.getString("message");
+                }
+            } catch (Exception ignored) {
+            }
+        }
+        if (msg == null || msg.trim().isEmpty()) {
+            msg = "Gagal memperbarui profil (HTTP " + response.code() + ")";
+        }
+        showError(tvError, msg);
+        resetPositiveButton(dialog, "Simpan");
+    }
+
     // ─── ViewModel & Data ────────────────────────────────────────────────────────
 
     private void observeAndLoad() {
@@ -433,6 +626,8 @@ public class ProfileActivity extends AppCompatActivity {
     // ─── Bind UI ─────────────────────────────────────────────────────────────────
 
     private void bindUserProfile(User user) {
+        this.currentUser = user;
+
         if (tvKtaNama != null)
             tvKtaNama.setText(notEmpty(user.getName(), "-"));
 
@@ -447,6 +642,14 @@ public class ProfileActivity extends AppCompatActivity {
         if (tvKtaPangkat != null) {
             String p = notEmpty(user.getPangkatGolongan(), null);
             tvKtaPangkat.setText(p != null ? "Pangkat: " + p : "Pangkat: -");
+        }
+
+        if (tvInfoDataPegawai != null) {
+            String sub = notEmpty(user.getName(), "-");
+            if (user.getJabatan() != null && !user.getJabatan().isEmpty()) {
+                sub += " · " + user.getJabatan();
+            }
+            tvInfoDataPegawai.setText(sub);
         }
 
         if (imgProfileKta != null) {

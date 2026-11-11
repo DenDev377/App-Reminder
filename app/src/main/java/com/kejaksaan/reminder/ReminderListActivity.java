@@ -41,6 +41,7 @@ public class ReminderListActivity extends AppCompatActivity {
     private MaterialButton btnRetry;
 
     private TextView chipSemua;
+    private TextView chipTahap2;
     private TextView chipMendesak;
     private TextView chipHMin3;
     private TextView chipAman;
@@ -48,7 +49,7 @@ public class ReminderListActivity extends AppCompatActivity {
     private ReminderAdapter adapter;
     private ReminderViewModel viewModel;
 
-    private String currentSelectedFilter = null; // null = semua
+    private String currentSelectedFilter = null; // null = semua, "tahap_2" = Tahap 2
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,6 +84,7 @@ public class ReminderListActivity extends AppCompatActivity {
         btnRetry           = findViewById(R.id.btnRetry);
 
         chipSemua    = findViewById(R.id.chipSemua);
+        chipTahap2   = findViewById(R.id.chipTahap2);
         chipMendesak = findViewById(R.id.chipMendesak);
         chipHMin3    = findViewById(R.id.chipHMin3);
         chipAman     = findViewById(R.id.chipAman);
@@ -131,7 +133,8 @@ public class ReminderListActivity extends AppCompatActivity {
     private void setupRecyclerView() {
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         rvReminders.setLayoutManager(layoutManager);
-        adapter = new ReminderAdapter(this);
+
+        adapter = new ReminderAdapter(this, false);
         rvReminders.setAdapter(adapter);
 
         // Klik item reminder membuka DetailPerkaraActivity jika perkara tersedia
@@ -180,6 +183,7 @@ public class ReminderListActivity extends AppCompatActivity {
 
     private void setupFilterChips() {
         chipSemua.setOnClickListener(v -> selectFilter(null, chipSemua));
+        chipTahap2.setOnClickListener(v -> selectFilter("tahap_2", chipTahap2));
         chipMendesak.setOnClickListener(v -> selectFilter("semua_mendesak", chipMendesak));
         chipHMin3.setOnClickListener(v -> selectFilter("H-3", chipHMin3));
         chipAman.setOnClickListener(v -> selectFilter("Aman", chipAman));
@@ -198,6 +202,7 @@ public class ReminderListActivity extends AppCompatActivity {
 
         // Reset all chip visuals to inactive
         resetChipStyle(chipSemua);
+        resetChipStyle(chipTahap2);
         resetChipStyle(chipMendesak);
         resetChipStyle(chipHMin3);
         resetChipStyle(chipAman);
@@ -240,10 +245,32 @@ public class ReminderListActivity extends AppCompatActivity {
                     layoutErrorState.setVisibility(View.GONE);
 
                     List<Reminder> list = result.getData();
+                    if ("tahap_2".equals(currentSelectedFilter) && list != null) {
+                        List<Reminder> activeTahap2 = new java.util.ArrayList<>();
+                        for (Reminder r : list) {
+                            if (r != null) {
+                                String t = r.getTahap() != null ? r.getTahap().toLowerCase() : "";
+                                String s = r.getJenisReminder() != null ? r.getJenisReminder().toLowerCase() : "";
+                                if (r.getPerkara() != null) {
+                                    if (r.getPerkara().getTahapSaatIni() != null) t += " " + r.getPerkara().getTahapSaatIni().toLowerCase();
+                                    if (r.getPerkara().getStatusSaatIni() != null) s += " " + r.getPerkara().getStatusSaatIni().toLowerCase();
+                                }
+                                if (!t.contains("selesai") && !s.contains("selesai")) {
+                                    activeTahap2.add(r);
+                                }
+                            }
+                        }
+                        list = activeTahap2;
+                    }
+
                     if (list == null || list.isEmpty()) {
                         layoutEmptyState.setVisibility(View.VISIBLE);
                         rvReminders.setVisibility(View.GONE);
-                        tvEmptyMessage.setText("Tidak ada reminder aktif" + (currentSelectedFilter != null ? " untuk filter ini" : ""));
+                        if ("tahap_2".equals(currentSelectedFilter)) {
+                            tvEmptyMessage.setText("Tidak ada perkara berjalan pada Tahap 2");
+                        } else {
+                            tvEmptyMessage.setText("Tidak ada reminder aktif" + (currentSelectedFilter != null ? " untuk filter ini" : ""));
+                        }
                     } else {
                         layoutEmptyState.setVisibility(View.GONE);
                         rvReminders.setVisibility(View.VISIBLE);

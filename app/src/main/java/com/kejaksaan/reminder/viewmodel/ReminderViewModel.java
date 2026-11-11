@@ -66,7 +66,7 @@ public class ReminderViewModel extends AndroidViewModel {
     /**
      * Memuat halaman pertama (reset daftar & filter).
      *
-     * @param urgensi Filter urgensi (null jika semua)
+     * @param urgensi Filter urgensi (null jika semua, "tahap_2" jika khusus Tahap 2)
      */
     public void loadFirstPage(String urgensi) {
         this.currentUrgensi = urgensi;
@@ -80,14 +80,18 @@ public class ReminderViewModel extends AndroidViewModel {
 
         remindersResult.setValue(ApiResult.loading());
 
-        fetchPage(1, false);
+        if ("tahap_2".equals(urgensi)) {
+            fetchTahap2Only();
+        } else {
+            fetchPage(1, false);
+        }
     }
 
     /**
      * Memuat halaman berikutnya saat pengguna menggulir mendekati akhir daftar.
      */
     public void loadNextPage() {
-        if (isLoading || isLastPage) {
+        if (isLoading || isLastPage || "tahap_2".equals(currentUrgensi)) {
             return;
         }
 
@@ -110,43 +114,78 @@ public class ReminderViewModel extends AndroidViewModel {
         loadFirstPage(currentUrgensi);
     }
 
+    private void fetchTahap2Only() {
+        MutableLiveData<ApiResult<List<Reminder>>> tahap2Result = new MutableLiveData<>();
+        tahap2Result.observeForever(result -> {
+            if (result == null || result.isLoading()) {
+                return;
+            }
+
+            isLoading = false;
+            isLastPage = true;
+
+            if (result.isSuccess() && result.getData() != null) {
+                accumulatedReminders.clear();
+                existingIds.clear();
+                for (Reminder r : result.getData()) {
+                    if (r != null && !existingIds.contains(r.getId())) {
+                        existingIds.add(r.getId());
+                        accumulatedReminders.add(r);
+                    }
+                }
+                remindersResult.setValue(ApiResult.success(new ArrayList<>(accumulatedReminders)));
+            } else if (result.isError()) {
+                remindersResult.setValue(ApiResult.error(result.getMessage()));
+            }
+        });
+
+        repository.getPerkarasTahap2(tahap2Result);
+    }
+
     private void fetchPage(int pageToFetch, boolean isPaginationCall) {
         MutableLiveData<ApiResult<ReminderResponse.ReminderData>> pageResult = new MutableLiveData<>();
-        pageResult.observeForever(new androidx.lifecycle.Observer<ApiResult<ReminderResponse.ReminderData>>() {
-            @Override
-            public void onChanged(ApiResult<ReminderResponse.ReminderData> result) {
-                if (result == null || result.isLoading()) {
-                    return;
-                }
+        pageResult.observeForever(result -> {
+            if (result == null || result.isLoading()) {
+                return;
+            }
 
-                isLoading = false;
-                if (isPaginationCall) {
-                    isPaginating.setValue(false);
-                }
+            isLoading = false;
+            if (isPaginationCall) {
+                isPaginating.setValue(false);
+            }
 
-                if (result.isSuccess() && result.getData() != null) {
-                    ReminderResponse.ReminderData data = result.getData();
-                    currentPage = data.getCurrentPage() > 0 ? data.getCurrentPage() : pageToFetch;
-                    lastPage = data.getLastPage() > 0 ? data.getLastPage() : 1;
-                    isLastPage = currentPage >= lastPage;
+            if (result.isSuccess() && result.getData() != null) {
+                ReminderResponse.ReminderData data = result.getData();
+                currentPage = data.getCurrentPage() > 0 ? data.getCurrentPage() : pageToFetch;
+                lastPage = data.getLastPage() > 0 ? data.getLastPage() : 1;
+                isLastPage = currentPage >= lastPage;
 
-                    List<Reminder> newItems = data.getData();
-                    if (newItems != null && !newItems.isEmpty()) {
-                        for (Reminder r : newItems) {
-                            if (r != null && !existingIds.contains(r.getId())) {
-                                existingIds.add(r.getId());
-                                accumulatedReminders.add(r);
-                            }
+                List<Reminder> newItems = data.getData();
+                if (newItems != null && !newItems.isEmpty()) {
+                    for (Reminder r : newItems) {
+                        if (r != null && !existingIds.contains(r.getId())) {
+                            existingIds.add(r.getId());
+                            accumulatedReminders.add(r);
                         }
-                    } else {
-                        isLastPage = true;
                     }
+                } else {
+                    isLastPage = true;
+                }
 
+                // Jika filter 'Semua' pada halaman 1, gabungkan perkara Tahap 2 yang belum ada di daftar
+                if (currentUrgensi == null && pageToFetch == 1) {
+                    fetchAndMergeTahap2();
+                } else {
                     remindersResult.setValue(ApiResult.success(new ArrayList<>(accumulatedReminders)));
-                } else if (result.isError()) {
-                    String errorMsg = result.getMessage() != null ? result.getMessage() : "Gagal memuat data";
-                    if (isPaginationCall) {
-                        paginationError.setValue(errorMsg);
+                }
+            } else if (result.isError()) {
+                String errorMsg = result.getMessage() != null ? result.getMessage() : "Gagal memuat data";
+                if (isPaginationCall) {
+                    paginationError.setValue(errorMsg);
+                } else {
+                    // Jika gagal memuat dari endpoint reminder utama saat filter Semua, coba tampilkan Tahap 2 jika ada
+                    if (currentUrgensi == null) {
+                        fetchTahap2Only();
                     } else {
                         remindersResult.setValue(ApiResult.error(errorMsg));
                     }
@@ -155,5 +194,29 @@ public class ReminderViewModel extends AndroidViewModel {
         });
 
         repository.getRemindersPaged(currentUrgensi, pageToFetch, pageResult);
+    }
+
+    private void fetchAndMergeTahap2() {
+        MutableLiveData<ApiResult<List<Reminder>>> tahap2Result = new MutableLiveData<>();
+        tahap2Result.observeForever(result -> {
+            if (result != null && result.isSuccess() && result.getData() != null) {
+                Set<Integer> existingPerkaraIds = new HashSet<>();
+                for (Reminder r : accumulatedReminders) {
+                    if (r != null) {
+                        existingPerkaraIds.add(r.getPerkaraId());
+                    }
+                }
+
+                for (Reminder r : result.getData()) {
+                    if (r != null && !existingPerkaraIds.contains(r.getPerkaraId()) && !existingIds.contains(r.getId())) {
+                        existingIds.add(r.getId());
+                        accumulatedReminders.add(r);
+                    }
+                }
+            }
+            remindersResult.setValue(ApiResult.success(new ArrayList<>(accumulatedReminders)));
+        });
+
+        repository.getPerkarasTahap2(tahap2Result);
     }
 }

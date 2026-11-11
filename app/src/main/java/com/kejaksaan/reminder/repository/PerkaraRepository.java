@@ -167,7 +167,32 @@ public class PerkaraRepository {
                     com.kejaksaan.reminder.model.ReminderResponse body = response.body();
                     
                     if (body.isSuccess() && body.getData() != null && body.getData().getData() != null) {
-                        result.postValue(ApiResult.success(body.getData().getData()));
+                        List<com.kejaksaan.reminder.model.Reminder> reminders = new java.util.ArrayList<>(body.getData().getData());
+                        
+                        // Cek apakah ada perkara Tahap II yang perlu disertakan
+                        apiService.getPerkaras(1, "").enqueue(new Callback<com.kejaksaan.reminder.model.PerkaraResponse>() {
+                            @Override
+                            public void onResponse(Call<com.kejaksaan.reminder.model.PerkaraResponse> callP, Response<com.kejaksaan.reminder.model.PerkaraResponse> respP) {
+                                if (respP.isSuccessful() && respP.body() != null && respP.body().getData() != null && respP.body().getData().getData() != null) {
+                                    java.util.Set<Integer> existingPerkaraIds = new java.util.HashSet<>();
+                                    for (com.kejaksaan.reminder.model.Reminder r : reminders) {
+                                        if (r != null) existingPerkaraIds.add(r.getPerkaraId());
+                                    }
+                                    for (com.kejaksaan.reminder.model.Perkara p : respP.body().getData().getData()) {
+                                        if (p != null && !existingPerkaraIds.contains(p.getId()) && com.kejaksaan.reminder.model.Reminder.isTahap2Active(p)) {
+                                            com.kejaksaan.reminder.model.Reminder rTahap2 = com.kejaksaan.reminder.model.Reminder.fromPerkaraTahap2(p);
+                                            if (rTahap2 != null) reminders.add(rTahap2);
+                                        }
+                                    }
+                                }
+                                result.postValue(ApiResult.success(reminders));
+                            }
+
+                            @Override
+                            public void onFailure(Call<com.kejaksaan.reminder.model.PerkaraResponse> callP, Throwable tP) {
+                                result.postValue(ApiResult.success(reminders));
+                            }
+                        });
                     } else {
                         result.postValue(ApiResult.error("Data reminder kosong"));
                     }

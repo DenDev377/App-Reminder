@@ -63,6 +63,18 @@
             android:exported="false" />
 
         <activity
+            android:name=".TentangAplikasiActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".PrivacyPolicyActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".FaqActivity"
+            android:exported="false" />
+
+        <activity
             android:name=".NotificationActivity"
             android:exported="false" />
 

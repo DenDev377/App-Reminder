@@ -16,6 +16,8 @@ import com.kejaksaan.reminder.model.ReminderResponse;
 import com.kejaksaan.reminder.model.TimelinePaginationResponse;
 import com.kejaksaan.reminder.model.UpdatePhoneRequest;
 import com.kejaksaan.reminder.model.UpdatePhoneResponse;
+import com.kejaksaan.reminder.model.UpdateProfileRequest;
+import com.kejaksaan.reminder.model.UpdateProfileResponse;
 import com.kejaksaan.reminder.model.UserResponse;
 
 import retrofit2.Call;
@@ -24,6 +26,7 @@ import retrofit2.http.GET;
 import retrofit2.http.HTTP;
 import retrofit2.http.PATCH;
 import retrofit2.http.POST;
+import retrofit2.http.PUT;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
 
@@ -65,6 +68,21 @@ public interface ApiService {
 
     @POST("api/profile/nomor-hp")
     Call<UpdatePhoneResponse> updatePhone(@Body UpdatePhoneRequest request);
+
+    @POST("api/profile")
+    Call<UpdateProfileResponse> updateProfile(@Body UpdateProfileRequest request);
+
+    @PUT("api/profile")
+    Call<UpdateProfileResponse> updateProfilePut(@Body UpdateProfileRequest request);
+
+    @POST("api/profile/update")
+    Call<UpdateProfileResponse> updateProfilePostUpdate(@Body UpdateProfileRequest request);
+
+    @POST("api/user")
+    Call<UpdateProfileResponse> updateUser(@Body UpdateProfileRequest request);
+
+    @PUT("api/user")
+    Call<UpdateProfileResponse> updateUserPut(@Body UpdateProfileRequest request);
 
     // --- Perkara (Kasus) ---
 

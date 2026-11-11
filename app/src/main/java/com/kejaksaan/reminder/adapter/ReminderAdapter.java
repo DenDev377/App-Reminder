@@ -186,8 +186,24 @@ public class ReminderAdapter extends RecyclerView.Adapter<ReminderAdapter.Remind
             tvReminderTersangka.setText("Tersangka: " + tersangka);
 
             // Stage
-            String tahap = reminder.getTahap() != null ? reminder.getTahap() : "-";
+            String tahap = reminder.getTahap();
+            if ((tahap == null || tahap.trim().isEmpty() || tahap.equals("-")) && reminder.getPerkara() != null && reminder.getPerkara().getTahapSaatIni() != null) {
+                tahap = reminder.getPerkara().getTahapSaatIni();
+            }
+            if (tahap == null || tahap.trim().isEmpty()) {
+                tahap = "-";
+            }
             tvReminderTahap.setText("Tahap: " + tahap);
+
+            // Styling khusus jika Tahap II / Tahap 2
+            String lowerTahap = tahap.toLowerCase();
+            if (lowerTahap.contains("tahap ii") || lowerTahap.contains("tahap 2")) {
+                tvReminderTahap.setTextColor(Color.parseColor("#0284C7")); // Sky blue
+                tvReminderTahap.setTypeface(null, android.graphics.Typeface.BOLD);
+            } else {
+                tvReminderTahap.setTextColor(Color.parseColor("#64748B"));
+                tvReminderTahap.setTypeface(null, android.graphics.Typeface.NORMAL);
+            }
 
             // Deadline
             tvReminderDeadline.setText(formatDate(reminder.getDeadline()));
