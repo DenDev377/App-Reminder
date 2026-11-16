@@ -200,14 +200,19 @@ public class ProfileActivity extends AppCompatActivity {
             });
         }
 
-        // ── Ubah Foto Profil ─────────────────────────────────────────────────
+        // ── Preview & Ubah Foto Profil ────────────────────────────────────────
         if (btnChangeProfilePhoto != null) {
-            btnChangeProfilePhoto.setOnClickListener(v -> showChangePhotoDialog());
+            btnChangeProfilePhoto.setOnClickListener(v -> showDialogPreviewFoto());
+        }
+
+        View btnBadgeCamera = findViewById(R.id.btnBadgeCamera);
+        if (btnBadgeCamera != null) {
+            btnBadgeCamera.setOnClickListener(v -> showChangePhotoDialog());
         }
 
         View menuFotoProfil = findViewById(R.id.menuFotoProfil);
         if (menuFotoProfil != null) {
-            menuFotoProfil.setOnClickListener(v -> showChangePhotoDialog());
+            menuFotoProfil.setOnClickListener(v -> showDialogPreviewFoto());
         }
 
         // ── Data Pegawai / Edit Profil ────────────────────────────────────────
@@ -645,7 +650,117 @@ public class ProfileActivity extends AppCompatActivity {
         resetPositiveButton(dialog, "Simpan");
     }
 
-    // ─── Fitur: Upload Foto Profil ───────────────────────────────────────────────
+    // ─── Fitur: Preview & Upload Foto Profil ─────────────────────────────────────
+
+    private void showDialogPreviewFoto() {
+        View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_preview_foto, null);
+
+        TextView tvNama       = dialogView.findViewById(R.id.tvPreviewNama);
+        TextView tvSub        = dialogView.findViewById(R.id.tvPreviewSub);
+        ImageView ivFoto      = dialogView.findViewById(R.id.ivPreviewFoto);
+        ProgressBar pbLoading = dialogView.findViewById(R.id.pbPreviewLoading);
+        ImageView btnClose    = dialogView.findViewById(R.id.btnPreviewClose);
+        View btnTutup         = dialogView.findViewById(R.id.btnPreviewTutup);
+        View btnUbahFoto      = dialogView.findViewById(R.id.btnPreviewUbahFoto);
+
+        SessionManager sessionManager = new SessionManager(this);
+        String name = (currentUser != null && currentUser.getName() != null)
+                ? currentUser.getName() : sessionManager.fetchUserName();
+        String nip = (currentUser != null && currentUser.getNip() != null)
+                ? currentUser.getNip() : sessionManager.fetchUserNip();
+        String jabatan = (currentUser != null && currentUser.getJabatan() != null)
+                ? currentUser.getJabatan() : sessionManager.fetchUserJabatan();
+
+        if (name != null && !name.trim().isEmpty() && !name.equals("-")) {
+            tvNama.setText(name);
+        } else {
+            tvNama.setText("Foto Profil Pegawai");
+        }
+
+        StringBuilder sub = new StringBuilder();
+        if (jabatan != null && !jabatan.trim().isEmpty() && !jabatan.equals("-")) {
+            sub.append(jabatan);
+        }
+        if (nip != null && !nip.trim().isEmpty() && !nip.equals("-")) {
+            if (sub.length() > 0) sub.append(" · ");
+            sub.append("NIP: ").append(nip);
+        }
+        if (sub.length() > 0) {
+            tvSub.setText(sub.toString());
+        } else {
+            tvSub.setText("Kejaksaan Negeri Ogan Komering Ulu");
+        }
+
+        // Tampilkan gambar pada popup preview
+        String localPath = sessionManager.fetchLocalAvatarPath();
+        File localFile = (localPath != null && !localPath.isEmpty()) ? new File(localPath) : null;
+        boolean hasLocal = localFile != null && localFile.exists() && localFile.length() > 0;
+
+        String remoteUrl = (currentUser != null) ? currentUser.getResolvedPhotoUrl() : null;
+        if (remoteUrl == null || remoteUrl.trim().isEmpty()) {
+            remoteUrl = sessionManager.fetchFotoProfilUrl();
+        }
+
+        if (pbLoading != null) {
+            pbLoading.setVisibility(View.VISIBLE);
+        }
+
+        if (remoteUrl != null && !remoteUrl.trim().isEmpty()) {
+            com.bumptech.glide.RequestBuilder<android.graphics.drawable.Drawable> errorBuilder = hasLocal
+                    ? Glide.with(this).load(localFile).centerCrop()
+                    : Glide.with(this).load(R.drawable.logo_kejaksaan).centerCrop();
+
+            Glide.with(this)
+                    .load(remoteUrl)
+                    .placeholder(R.drawable.logo_kejaksaan)
+                    .error(errorBuilder)
+                    .signature(new ObjectKey(System.currentTimeMillis()))
+                    .centerCrop()
+                    .listener(new com.bumptech.glide.request.RequestListener<android.graphics.drawable.Drawable>() {
+                        @Override
+                        public boolean onLoadFailed(com.bumptech.glide.load.engine.GlideException e, Object model, com.bumptech.glide.request.target.Target<android.graphics.drawable.Drawable> target, boolean isFirstResource) {
+                            if (pbLoading != null) pbLoading.setVisibility(View.GONE);
+                            return false;
+                        }
+
+                        @Override
+                        public boolean onResourceReady(android.graphics.drawable.Drawable resource, Object model, com.bumptech.glide.request.target.Target<android.graphics.drawable.Drawable> target, com.bumptech.glide.load.DataSource dataSource, boolean isFirstResource) {
+                            if (pbLoading != null) pbLoading.setVisibility(View.GONE);
+                            return false;
+                        }
+                    })
+                    .into(ivFoto);
+        } else if (hasLocal) {
+            if (pbLoading != null) pbLoading.setVisibility(View.GONE);
+            Glide.with(this)
+                    .load(localFile)
+                    .signature(new ObjectKey(System.currentTimeMillis()))
+                    .centerCrop()
+                    .into(ivFoto);
+        } else {
+            if (pbLoading != null) pbLoading.setVisibility(View.GONE);
+            ivFoto.setImageResource(R.drawable.logo_kejaksaan);
+        }
+
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setView(dialogView)
+                .create();
+
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        }
+
+        if (btnClose != null) btnClose.setOnClickListener(v -> dialog.dismiss());
+        if (btnTutup != null) btnTutup.setOnClickListener(v -> dialog.dismiss());
+        if (btnUbahFoto != null) {
+            btnUbahFoto.setOnClickListener(v -> {
+                dialog.dismiss();
+                showChangePhotoDialog();
+            });
+        }
+
+        dialog.show();
+    }
 
     private void showChangePhotoDialog() {
         if (isUploadingPhoto) {

@@ -154,6 +154,7 @@
                         android:focusable="true">
 
                         <com.google.android.material.card.MaterialCardView
+                            android:id="@+id/cardProfileAvatar"
                             android:layout_width="72dp"
                             android:layout_height="72dp"
                             app:cardCornerRadius="36dp"
@@ -172,6 +173,7 @@
 
                         <!-- Camera badge icon on bottom right -->
                         <FrameLayout
+                            android:id="@+id/btnBadgeCamera"
                             android:layout_width="26dp"
                             android:layout_height="26dp"
                             android:layout_gravity="bottom|end"
