@@ -81,7 +81,8 @@ public class User {
     /**
      * Kembalikan URL foto yang siap digunakan: prioritaskan foto_profile_url / foto_profil_url,
      * fallback ke konstruksi dari foto_profil + base URL.
-     * Secara otomatis menyesuaikan jika server mengembalikan host internal/localhost yang berbeda dari client.
+     * Secara otomatis menyesuaikan jika server mengembalikan host internal/localhost atau IP LAN (.env)
+     * yang berbeda dari endpoint BASE_URL aplikasi Android.
      */
     public String getResolvedPhotoUrl() {
         String url = (fotoProfileUrl != null && !fotoProfileUrl.isEmpty())
@@ -98,31 +99,51 @@ public class User {
 
         url = url.trim();
 
-        // Jika path relatif
+        // 1. Jika URL mengandung /storage/, selalu ekstrak storage path dan sesuaikan dengan BASE_URL aktif
+        if (url.contains("/storage/")) {
+            int idx = url.indexOf("/storage/");
+            String storagePath = url.substring(idx + 1); // "storage/profiles/..."
+            return resolveWithBaseUrl(storagePath);
+        }
+
+        // 2. Jika relative path tanpa "/storage/", misal "profiles/xyz.jpg"
         if (!url.startsWith("http://") && !url.startsWith("https://")) {
             if (url.startsWith("/")) {
                 url = url.substring(1);
             }
             if (url.startsWith("storage/")) {
-                return com.kejaksaan.reminder.api.RetrofitClient.BASE_URL + url;
+                return resolveWithBaseUrl(url);
             }
-            return com.kejaksaan.reminder.api.RetrofitClient.BASE_URL + "storage/" + url;
+            return resolveWithBaseUrl("storage/" + url);
         }
 
-        // Jika URL lengkap, pastikan host selaras jika server mengembalikan localhost/127.0.0.1
+        // 3. Jika URL lengkap tetapi host berbeda dari BASE_URL (misal IP lama di .env backend)
         try {
             java.net.URI uri = new java.net.URI(url);
             String host = uri.getHost();
-            if (host != null && (host.equalsIgnoreCase("localhost") || host.equals("127.0.0.1"))) {
-                java.net.URI baseUri = new java.net.URI(com.kejaksaan.reminder.api.RetrofitClient.BASE_URL);
+            java.net.URI baseUri = new java.net.URI(com.kejaksaan.reminder.api.RetrofitClient.BASE_URL);
+            String baseHost = baseUri.getHost();
+
+            if (host != null && baseHost != null && !host.equalsIgnoreCase(baseHost)) {
                 String path = uri.getPath();
                 if (path != null && path.startsWith("/")) path = path.substring(1);
-                return com.kejaksaan.reminder.api.RetrofitClient.BASE_URL + (path != null ? path : "");
+                return resolveWithBaseUrl(path != null ? path : "");
             }
         } catch (Exception ignored) {
         }
 
         return url;
+    }
+
+    private static String resolveWithBaseUrl(String relativePath) {
+        String base = com.kejaksaan.reminder.api.RetrofitClient.BASE_URL;
+        if (!base.endsWith("/")) {
+            base = base + "/";
+        }
+        if (relativePath != null && relativePath.startsWith("/")) {
+            relativePath = relativePath.substring(1);
+        }
+        return base + (relativePath != null ? relativePath : "");
     }
 
     // ─── Setters ────────────────────────────────────────────────────────────────

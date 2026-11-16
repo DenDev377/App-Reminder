@@ -144,4 +144,19 @@ public class ImageUploadHelper {
 
         return outputFile;
     }
+
+    /**
+     * Menyalin file sumber ke tujuan.
+     */
+    public static void copyFile(File source, File dest) throws IOException {
+        try (InputStream in = new FileInputStream(source);
+             OutputStream out = new FileOutputStream(dest)) {
+            byte[] buf = new byte[8192];
+            int len;
+            while ((len = in.read(buf)) > 0) {
+                out.write(buf, 0, len);
+            }
+            out.flush();
+        }
+    }
 }

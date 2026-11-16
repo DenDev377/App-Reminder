@@ -26,6 +26,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.signature.ObjectKey;
 import com.kejaksaan.reminder.adapter.BeritaDashboardAdapter;
 import com.kejaksaan.reminder.adapter.ReminderAdapter;
 import com.kejaksaan.reminder.model.Berita;
@@ -38,6 +39,7 @@ import com.kejaksaan.reminder.viewmodel.AuthViewModel;
 import com.kejaksaan.reminder.viewmodel.BeritaViewModel;
 import com.kejaksaan.reminder.viewmodel.PerkaraViewModel;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -425,14 +427,42 @@ public class DashboardActivity extends AppCompatActivity {
             : user.getRole();
         tvUserRole.setText(jabatanOrRole);
 
-        String photoUrl = user.getResolvedPhotoUrl();
-        if (photoUrl != null) {
+        loadDashboardAvatar(user);
+    }
+
+    private void loadDashboardAvatar(User user) {
+        if (imgProfileAvatar == null) return;
+
+        SessionManager sm = new SessionManager(this);
+        String localPath = sm.fetchLocalAvatarPath();
+        File localFile = (localPath != null && !localPath.isEmpty()) ? new File(localPath) : null;
+        boolean hasLocal = localFile != null && localFile.exists() && localFile.length() > 0;
+
+        String remoteUrl = (user != null) ? user.getResolvedPhotoUrl() : null;
+        if (remoteUrl == null || remoteUrl.trim().isEmpty()) {
+            remoteUrl = sm.fetchFotoProfilUrl();
+        }
+
+        if (remoteUrl != null && !remoteUrl.trim().isEmpty()) {
+            com.bumptech.glide.RequestBuilder<android.graphics.drawable.Drawable> errorBuilder = hasLocal
+                    ? Glide.with(this).load(localFile).circleCrop()
+                    : Glide.with(this).load(R.drawable.logo_kejaksaan).circleCrop();
+
             Glide.with(this)
-                 .load(photoUrl)
-                 .placeholder(R.drawable.logo_kejaksaan)
-                 .error(R.drawable.logo_kejaksaan)
-                 .circleCrop()
-                 .into(imgProfileAvatar);
+                    .load(remoteUrl)
+                    .placeholder(R.drawable.logo_kejaksaan)
+                    .error(errorBuilder)
+                    .signature(new ObjectKey(System.currentTimeMillis()))
+                    .circleCrop()
+                    .into(imgProfileAvatar);
+        } else if (hasLocal) {
+            Glide.with(this)
+                    .load(localFile)
+                    .signature(new ObjectKey(System.currentTimeMillis()))
+                    .circleCrop()
+                    .into(imgProfileAvatar);
+        } else {
+            imgProfileAvatar.setImageResource(R.drawable.logo_kejaksaan);
         }
     }
 

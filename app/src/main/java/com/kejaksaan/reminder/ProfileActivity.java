@@ -803,7 +803,6 @@ public class ProfileActivity extends AppCompatActivity {
 
     private void handlePhotoUploadSuccess(UpdateProfileResponse resp, File file) {
         setPhotoUploadingState(false);
-        cleanupTempFile(file);
 
         SessionManager sessionManager = new SessionManager(this);
         if (resp.getUser() != null) {
@@ -817,6 +816,19 @@ public class ProfileActivity extends AppCompatActivity {
             }
         }
 
+        // Simpan salinan lokal avatar yang baru diunggah agar selalu siap ditampilkan
+        if (file != null && file.exists()) {
+            try {
+                int uid = currentUser != null ? currentUser.getId() : sessionManager.fetchUserId();
+                File localAvatar = new File(getFilesDir(), "avatar_" + uid + ".jpg");
+                ImageUploadHelper.copyFile(file, localAvatar);
+                sessionManager.saveLocalAvatarPath(localAvatar.getAbsolutePath());
+            } catch (Exception e) {
+                android.util.Log.e("SIPETA_PROFILE", "Gagal menyimpan avatar lokal", e);
+            }
+            cleanupTempFile(file);
+        }
+
         if (currentUser != null) {
             sessionManager.saveUserInfo(currentUser);
         }
@@ -826,23 +838,63 @@ public class ProfileActivity extends AppCompatActivity {
                 (msg != null && !msg.isEmpty()) ? msg : "Foto profil berhasil diperbarui",
                 Toast.LENGTH_SHORT).show();
 
-        // Muat gambar terbaru ke UI dengan cache-buster
-        if (currentUser != null && imgProfileKta != null) {
-            String photoUrl = currentUser.getResolvedPhotoUrl();
-            if (photoUrl != null) {
-                Glide.with(this)
-                        .load(photoUrl)
-                        .placeholder(R.drawable.logo_kejaksaan)
-                        .error(R.drawable.logo_kejaksaan)
-                        .signature(new ObjectKey(System.currentTimeMillis()))
-                        .centerCrop()
-                        .into(imgProfileKta);
-            }
-        }
+        // Muat gambar terbaru ke UI
+        loadAvatarImage(currentUser);
 
         // Sinkronisasi data user terbaru dengan server
         if (perkaraViewModel != null) {
             perkaraViewModel.loadUserProfile();
+        }
+    }
+
+    private void loadAvatarImage(User user) {
+        if (imgProfileKta == null) return;
+
+        SessionManager sm = new SessionManager(this);
+        String localPath = sm.fetchLocalAvatarPath();
+        File localFile = (localPath != null && !localPath.isEmpty()) ? new File(localPath) : null;
+        boolean hasLocal = localFile != null && localFile.exists() && localFile.length() > 0;
+
+        String remoteUrl = (user != null) ? user.getResolvedPhotoUrl() : null;
+        if (remoteUrl == null || remoteUrl.trim().isEmpty()) {
+            remoteUrl = sm.fetchFotoProfilUrl();
+        }
+
+        android.util.Log.d("SIPETA_PROFILE", "loadAvatarImage: remoteUrl=" + remoteUrl + ", hasLocal=" + hasLocal);
+
+        if (remoteUrl != null && !remoteUrl.trim().isEmpty()) {
+            com.bumptech.glide.RequestBuilder<android.graphics.drawable.Drawable> errorBuilder = hasLocal
+                    ? Glide.with(this).load(localFile).centerCrop()
+                    : Glide.with(this).load(R.drawable.logo_kejaksaan).centerCrop();
+
+            Glide.with(this)
+                    .load(remoteUrl)
+                    .placeholder(R.drawable.logo_kejaksaan)
+                    .error(errorBuilder)
+                    .signature(new ObjectKey(System.currentTimeMillis()))
+                    .centerCrop()
+                    .listener(new com.bumptech.glide.request.RequestListener<android.graphics.drawable.Drawable>() {
+                        @Override
+                        public boolean onLoadFailed(com.bumptech.glide.load.engine.GlideException e, Object model, com.bumptech.glide.request.target.Target<android.graphics.drawable.Drawable> target, boolean isFirstResource) {
+                            android.util.Log.e("SIPETA_PROFILE", "Glide gagal memuat remoteUrl: " + model, e);
+                            return false;
+                        }
+
+                        @Override
+                        public boolean onResourceReady(android.graphics.drawable.Drawable resource, Object model, com.bumptech.glide.request.target.Target<android.graphics.drawable.Drawable> target, com.bumptech.glide.load.DataSource dataSource, boolean isFirstResource) {
+                            android.util.Log.d("SIPETA_PROFILE", "Glide sukses memuat remoteUrl: " + model);
+                            return false;
+                        }
+                    })
+                    .into(imgProfileKta);
+        } else if (hasLocal) {
+            Glide.with(this)
+                    .load(localFile)
+                    .signature(new ObjectKey(System.currentTimeMillis()))
+                    .centerCrop()
+                    .into(imgProfileKta);
+        } else {
+            imgProfileKta.setImageResource(R.drawable.logo_kejaksaan);
         }
     }
 
@@ -940,17 +992,7 @@ public class ProfileActivity extends AppCompatActivity {
             tvInfoDataPegawai.setText(sub);
         }
 
-        if (imgProfileKta != null) {
-            String url = user.getResolvedPhotoUrl();
-            if (url != null) {
-                Glide.with(this).load(url)
-                     .placeholder(R.drawable.logo_kejaksaan)
-                     .error(R.drawable.logo_kejaksaan)
-                     .centerCrop().into(imgProfileKta);
-            } else {
-                imgProfileKta.setImageResource(R.drawable.logo_kejaksaan);
-            }
-        }
+        loadAvatarImage(user);
 
         if (tvInfoEmail != null)
             tvInfoEmail.setText(notEmpty(user.getEmail(), "-"));

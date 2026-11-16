@@ -27,6 +27,7 @@ public class SessionManager {
     private static final String KEY_USER_PANGKAT        = "user_pangkat_golongan";
     private static final String KEY_USER_FOTO_PROFIL    = "user_foto_profil";
     private static final String KEY_USER_FOTO_PROFIL_URL = "user_foto_profil_url";
+    private static final String KEY_LOCAL_AVATAR_PATH   = "local_avatar_path";
 
     private static final String KEY_FCM_TOKEN           = "fcm_device_token";
     private static final String KEY_FCM_TOKEN_REGISTERED = "fcm_token_registered";
@@ -119,6 +120,14 @@ public class SessionManager {
     public String fetchUserPangkat()  { return prefs.getString(KEY_USER_PANGKAT, ""); }
     public String fetchFotoProfil()   { return prefs.getString(KEY_USER_FOTO_PROFIL, ""); }
     public String fetchFotoProfilUrl(){ return prefs.getString(KEY_USER_FOTO_PROFIL_URL, ""); }
+
+    public void saveLocalAvatarPath(String path) {
+        prefs.edit().putString(KEY_LOCAL_AVATAR_PATH, path).apply();
+    }
+
+    public String fetchLocalAvatarPath() {
+        return prefs.getString(KEY_LOCAL_AVATAR_PATH, null);
+    }
 
     // ─── Remember User ───────────────────────────────────────────────────────────
 
