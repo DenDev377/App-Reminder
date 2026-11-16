@@ -131,7 +131,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
-                    android:text="Sistem Informasi Perkara &amp; Tata Jadwal"
+                    android:text="Sistem Pengingat Tahapan Perkara"
                     android:textColor="#64748B"
                     android:textSize="13sp"
                     android:gravity="center" />
@@ -202,7 +202,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="SIPETA (Sistem Informasi Perkara &amp; Tata Jadwal) adalah aplikasi mobile berbasis Android yang dikembangkan khusus untuk mendukung operasional Kejaksaan Negeri OKU dalam mengelola jadwal sidang dan data perkara hukum secara digital."
+                    android:text="SIPETA (Sistem Pengingat Tahapan Perkara) adalah aplikasi mobile berbasis Android yang dirancang khusus untuk mendukung operasional Kejaksaan dalam memantau, mengawal, dan mengingatkan batas waktu (SLA) setiap tahapan penanganan perkara tindak pidana secara tepat waktu, transparan, dan akuntabel."
                     android:textColor="#334155"
                     android:textSize="14sp"
                     android:lineSpacingMultiplier="1.5"
@@ -211,7 +211,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Aplikasi ini memungkinkan para jaksa dan pegawai kejaksaan untuk memantau jadwal persidangan, menerima pengingat otomatis, mengelola data perkara, serta mengakses informasi berita terkini—kapan saja dan di mana saja melalui perangkat Android."
+                    android:text="Aplikasi ini membantu Jaksa Peneliti dan pimpinan untuk mengawasi linimasa penanganan perkara secara menyeluruh—mulai dari penerimaan SPDP, koordinasi awal, monitoring berkas Tahap I (P-17), penelitian berkas perkara (P-24), pemenuhan petunjuk (P-19/P-20), hingga penyerahan tanggung jawab tersangka dan barang bukti (Tahap II)—lengkap dengan notifikasi pengingat dini sebelum tenggat waktu kedaluwarsa."
                     android:textColor="#334155"
                     android:textSize="14sp"
                     android:lineSpacingMultiplier="1.5" />
@@ -292,7 +292,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Manajemen Jadwal Sidang"
+                            android:text="Monitoring Tahapan Perkara"
                             android:textColor="#1E293B"
                             android:textSize="14sp"
                             android:textStyle="bold" />
@@ -301,7 +301,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="2dp"
-                            android:text="Kelola dan pantau jadwal persidangan secara real-time"
+                            android:text="Pantau alur dan status penanganan berkas perkara secara realtime"
                             android:textColor="#64748B"
                             android:textSize="12sp" />
                     </LinearLayout>
@@ -339,7 +339,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Pengingat Otomatis"
+                            android:text="Pengingat Batas Waktu (SLA)"
                             android:textColor="#1E293B"
                             android:textSize="14sp"
                             android:textStyle="bold" />
@@ -348,7 +348,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="2dp"
-                            android:text="Notifikasi push otomatis sebelum jadwal sidang dimulai"
+                            android:text="Notifikasi push otomatis sebelum batas waktu SOP / KUHAP terlewati"
                             android:textColor="#64748B"
                             android:textSize="12sp" />
                     </LinearLayout>
@@ -386,7 +386,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Data Perkara Terpadu"
+                            android:text="Linimasa &amp; Riwayat Perkara"
                             android:textColor="#1E293B"
                             android:textSize="14sp"
                             android:textStyle="bold" />
@@ -395,7 +395,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="2dp"
-                            android:text="Akses data perkara hukum lengkap dan terstruktur"
+                            android:text="Catatan kronologis setiap tahapan perkara dan log SLA terstruktur"
                             android:textColor="#64748B"
                             android:textSize="12sp" />
                     </LinearLayout>
@@ -432,7 +432,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Informasi &amp; Berita"
+                            android:text="Informasi &amp; Berita Terpadu"
                             android:textColor="#1E293B"
                             android:textSize="14sp"
                             android:textStyle="bold" />
@@ -441,7 +441,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="2dp"
-                            android:text="Berita dan informasi terkini seputar kejaksaan"
+                            android:text="Berita dan informasi terkini seputar kegiatan resmi Kejaksaan"
                             android:textColor="#64748B"
                             android:textSize="12sp" />
                     </LinearLayout>

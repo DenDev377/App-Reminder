@@ -26,6 +26,7 @@ public class SessionManager {
     private static final String KEY_USER_JABATAN        = "user_jabatan";
     private static final String KEY_USER_PANGKAT        = "user_pangkat_golongan";
     private static final String KEY_USER_FOTO_PROFIL    = "user_foto_profil";
+    private static final String KEY_USER_FOTO_PROFIL_URL = "user_foto_profil_url";
 
     private static final String KEY_FCM_TOKEN           = "fcm_device_token";
     private static final String KEY_FCM_TOKEN_REGISTERED = "fcm_token_registered";
@@ -104,6 +105,7 @@ public class SessionManager {
                 .putString(KEY_USER_JABATAN, user.getJabatan())
                 .putString(KEY_USER_PANGKAT, user.getPangkatGolongan())
                 .putString(KEY_USER_FOTO_PROFIL, user.getFotoProfil())
+                .putString(KEY_USER_FOTO_PROFIL_URL, user.getResolvedPhotoUrl())
                 .apply();
     }
 
@@ -116,6 +118,7 @@ public class SessionManager {
     public String fetchUserJabatan()  { return prefs.getString(KEY_USER_JABATAN, ""); }
     public String fetchUserPangkat()  { return prefs.getString(KEY_USER_PANGKAT, ""); }
     public String fetchFotoProfil()   { return prefs.getString(KEY_USER_FOTO_PROFIL, ""); }
+    public String fetchFotoProfilUrl(){ return prefs.getString(KEY_USER_FOTO_PROFIL_URL, ""); }
 
     // ─── Remember User ───────────────────────────────────────────────────────────
 

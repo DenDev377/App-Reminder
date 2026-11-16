@@ -185,7 +185,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
-                        android:text="SIPETA (Sistem Informasi Perkara &amp; Tata Jadwal) berfungsi untuk membantu jaksa dan pegawai Kejaksaan Negeri OKU memantau jadwal sidang, menerima pengingat sidang otomatis (H-1 dan hari-H), mengelola data perkara, serta membaca berita resmi kejaksaan secara terpadu."
+                        android:text="SIPETA (Sistem Pengingat Tahapan Perkara) berfungsi untuk membantu jaksa dan pegawai Kejaksaan memantau linimasa perkara, mengawal batas waktu (SLA) setiap tahapan prapenuntutan secara otomatis (H-3, Jatuh Tempo, dan Overdue), mengelola data perkara, serta membaca berita resmi kejaksaan secara terpadu."
                         android:textColor="#334155"
                         android:textSize="13sp"
                         android:lineSpacingMultiplier="1.3" />
@@ -203,7 +203,7 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="2. Bagaimana cara melihat jadwal sidang saya?"
+                        android:text="2. Bagaimana cara melihat reminder batas waktu perkara?"
                         android:textColor="#0D9488"
                         android:textSize="14sp"
                         android:textStyle="bold" />
@@ -212,7 +212,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
-                        android:text="Jadwal sidang hari ini ditampilkan langsung pada kartu 'Jadwal Hari Ini' di Dashboard. Untuk melihat seluruh agenda sidang mendatang atau yang telah lewat, Anda dapat membuka menu 'Jadwal Sidang' atau tab 'Perkara'."
+                        android:text="Pengingat perkara yang mendesak ditampilkan langsung pada kartu 'Perhatian Ekstra' di Dashboard. Untuk melihat seluruh daftar pengingat aktif atau filter urgensi (H-3, Jatuh Tempo, Overdue), Anda dapat membuka menu 'Reminder' atau menu 'Timeline'."
                         android:textColor="#334155"
                         android:textSize="13sp"
                         android:lineSpacingMultiplier="1.3" />
@@ -239,7 +239,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
-                        android:text="Pengingat dikirimkan secara otomatis melalui Push Notification HP (FCM) pada:\n• H-1 sebelum hari sidang (pukul 16.00 WIB)\n• Hari-H persidangan (pukul 07.00 WIB)\nPastikan izin notifikasi aktif di pengaturan HP Anda."
+                        android:text="Pengingat dikirimkan secara otomatis melalui Push Notification HP (FCM) dan kartu pengingat saat tahapan perkara mendekati batas waktu (H-3), hari jatuh tempo, maupun saat melewati batas waktu (Overdue). Pastikan izin notifikasi aktif di pengaturan HP Anda."
                         android:textColor="#334155"
                         android:textSize="13sp"
                         android:lineSpacingMultiplier="1.3" />

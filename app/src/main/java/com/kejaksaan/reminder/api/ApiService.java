@@ -20,13 +20,16 @@ import com.kejaksaan.reminder.model.UpdateProfileRequest;
 import com.kejaksaan.reminder.model.UpdateProfileResponse;
 import com.kejaksaan.reminder.model.UserResponse;
 
+import okhttp3.MultipartBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.HTTP;
+import retrofit2.http.Multipart;
 import retrofit2.http.PATCH;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
+import retrofit2.http.Part;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
 
@@ -83,6 +86,32 @@ public interface ApiService {
 
     @PUT("api/user")
     Call<UpdateProfileResponse> updateUserPut(@Body UpdateProfileRequest request);
+
+    // --- Upload Foto Profil (Mendukung Endpoint Utama & Alternatif) ---
+
+    @Multipart
+    @POST("api/user/foto")
+    Call<UpdateProfileResponse> uploadUserFoto(@Part MultipartBody.Part foto);
+
+    @Multipart
+    @POST("api/user/photo")
+    Call<UpdateProfileResponse> uploadUserPhoto(@Part MultipartBody.Part photo);
+
+    @Multipart
+    @POST("api/foto-profil")
+    Call<UpdateProfileResponse> uploadFotoProfil(@Part MultipartBody.Part foto_profil);
+
+    @Multipart
+    @POST("api/profile/foto")
+    Call<UpdateProfileResponse> uploadProfileFoto(@Part MultipartBody.Part foto);
+
+    @Multipart
+    @POST("api/profile/photo")
+    Call<UpdateProfileResponse> uploadProfilePhoto(@Part MultipartBody.Part photo);
+
+    @Multipart
+    @POST("api/user/avatar")
+    Call<UpdateProfileResponse> uploadUserAvatar(@Part MultipartBody.Part avatar);
 
     // --- Perkara (Kasus) ---
 

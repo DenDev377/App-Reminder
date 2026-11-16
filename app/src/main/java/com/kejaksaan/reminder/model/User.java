@@ -45,6 +45,9 @@ public class User {
     @SerializedName("foto_profil_url")
     private String fotoProlilUrl;
 
+    @SerializedName("foto_profile_url")
+    private String fotoProfileUrl;
+
     // ─── Getters ────────────────────────────────────────────────────────────────
 
     public int getId() { return id; }
@@ -73,19 +76,53 @@ public class User {
      */
     public String getFotoProlilUrl() { return fotoProlilUrl; }
 
+    public String getFotoProfileUrl() { return fotoProfileUrl; }
+
     /**
-     * Kembalikan URL foto yang siap digunakan: prioritaskan foto_profil_url,
+     * Kembalikan URL foto yang siap digunakan: prioritaskan foto_profile_url / foto_profil_url,
      * fallback ke konstruksi dari foto_profil + base URL.
+     * Secara otomatis menyesuaikan jika server mengembalikan host internal/localhost yang berbeda dari client.
      */
     public String getResolvedPhotoUrl() {
-        if (fotoProlilUrl != null && !fotoProlilUrl.isEmpty()) {
-            return fotoProlilUrl;
+        String url = (fotoProfileUrl != null && !fotoProfileUrl.isEmpty())
+                ? fotoProfileUrl
+                : fotoProlilUrl;
+
+        if (url == null || url.trim().isEmpty()) {
+            url = fotoProfil;
         }
-        if (fotoProfil != null && !fotoProfil.isEmpty()) {
-            if (fotoProfil.startsWith("http")) return fotoProfil;
-            return com.kejaksaan.reminder.api.RetrofitClient.BASE_URL + "storage/" + fotoProfil;
+
+        if (url == null || url.trim().isEmpty()) {
+            return null;
         }
-        return null;
+
+        url = url.trim();
+
+        // Jika path relatif
+        if (!url.startsWith("http://") && !url.startsWith("https://")) {
+            if (url.startsWith("/")) {
+                url = url.substring(1);
+            }
+            if (url.startsWith("storage/")) {
+                return com.kejaksaan.reminder.api.RetrofitClient.BASE_URL + url;
+            }
+            return com.kejaksaan.reminder.api.RetrofitClient.BASE_URL + "storage/" + url;
+        }
+
+        // Jika URL lengkap, pastikan host selaras jika server mengembalikan localhost/127.0.0.1
+        try {
+            java.net.URI uri = new java.net.URI(url);
+            String host = uri.getHost();
+            if (host != null && (host.equalsIgnoreCase("localhost") || host.equals("127.0.0.1"))) {
+                java.net.URI baseUri = new java.net.URI(com.kejaksaan.reminder.api.RetrofitClient.BASE_URL);
+                String path = uri.getPath();
+                if (path != null && path.startsWith("/")) path = path.substring(1);
+                return com.kejaksaan.reminder.api.RetrofitClient.BASE_URL + (path != null ? path : "");
+            }
+        } catch (Exception ignored) {
+        }
+
+        return url;
     }
 
     // ─── Setters ────────────────────────────────────────────────────────────────
@@ -95,4 +132,7 @@ public class User {
     public void setPangkatGolongan(String pangkatGolongan) { this.pangkatGolongan = pangkatGolongan; }
     public void setJabatan(String jabatan) { this.jabatan = jabatan; }
     public void setNomorHp(String nomorHp) { this.nomorHp = nomorHp; }
+    public void setFotoProfil(String fotoProfil) { this.fotoProfil = fotoProfil; }
+    public void setFotoProfilUrl(String fotoProfilUrl) { this.fotoProlilUrl = fotoProfilUrl; }
+    public void setFotoProfileUrl(String fotoProfileUrl) { this.fotoProfileUrl = fotoProfileUrl; }
 }

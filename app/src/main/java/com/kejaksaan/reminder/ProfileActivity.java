@@ -2,18 +2,24 @@ package com.kejaksaan.reminder;
 
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.method.HideReturnsTransformationMethod;
 import android.text.method.PasswordTransformationMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import android.graphics.Color;
 import androidx.activity.EdgeToEdge;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.PickVisualMediaRequest;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -22,6 +28,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.signature.ObjectKey;
 import com.kejaksaan.reminder.api.ApiService;
 import com.kejaksaan.reminder.api.RetrofitClient;
 import com.kejaksaan.reminder.model.ChangePasswordRequest;
@@ -31,9 +38,16 @@ import com.kejaksaan.reminder.model.UpdatePhoneResponse;
 import com.kejaksaan.reminder.model.UpdateProfileRequest;
 import com.kejaksaan.reminder.model.UpdateProfileResponse;
 import com.kejaksaan.reminder.model.User;
+import com.kejaksaan.reminder.util.ImageUploadHelper;
 import com.kejaksaan.reminder.util.SessionManager;
 import com.kejaksaan.reminder.viewmodel.PerkaraViewModel;
 
+import java.io.File;
+import java.util.concurrent.Executors;
+
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -49,11 +63,13 @@ import retrofit2.Response;
 public class ProfileActivity extends AppCompatActivity {
 
     // ─── KTA overlay ────────────────────────────────────────────────────────────
-    private ImageView imgProfileKta;
-    private TextView  tvKtaNama;
-    private TextView  tvKtaJabatan;
-    private TextView  tvKtaNip;
-    private TextView  tvKtaPangkat;
+    private ImageView   imgProfileKta;
+    private FrameLayout btnChangeProfilePhoto;
+    private ProgressBar pbUploadPhoto;
+    private TextView    tvKtaNama;
+    private TextView    tvKtaJabatan;
+    private TextView    tvKtaNip;
+    private TextView    tvKtaPangkat;
 
     // ─── Settings subtitles ──────────────────────────────────────────────────────
     private TextView tvInfoDataPegawai; // subtitle Data Pegawai (Edit Profil)
@@ -64,6 +80,31 @@ public class ProfileActivity extends AppCompatActivity {
     private SwipeRefreshLayout swipeRefresh;
     private PerkaraViewModel perkaraViewModel;
     private User currentUser;
+
+    private boolean isUploadingPhoto = false;
+    private Uri cameraTempUri;
+
+    // ─── Activity Result Launchers untuk Upload Foto Profil ───────────────────────
+    private final ActivityResultLauncher<PickVisualMediaRequest> pickMediaLauncher =
+            registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), uri -> {
+                if (uri != null) {
+                    handlePickedImage(uri);
+                }
+            });
+
+    private final ActivityResultLauncher<Intent> pickGalleryFallbackLauncher =
+            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+                if (result.getResultCode() == RESULT_OK && result.getData() != null && result.getData().getData() != null) {
+                    handlePickedImage(result.getData().getData());
+                }
+            });
+
+    private final ActivityResultLauncher<Uri> takePictureLauncher =
+            registerForActivityResult(new ActivityResultContracts.TakePicture(), success -> {
+                if (Boolean.TRUE.equals(success) && cameraTempUri != null) {
+                    handlePickedImage(cameraTempUri);
+                }
+            });
 
     // ─────────────────────────────────────────────────────────────────────────────
 
@@ -106,16 +147,18 @@ public class ProfileActivity extends AppCompatActivity {
     // ─── Init ────────────────────────────────────────────────────────────────────
 
     private void initViews() {
-        imgProfileKta     = findViewById(R.id.imgProfileKta);
-        tvKtaNama         = findViewById(R.id.tvKtaNama);
-        tvKtaJabatan      = findViewById(R.id.tvKtaJabatan);
-        tvKtaNip          = findViewById(R.id.tvKtaNip);
-        tvKtaPangkat      = findViewById(R.id.tvKtaPangkat);
-        tvInfoDataPegawai = findViewById(R.id.tvInfoDataPegawai);
-        tvInfoEmail       = findViewById(R.id.tvInfoEmail);
-        tvInfoNomorHp     = findViewById(R.id.tvInfoNomorHp);
-        ivRefreshIcon     = findViewById(R.id.ivRefreshIcon);
-        swipeRefresh      = findViewById(R.id.swipeRefresh);
+        imgProfileKta         = findViewById(R.id.imgProfileKta);
+        btnChangeProfilePhoto = findViewById(R.id.btnChangeProfilePhoto);
+        pbUploadPhoto         = findViewById(R.id.pbUploadPhoto);
+        tvKtaNama             = findViewById(R.id.tvKtaNama);
+        tvKtaJabatan          = findViewById(R.id.tvKtaJabatan);
+        tvKtaNip              = findViewById(R.id.tvKtaNip);
+        tvKtaPangkat          = findViewById(R.id.tvKtaPangkat);
+        tvInfoDataPegawai     = findViewById(R.id.tvInfoDataPegawai);
+        tvInfoEmail           = findViewById(R.id.tvInfoEmail);
+        tvInfoNomorHp         = findViewById(R.id.tvInfoNomorHp);
+        ivRefreshIcon         = findViewById(R.id.ivRefreshIcon);
+        swipeRefresh          = findViewById(R.id.swipeRefresh);
 
         if (swipeRefresh != null) {
             swipeRefresh.setColorSchemeColors(
@@ -155,6 +198,16 @@ public class ProfileActivity extends AppCompatActivity {
                 }
                 perkaraViewModel.loadUserProfile();
             });
+        }
+
+        // ── Ubah Foto Profil ─────────────────────────────────────────────────
+        if (btnChangeProfilePhoto != null) {
+            btnChangeProfilePhoto.setOnClickListener(v -> showChangePhotoDialog());
+        }
+
+        View menuFotoProfil = findViewById(R.id.menuFotoProfil);
+        if (menuFotoProfil != null) {
+            menuFotoProfil.setOnClickListener(v -> showChangePhotoDialog());
         }
 
         // ── Data Pegawai / Edit Profil ────────────────────────────────────────
@@ -590,6 +643,241 @@ public class ProfileActivity extends AppCompatActivity {
         }
         showError(tvError, msg);
         resetPositiveButton(dialog, "Simpan");
+    }
+
+    // ─── Fitur: Upload Foto Profil ───────────────────────────────────────────────
+
+    private void showChangePhotoDialog() {
+        if (isUploadingPhoto) {
+            Toast.makeText(this, "Sedang mengunggah foto profil...", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String[] options = {"Pilih dari Galeri", "Ambil Foto (Kamera)"};
+        new AlertDialog.Builder(this)
+                .setTitle("Ubah Foto Profil")
+                .setItems(options, (dialog, which) -> {
+                    if (which == 0) {
+                        openGalleryPicker();
+                    } else if (which == 1) {
+                        openCamera();
+                    }
+                })
+                .setNegativeButton("Batal", (dialog, which) -> dialog.dismiss())
+                .show();
+    }
+
+    private void openGalleryPicker() {
+        try {
+            if (ActivityResultContracts.PickVisualMedia.isPhotoPickerAvailable(this)) {
+                pickMediaLauncher.launch(
+                        new PickVisualMediaRequest.Builder()
+                                .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
+                                .build()
+                );
+            } else {
+                launchFallbackGallery();
+            }
+        } catch (Exception e) {
+            launchFallbackGallery();
+        }
+    }
+
+    private void launchFallbackGallery() {
+        try {
+            Intent intent = new Intent(Intent.ACTION_PICK);
+            intent.setType("image/*");
+            pickGalleryFallbackLauncher.launch(intent);
+        } catch (Exception e) {
+            try {
+                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                intent.setType("image/*");
+                pickGalleryFallbackLauncher.launch(intent);
+            } catch (Exception ex) {
+                Toast.makeText(this, "Tidak dapat membuka pemilih file perangkat", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    private void openCamera() {
+        try {
+            cameraTempUri = ImageUploadHelper.createCameraTempUri(this);
+            takePictureLauncher.launch(cameraTempUri);
+        } catch (Exception e) {
+            Toast.makeText(this, "Gagal menyiapkan kamera: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void handlePickedImage(Uri uri) {
+        if (uri == null) return;
+
+        setPhotoUploadingState(true);
+
+        Executors.newSingleThreadExecutor().execute(() -> {
+            try {
+                File compressedFile = ImageUploadHelper.compressImageForUpload(ProfileActivity.this, uri);
+                runOnUiThread(() -> startUploadProfilePhoto(compressedFile));
+            } catch (Exception e) {
+                runOnUiThread(() -> {
+                    setPhotoUploadingState(false);
+                    Toast.makeText(ProfileActivity.this, "Gagal memproses gambar: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
+            }
+        });
+    }
+
+    private void setPhotoUploadingState(boolean uploading) {
+        isUploadingPhoto = uploading;
+        if (pbUploadPhoto != null) {
+            pbUploadPhoto.setVisibility(uploading ? View.VISIBLE : View.GONE);
+        }
+        if (btnChangeProfilePhoto != null) {
+            btnChangeProfilePhoto.setEnabled(!uploading);
+            btnChangeProfilePhoto.setAlpha(uploading ? 0.6f : 1.0f);
+        }
+    }
+
+    private void startUploadProfilePhoto(File file) {
+        RequestBody reqFile = RequestBody.create(
+                file,
+                MediaType.parse("image/jpeg")
+        );
+
+        ApiService api = RetrofitClient.getApiService(this);
+
+        // Endpoint Utama Rekomendasi: POST /api/user/foto dengan part "foto"
+        MultipartBody.Part partFoto = MultipartBody.Part.createFormData("foto", file.getName(), reqFile);
+        executePhotoUploadCall(api.uploadUserFoto(partFoto), file, reqFile, 1);
+    }
+
+    private void executePhotoUploadCall(Call<UpdateProfileResponse> call, File file,
+                                       RequestBody reqFile, int step) {
+        call.enqueue(new Callback<UpdateProfileResponse>() {
+            @Override
+            public void onResponse(Call<UpdateProfileResponse> c, Response<UpdateProfileResponse> response) {
+                runOnUiThread(() -> {
+                    if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
+                        handlePhotoUploadSuccess(response.body(), file);
+                    } else if (response.code() == 404 || response.code() == 405 || response.code() == 422) {
+                        // Cascading fallback ke endpoint & nama field yang didukung backend
+                        ApiService api = RetrofitClient.getApiService(ProfileActivity.this);
+                        if (step == 1) {
+                            // Step 2: POST /api/user/photo dengan part "photo"
+                            MultipartBody.Part part = MultipartBody.Part.createFormData("photo", file.getName(), reqFile);
+                            executePhotoUploadCall(api.uploadUserPhoto(part), file, reqFile, 2);
+                        } else if (step == 2) {
+                            // Step 3: POST /api/foto-profil dengan part "foto_profil"
+                            MultipartBody.Part part = MultipartBody.Part.createFormData("foto_profil", file.getName(), reqFile);
+                            executePhotoUploadCall(api.uploadFotoProfil(part), file, reqFile, 3);
+                        } else if (step == 3) {
+                            // Step 4: POST /api/profile/foto dengan part "foto"
+                            MultipartBody.Part part = MultipartBody.Part.createFormData("foto", file.getName(), reqFile);
+                            executePhotoUploadCall(api.uploadProfileFoto(part), file, reqFile, 4);
+                        } else if (step == 4) {
+                            // Step 5: POST /api/profile/photo dengan part "photo"
+                            MultipartBody.Part part = MultipartBody.Part.createFormData("photo", file.getName(), reqFile);
+                            executePhotoUploadCall(api.uploadProfilePhoto(part), file, reqFile, 5);
+                        } else if (step == 5) {
+                            // Step 6: POST /api/user/avatar dengan part "avatar"
+                            MultipartBody.Part part = MultipartBody.Part.createFormData("avatar", file.getName(), reqFile);
+                            executePhotoUploadCall(api.uploadUserAvatar(part), file, reqFile, 6);
+                        } else {
+                            handlePhotoUploadError(response, file);
+                        }
+                    } else {
+                        handlePhotoUploadError(response, file);
+                    }
+                });
+            }
+
+            @Override
+            public void onFailure(Call<UpdateProfileResponse> c, Throwable t) {
+                runOnUiThread(() -> {
+                    setPhotoUploadingState(false);
+                    cleanupTempFile(file);
+                    Toast.makeText(ProfileActivity.this, "Tidak dapat terhubung ke server", Toast.LENGTH_SHORT).show();
+                });
+            }
+        });
+    }
+
+    private void handlePhotoUploadSuccess(UpdateProfileResponse resp, File file) {
+        setPhotoUploadingState(false);
+        cleanupTempFile(file);
+
+        SessionManager sessionManager = new SessionManager(this);
+        if (resp.getUser() != null) {
+            currentUser = resp.getUser();
+        } else if (currentUser != null) {
+            if (resp.getData() != null && resp.getData().getFotoProfilUrl() != null) {
+                currentUser.setFotoProfileUrl(resp.getData().getFotoProfilUrl());
+            }
+            if (resp.getData() != null && resp.getData().getFotoProfil() != null) {
+                currentUser.setFotoProfil(resp.getData().getFotoProfil());
+            }
+        }
+
+        if (currentUser != null) {
+            sessionManager.saveUserInfo(currentUser);
+        }
+
+        String msg = resp.getMessage();
+        Toast.makeText(this,
+                (msg != null && !msg.isEmpty()) ? msg : "Foto profil berhasil diperbarui",
+                Toast.LENGTH_SHORT).show();
+
+        // Muat gambar terbaru ke UI dengan cache-buster
+        if (currentUser != null && imgProfileKta != null) {
+            String photoUrl = currentUser.getResolvedPhotoUrl();
+            if (photoUrl != null) {
+                Glide.with(this)
+                        .load(photoUrl)
+                        .placeholder(R.drawable.logo_kejaksaan)
+                        .error(R.drawable.logo_kejaksaan)
+                        .signature(new ObjectKey(System.currentTimeMillis()))
+                        .centerCrop()
+                        .into(imgProfileKta);
+            }
+        }
+
+        // Sinkronisasi data user terbaru dengan server
+        if (perkaraViewModel != null) {
+            perkaraViewModel.loadUserProfile();
+        }
+    }
+
+    private void handlePhotoUploadError(Response<UpdateProfileResponse> response, File file) {
+        setPhotoUploadingState(false);
+        cleanupTempFile(file);
+
+        String msg = null;
+        if (response.body() != null && response.body().getMessage() != null) {
+            msg = response.body().getMessage();
+        } else if (response.errorBody() != null) {
+            try {
+                String errStr = response.errorBody().string();
+                org.json.JSONObject obj = new org.json.JSONObject(errStr);
+                if (obj.has("message")) {
+                    msg = obj.getString("message");
+                }
+            } catch (Exception ignored) {
+            }
+        }
+
+        if (msg == null || msg.trim().isEmpty()) {
+            msg = "Gagal memperbarui foto profil (HTTP " + response.code() + ")";
+        }
+
+        Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
+    }
+
+    private void cleanupTempFile(File file) {
+        if (file != null && file.exists()) {
+            try {
+                file.delete();
+            } catch (Exception ignored) {
+            }
+        }
     }
 
     // ─── ViewModel & Data ────────────────────────────────────────────────────────

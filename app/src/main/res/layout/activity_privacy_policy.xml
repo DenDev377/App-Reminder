@@ -147,7 +147,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Kejaksaan Negeri Ogan Komering Ulu (OKU) berkomitmen tinggi untuk menjaga privasi, kerahasiaan, serta keamanan seluruh informasi dan data pengguna dalam aplikasi SIPETA (Sistem Informasi Perkara &amp; Tata Jadwal)."
+                    android:text="Kejaksaan Negeri Ogan Komering Ulu (OKU) berkomitmen tinggi untuk menjaga privasi, kerahasiaan, serta keamanan seluruh informasi dan data pengguna dalam aplikasi SIPETA (Sistem Pengingat Tahapan Perkara)."
                     android:textColor="#334155"
                     android:textSize="13sp"
                     android:lineSpacingMultiplier="1.4" />
