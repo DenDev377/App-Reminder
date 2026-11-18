@@ -96,11 +96,11 @@
                 android:textSize="14sp" />
         </LinearLayout>
 
-        <!-- Field 2: NIP / NRP -->
+        <!-- Field 2: NIP (Nomor Induk Pegawai) -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="NIP / NRP"
+            android:text="NIP (Nomor Induk Pegawai)"
             android:textColor="#475569"
             android:textSize="13sp"
             android:textStyle="bold"
@@ -136,7 +136,47 @@
                 android:textSize="14sp" />
         </LinearLayout>
 
-        <!-- Field 3: Pangkat / Golongan -->
+        <!-- Field 3: NRP (Nomor Register Pokok) -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="NRP (Nomor Register Pokok)"
+            android:textColor="#475569"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="6dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:background="@drawable/bg_edittext"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="14dp"
+            android:layout_marginBottom="12dp">
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_dosir"
+                app:tint="#00897B"
+                android:layout_marginEnd="10dp"
+                android:contentDescription="NRP" />
+
+            <EditText
+                android:id="@+id/etProfileNrp"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@null"
+                android:hint="Contoh: 60882191"
+                android:inputType="text"
+                android:textColor="#1E293B"
+                android:textColorHint="#94A3B8"
+                android:textSize="14sp" />
+        </LinearLayout>
+
+        <!-- Field 4: Pangkat / Golongan -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -176,7 +216,7 @@
                 android:textSize="14sp" />
         </LinearLayout>
 
-        <!-- Field 4: Jabatan -->
+        <!-- Field 5: Jabatan -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

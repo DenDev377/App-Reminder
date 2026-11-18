@@ -476,13 +476,14 @@ public class ProfileActivity extends AppCompatActivity {
                 });
     }
 
-    // ─── Dialog: Edit Data Profil (Nama, NIP, Pangkat, Jabatan) ──────────────────
+    // ─── Dialog: Edit Data Profil (Nama, NIP, NRP, Pangkat, Jabatan) ────────────
 
     private void showDialogEditProfil() {
         View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_edit_profil, null);
 
         EditText etNama    = dialogView.findViewById(R.id.etProfileNama);
         EditText etNip     = dialogView.findViewById(R.id.etProfileNip);
+        EditText etNrp     = dialogView.findViewById(R.id.etProfileNrp);
         EditText etPangkat = dialogView.findViewById(R.id.etProfilePangkat);
         EditText etJabatan = dialogView.findViewById(R.id.etProfileJabatan);
         TextView tvError   = dialogView.findViewById(R.id.tvProfileError);
@@ -493,6 +494,8 @@ public class ProfileActivity extends AppCompatActivity {
                 ? currentUser.getName() : sessionManager.fetchUserName();
         String currNip = (currentUser != null && currentUser.getNip() != null)
                 ? currentUser.getNip() : sessionManager.fetchUserNip();
+        String currNrp = (currentUser != null && currentUser.getNrp() != null)
+                ? currentUser.getNrp() : sessionManager.fetchUserNrp();
         String currPangkat = (currentUser != null && currentUser.getPangkatGolongan() != null)
                 ? currentUser.getPangkatGolongan() : sessionManager.fetchUserPangkat();
         String currJabatan = (currentUser != null && currentUser.getJabatan() != null)
@@ -504,6 +507,9 @@ public class ProfileActivity extends AppCompatActivity {
         }
         if (currNip != null && !currNip.isEmpty() && !currNip.equals("-")) {
             etNip.setText(currNip);
+        }
+        if (currNrp != null && !currNrp.isEmpty() && !currNrp.equals("-")) {
+            etNrp.setText(currNrp);
         }
         if (currPangkat != null && !currPangkat.isEmpty() && !currPangkat.equals("-")) {
             etPangkat.setText(currPangkat);
@@ -522,6 +528,7 @@ public class ProfileActivity extends AppCompatActivity {
             dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
                 String nama = etNama.getText().toString().trim();
                 String nip = etNip.getText().toString().trim();
+                String nrp = (etNrp != null) ? etNrp.getText().toString().trim() : "";
                 String pangkat = etPangkat.getText().toString().trim();
                 String jabatan = etJabatan.getText().toString().trim();
 
@@ -530,7 +537,7 @@ public class ProfileActivity extends AppCompatActivity {
                     return;
                 }
                 if (nip.isEmpty()) {
-                    showError(tvError, "NIP / NRP tidak boleh kosong");
+                    showError(tvError, "NIP tidak boleh kosong");
                     return;
                 }
                 if (pangkat.isEmpty()) {
@@ -546,16 +553,16 @@ public class ProfileActivity extends AppCompatActivity {
                 dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
                 dialog.getButton(AlertDialog.BUTTON_POSITIVE).setText("Menyimpan...");
 
-                callUpdateProfile(nama, nip, pangkat, jabatan, dialog, tvError);
+                callUpdateProfile(nama, nip, nrp, pangkat, jabatan, dialog, tvError);
             });
         });
 
         dialog.show();
     }
 
-    private void callUpdateProfile(String nama, String nip, String pangkat, String jabatan,
+    private void callUpdateProfile(String nama, String nip, String nrp, String pangkat, String jabatan,
                                    AlertDialog dialog, TextView tvError) {
-        UpdateProfileRequest req = new UpdateProfileRequest(nama, nip, pangkat, jabatan);
+        UpdateProfileRequest req = new UpdateProfileRequest(nama, nip, nrp, pangkat, jabatan);
         ApiService apiService = RetrofitClient.getApiService(this);
 
         // Step 1: Coba POST api/profile
@@ -610,6 +617,7 @@ public class ProfileActivity extends AppCompatActivity {
             }
             currentUser.setName(req.getName());
             currentUser.setNip(req.getNip());
+            currentUser.setNrp(req.getNrp());
             currentUser.setPangkatGolongan(req.getPangkatGolongan());
             currentUser.setJabatan(req.getJabatan());
         }
@@ -668,6 +676,8 @@ public class ProfileActivity extends AppCompatActivity {
                 ? currentUser.getName() : sessionManager.fetchUserName();
         String nip = (currentUser != null && currentUser.getNip() != null)
                 ? currentUser.getNip() : sessionManager.fetchUserNip();
+        String nrp = (currentUser != null && currentUser.getNrp() != null)
+                ? currentUser.getNrp() : sessionManager.fetchUserNrp();
         String jabatan = (currentUser != null && currentUser.getJabatan() != null)
                 ? currentUser.getJabatan() : sessionManager.fetchUserJabatan();
 
@@ -684,6 +694,10 @@ public class ProfileActivity extends AppCompatActivity {
         if (nip != null && !nip.trim().isEmpty() && !nip.equals("-")) {
             if (sub.length() > 0) sub.append(" · ");
             sub.append("NIP: ").append(nip);
+        }
+        if (nrp != null && !nrp.trim().isEmpty() && !nrp.equals("-")) {
+            if (sub.length() > 0) sub.append(" · ");
+            sub.append("NRP: ").append(nrp);
         }
         if (sub.length() > 0) {
             tvSub.setText(sub.toString());

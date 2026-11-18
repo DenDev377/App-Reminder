@@ -14,6 +14,9 @@ public class UpdateProfileRequest {
     @SerializedName("nip")
     private String nip;
 
+    @SerializedName("nrp")
+    private String nrp;
+
     @SerializedName("pangkat_golongan")
     private String pangkatGolongan;
 
@@ -23,12 +26,17 @@ public class UpdateProfileRequest {
     @SerializedName("jabatan")
     private String jabatan;
 
-    public UpdateProfileRequest(String name, String nip, String pangkatGolongan, String jabatan) {
+    public UpdateProfileRequest(String name, String nip, String nrp, String pangkatGolongan, String jabatan) {
         this.name = name;
         this.nip = nip;
+        this.nrp = nrp;
         this.pangkatGolongan = pangkatGolongan;
         this.pangkat = pangkatGolongan;
         this.jabatan = jabatan;
+    }
+
+    public UpdateProfileRequest(String name, String nip, String pangkatGolongan, String jabatan) {
+        this(name, nip, null, pangkatGolongan, jabatan);
     }
 
     public String getName() {
@@ -45,6 +53,14 @@ public class UpdateProfileRequest {
 
     public void setNip(String nip) {
         this.nip = nip;
+    }
+
+    public String getNrp() {
+        return nrp;
+    }
+
+    public void setNrp(String nrp) {
+        this.nrp = nrp;
     }
 
     public String getPangkatGolongan() {
