@@ -7,6 +7,7 @@ import com.kejaksaan.reminder.BuildConfig;
 
 import java.util.concurrent.TimeUnit;
 
+import okhttp3.CertificatePinner;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
@@ -59,13 +60,32 @@ public class RetrofitClient {
                 ? HttpLoggingInterceptor.Level.BODY
                 : HttpLoggingInterceptor.Level.NONE);
 
-        OkHttpClient okHttpClient = new OkHttpClient.Builder()
+        OkHttpClient.Builder clientBuilder = new OkHttpClient.Builder()
                 .addInterceptor(new AuthInterceptor(context)) // Auth header
                 .addInterceptor(logging) // Logging (DEBUG saja)
                 .connectTimeout(30, TimeUnit.SECONDS)
                 .readTimeout(30, TimeUnit.SECONDS)
-                .writeTimeout(30, TimeUnit.SECONDS)
-                .build();
+                .writeTimeout(30, TimeUnit.SECONDS);
+
+        // Certificate Pinning untuk domain produksi resmi (mengamankan dari serangan MitM)
+        if (!BuildConfig.DEBUG) {
+            try {
+                java.net.URI uri = new java.net.URI(BASE_URL);
+                String host = uri.getHost();
+                if (host != null && host.equalsIgnoreCase("sipeta.eu.cc")) {
+                    CertificatePinner certificatePinner = new CertificatePinner.Builder()
+                            .add("sipeta.eu.cc",
+                                    "sha256/LNHMrrTN9edIoH7ktI1lNQ3wLgO8d5fut047RXYIbQY=", // Leaf Pin
+                                    "sha256/C5+lpZ7tcVwmwQIMcRtPbsQtWLABXhQzejna0wHFr8M="  // ISRG Root X1 Backup Pin
+                            )
+                            .build();
+                    clientBuilder.certificatePinner(certificatePinner);
+                }
+            } catch (Exception ignored) {
+            }
+        }
+
+        OkHttpClient okHttpClient = clientBuilder.build();
 
         return new Retrofit.Builder()
                 .baseUrl(BASE_URL)

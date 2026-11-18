@@ -14,6 +14,7 @@ lifecycle = "2.8.7"
 glide = "4.16.0"
 googleServices = "4.4.2"
 firebaseBom = "33.10.0"
+securityCrypto = "1.1.0-alpha06"
 
 [libraries]
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -33,6 +34,7 @@ lifecycle-runtime = { group = "androidx.lifecycle", name = "lifecycle-runtime", 
 glide = { group = "com.github.bumptech.glide", name = "glide", version.ref = "glide" }
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
 firebase-messaging = { group = "com.google.firebase", name = "firebase-messaging" }
+security-crypto = { group = "androidx.security", name = "security-crypto", version.ref = "securityCrypto" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

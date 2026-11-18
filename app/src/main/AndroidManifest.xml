@@ -7,14 +7,13 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
-        android:allowBackup="true"
+        android:allowBackup="false"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:usesCleartextTraffic="true"
         android:networkSecurityConfig="@xml/network_security_config"
         android:theme="@style/Theme.Reminders">
 
@@ -82,15 +81,10 @@
             android:name=".TimelineListActivity"
             android:exported="false" />
 
-        <!-- DetailPerkaraActivity dapat dibuka langsung dari notifikasi FCM (background click_action) -->
+        <!-- DetailPerkaraActivity dilindungi (exported=false) agar aman dari Intent Spoofing pihak ketiga -->
         <activity
             android:name=".DetailPerkaraActivity"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="OPEN_PERKARA_DETAIL" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
+            android:exported="false" />
 
         <activity
             android:name=".ReminderLogListActivity"

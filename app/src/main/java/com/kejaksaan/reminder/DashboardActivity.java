@@ -402,6 +402,37 @@ public class DashboardActivity extends AppCompatActivity {
                 overridePendingTransition(0, 0);
             });
         }
+
+        // Tangani navigasi jika aplikasi dibuka dari notifikasi FCM
+        handlePendingNotificationIntent(getIntent());
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        handlePendingNotificationIntent(intent);
+    }
+
+    private void handlePendingNotificationIntent(Intent intent) {
+        if (intent == null) return;
+        int perkaraId = intent.getIntExtra(DetailPerkaraActivity.EXTRA_PERKARA_ID, -1);
+        if (perkaraId <= 0 && intent.hasExtra("perkara_id")) {
+            try {
+                String pStr = intent.getStringExtra("perkara_id");
+                if (pStr != null) perkaraId = Integer.parseInt(pStr.trim());
+            } catch (Exception ignored) {}
+        }
+        if (perkaraId > 0) {
+            Intent detailIntent = new Intent(this, DetailPerkaraActivity.class);
+            detailIntent.putExtra(DetailPerkaraActivity.EXTRA_PERKARA_ID, perkaraId);
+            String nomorPerkara = intent.getStringExtra(DetailPerkaraActivity.EXTRA_NOMOR_PERKARA);
+            if (nomorPerkara == null) nomorPerkara = intent.getStringExtra("nomor_perkara");
+            if (nomorPerkara != null) {
+                detailIntent.putExtra(DetailPerkaraActivity.EXTRA_NOMOR_PERKARA, nomorPerkara);
+            }
+            startActivity(detailIntent);
+        }
     }
 
     private void refreshDashboardData() {

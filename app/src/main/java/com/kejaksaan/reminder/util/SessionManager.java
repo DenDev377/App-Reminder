@@ -2,20 +2,30 @@ package com.kejaksaan.reminder.util;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
+
+import androidx.security.crypto.EncryptedSharedPreferences;
+import androidx.security.crypto.MasterKey;
 
 import com.kejaksaan.reminder.model.User;
 
+import java.util.Map;
+
 /**
- * SessionManager — menyimpan data sesi pengguna secara lokal
- * menggunakan SharedPreferences dengan MODE_PRIVATE.
- *
- * Data yang disimpan:
+ * SessionManager — mengelola penyimpanan sesi pengguna secara terenkripsi (Hardware-backed AES-256-GCM).
+ * Menggunakan EncryptedSharedPreferences untuk mengamankan:
  * - Token Otentikasi (Bearer)
- * - Info dasar User (id, name, email, role, nip, jabatan)
+ * - Identitas Pegawai (NIP, NRP, nomor HP, email, nama)
+ * - Token FCM & Device ID
+ *
+ * Mencegah kebocoran data jika perangkat di-backup (ADB) atau di-root.
  */
 public class SessionManager {
 
-    private static final String PREF_NAME  = "SIPETA_SESSION";
+    private static final String TAG = "SessionManager";
+    private static final String LEGACY_PREF_NAME = "SIPETA_SESSION";
+    private static final String SECURE_PREF_NAME = "SIPETA_SECURE_SESSION";
+
     private static final String KEY_TOKEN  = "auth_token";
     private static final String KEY_USER_ID     = "user_id";
     private static final String KEY_USER_NAME   = "user_name";
@@ -40,7 +50,61 @@ public class SessionManager {
     private final SharedPreferences prefs;
 
     public SessionManager(Context context) {
-        prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        prefs = createSecurePreferences(context);
+    }
+
+    private SharedPreferences createSecurePreferences(Context context) {
+        try {
+            MasterKey masterKey = new MasterKey.Builder(context)
+                    .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+                    .build();
+
+            SharedPreferences securePrefs = EncryptedSharedPreferences.create(
+                    context,
+                    SECURE_PREF_NAME,
+                    masterKey,
+                    EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                    EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+            );
+
+            // Migrasi transparan dari data plaintext versi lama (jika ada)
+            migrateLegacyPrefs(context, securePrefs);
+
+            return securePrefs;
+        } catch (Exception e) {
+            Log.e(TAG, "Gagal menginisialisasi EncryptedSharedPreferences, fallback ke MODE_PRIVATE: " + e.getMessage());
+            return context.getSharedPreferences(LEGACY_PREF_NAME, Context.MODE_PRIVATE);
+        }
+    }
+
+    private void migrateLegacyPrefs(Context context, SharedPreferences securePrefs) {
+        try {
+            SharedPreferences legacy = context.getSharedPreferences(LEGACY_PREF_NAME, Context.MODE_PRIVATE);
+            Map<String, ?> all = legacy.getAll();
+            if (all != null && !all.isEmpty()) {
+                SharedPreferences.Editor editor = securePrefs.edit();
+                for (Map.Entry<String, ?> entry : all.entrySet()) {
+                    String key = entry.getKey();
+                    Object val = entry.getValue();
+                    if (val instanceof String) {
+                        editor.putString(key, (String) val);
+                    } else if (val instanceof Integer) {
+                        editor.putInt(key, (Integer) val);
+                    } else if (val instanceof Boolean) {
+                        editor.putBoolean(key, (Boolean) val);
+                    } else if (val instanceof Float) {
+                        editor.putFloat(key, (Float) val);
+                    } else if (val instanceof Long) {
+                        editor.putLong(key, (Long) val);
+                    }
+                }
+                editor.apply();
+                legacy.edit().clear().apply();
+                Log.i(TAG, "Migrasi data sesi ke EncryptedSharedPreferences berhasil dilakukan.");
+            }
+        } catch (Exception e) {
+            Log.w(TAG, "Catatan migrasi preferensi: " + e.getMessage());
+        }
     }
 
     // ─── Token ───────────────────────────────────────────────────────────────────

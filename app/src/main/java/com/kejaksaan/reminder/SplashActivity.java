@@ -118,6 +118,12 @@ public class SplashActivity extends AppCompatActivity {
             intent = new Intent(SplashActivity.this, MainActivity.class);
         }
 
+        // Teruskan data payload notifikasi (jika splash dibuka dari klik notifikasi background)
+        Intent launchIntent = getIntent();
+        if (launchIntent != null && launchIntent.getExtras() != null) {
+            intent.putExtras(launchIntent.getExtras());
+        }
+
         startActivity(intent);
         finish();
     }
