@@ -19,6 +19,15 @@ public class ReminderLogSummary {
     @SerializedName("total_overdue")
     private int totalOverdue;
 
+    public ReminderLogSummary() {}
+
+    public ReminderLogSummary(int totalLogs, int totalSelesai, int totalAktif, int totalOverdue) {
+        this.totalLogs = totalLogs;
+        this.totalSelesai = totalSelesai;
+        this.totalAktif = totalAktif;
+        this.totalOverdue = totalOverdue;
+    }
+
     public int getTotalLogs() {
         return totalLogs;
     }

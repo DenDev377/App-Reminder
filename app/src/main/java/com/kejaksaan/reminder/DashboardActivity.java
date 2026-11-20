@@ -117,6 +117,9 @@ public class DashboardActivity extends AppCompatActivity {
         // Cek dan minta runtime permission POST_NOTIFICATIONS untuk Android 13+
         checkNotificationPermission();
 
+        // Periksa dan tawarkan pembebasan penghemat baterai agar alarm offline tidak dibekukan sistem
+        com.kejaksaan.reminder.util.BatteryOptimizationHelper.checkAndPromptBatteryOptimization(this);
+
         // Pastikan token FCM perangkat terdaftar/disinkronkan dengan backend
         FcmTokenManager.registerCurrentTokenToServer(this, null);
 
@@ -254,6 +257,9 @@ public class DashboardActivity extends AppCompatActivity {
                 checkStopDashboardRefresh();
                 if (result.isSuccess() && result.getData() != null) {
                     List<Reminder> reminders = result.getData();
+                    // Selaraskan jadwal alarm offline mandiri (H-3, H-1, H-0) ke sistem Android
+                    com.kejaksaan.reminder.util.LocalAlarmScheduler.scheduleAlarmsForReminders(DashboardActivity.this, reminders);
+
                     if (reminders.isEmpty()) {
                         layoutSlaReminders.setVisibility(View.GONE);
                         rvSlaReminders.setVisibility(View.GONE);
@@ -499,6 +505,12 @@ public class DashboardActivity extends AppCompatActivity {
 
     private int getReminderPriority(Reminder r) {
         if (r == null) return 99;
+
+        // Tahapan monitoring tanpa deadline (seperti Tahap II) tidak boleh masuk kategori darurat
+        if (r.isMonitoringStage() || !r.hasDeadline()) {
+            return 7;
+        }
+
         boolean isP24 = isP24Reminder(r);
         int sisa = r.getSisaHari();
 

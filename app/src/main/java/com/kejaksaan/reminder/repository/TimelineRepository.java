@@ -47,13 +47,13 @@ public class TimelineRepository {
                 } else if (response.code() == 401) {
                     result.postValue(ApiResult.error("UNAUTHORIZED:401:Sesi telah berakhir. Silakan login kembali."));
                 } else {
-                    result.postValue(ApiResult.error("Gagal memuat perkara (HTTP " + response.code() + ")"));
+                    result.postValue(ApiResult.error(com.kejaksaan.reminder.util.ErrorMessageHelper.parseResponseError(response, "Gagal memuat perkara")));
                 }
             }
 
             @Override
             public void onFailure(Call<PerkaraResponse> call, Throwable t) {
-                result.postValue(ApiResult.error("Tidak dapat terhubung ke server: " + t.getMessage()));
+                result.postValue(ApiResult.error(com.kejaksaan.reminder.util.ErrorMessageHelper.parseThrowable(t)));
             }
         });
     }
@@ -77,13 +77,13 @@ public class TimelineRepository {
                 } else if (response.code() == 401) {
                     result.postValue(ApiResult.error("UNAUTHORIZED:401:Sesi telah berakhir. Silakan login kembali."));
                 } else {
-                    result.postValue(ApiResult.error("Gagal memuat riwayat perkara (HTTP " + response.code() + ")"));
+                    result.postValue(ApiResult.error(com.kejaksaan.reminder.util.ErrorMessageHelper.parseResponseError(response, "Gagal memuat riwayat perkara")));
                 }
             }
 
             @Override
             public void onFailure(Call<PerkaraTimelineResponse> call, Throwable t) {
-                result.postValue(ApiResult.error("Tidak dapat terhubung ke server: " + t.getMessage()));
+                result.postValue(ApiResult.error(com.kejaksaan.reminder.util.ErrorMessageHelper.parseThrowable(t)));
             }
         });
     }
@@ -107,13 +107,13 @@ public class TimelineRepository {
                 } else if (response.code() == 401) {
                     result.postValue(ApiResult.error("UNAUTHORIZED:401:Sesi telah berakhir. Silakan login kembali."));
                 } else {
-                    result.postValue(ApiResult.error("Gagal memuat timeline (HTTP " + response.code() + ")"));
+                    result.postValue(ApiResult.error(com.kejaksaan.reminder.util.ErrorMessageHelper.parseResponseError(response, "Gagal memuat timeline")));
                 }
             }
 
             @Override
             public void onFailure(Call<TimelinePaginationResponse> call, Throwable t) {
-                result.postValue(ApiResult.error("Tidak dapat terhubung ke server: " + t.getMessage()));
+                result.postValue(ApiResult.error(com.kejaksaan.reminder.util.ErrorMessageHelper.parseThrowable(t)));
             }
         });
     }
@@ -143,14 +143,14 @@ public class TimelineRepository {
                     String msg = parseErrorMessage(response, "Akses ditolak: Anda tidak memiliki wewenang pada perkara ini.");
                     result.postValue(ApiResult.error("FORBIDDEN:403:" + msg));
                 } else {
-                    String msg = parseErrorMessage(response, "Gagal memuat aksi alur perkara (HTTP " + response.code() + ")");
+                    String msg = parseErrorMessage(response, "Gagal memuat aksi alur perkara");
                     result.postValue(ApiResult.error(msg));
                 }
             }
 
             @Override
             public void onFailure(Call<AvailableActionsResponse> call, Throwable t) {
-                result.postValue(ApiResult.error("Tidak dapat terhubung ke server: " + t.getMessage()));
+                result.postValue(ApiResult.error(com.kejaksaan.reminder.util.ErrorMessageHelper.parseThrowable(t)));
             }
         });
     }
@@ -184,29 +184,19 @@ public class TimelineRepository {
                     String msg = parseErrorMessage(response, "Data yang dikirimkan tidak valid.");
                     result.postValue(ApiResult.error("VALIDATION:422:" + msg));
                 } else {
-                    String msg = parseErrorMessage(response, "Gagal memproses aksi perkara (HTTP " + response.code() + ")");
+                    String msg = parseErrorMessage(response, "Gagal memproses aksi perkara");
                     result.postValue(ApiResult.error(msg));
                 }
             }
 
             @Override
             public void onFailure(Call<GenericResponse> call, Throwable t) {
-                result.postValue(ApiResult.error("Tidak dapat terhubung ke server: " + t.getMessage()));
+                result.postValue(ApiResult.error(com.kejaksaan.reminder.util.ErrorMessageHelper.parseThrowable(t)));
             }
         });
     }
 
     private String parseErrorMessage(Response<?> response, String defaultMessage) {
-        try {
-            if (response.errorBody() != null) {
-                String errorJson = response.errorBody().string();
-                JSONObject obj = new JSONObject(errorJson);
-                if (obj.has("message")) {
-                    return obj.getString("message");
-                }
-            }
-        } catch (Exception ignored) {
-        }
-        return defaultMessage;
+        return com.kejaksaan.reminder.util.ErrorMessageHelper.parseResponseError(response, defaultMessage);
     }
 }

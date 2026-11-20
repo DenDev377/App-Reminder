@@ -46,13 +46,13 @@ public class NotificationRepository {
                         result.postValue(ApiResult.success(Collections.emptyList()));
                     }
                 } else {
-                    result.postValue(ApiResult.error("Gagal memuat notifikasi (HTTP " + response.code() + ")"));
+                    result.postValue(ApiResult.error(com.kejaksaan.reminder.util.ErrorMessageHelper.parseResponseError(response, "Gagal memuat notifikasi")));
                 }
             }
 
             @Override
             public void onFailure(Call<NotificationResponse> call, Throwable t) {
-                result.postValue(ApiResult.error("Tidak dapat terhubung ke server: " + t.getMessage()));
+                result.postValue(ApiResult.error(com.kejaksaan.reminder.util.ErrorMessageHelper.parseThrowable(t)));
             }
         });
     }
@@ -74,13 +74,13 @@ public class NotificationRepository {
                         result.postValue(ApiResult.error("Data notifikasi kosong"));
                     }
                 } else {
-                    result.postValue(ApiResult.error("Gagal memuat notifikasi (HTTP " + response.code() + ")"));
+                    result.postValue(ApiResult.error(com.kejaksaan.reminder.util.ErrorMessageHelper.parseResponseError(response, "Gagal memuat notifikasi")));
                 }
             }
 
             @Override
             public void onFailure(Call<NotificationResponse> call, Throwable t) {
-                result.postValue(ApiResult.error("Tidak dapat terhubung ke server: " + t.getMessage()));
+                result.postValue(ApiResult.error(com.kejaksaan.reminder.util.ErrorMessageHelper.parseThrowable(t)));
             }
         });
     }
@@ -102,13 +102,13 @@ public class NotificationRepository {
                         result.postValue(ApiResult.success(Collections.emptyList()));
                     }
                 } else {
-                    result.postValue(ApiResult.error("Gagal memuat reminder hari ini (HTTP " + response.code() + ")"));
+                    result.postValue(ApiResult.error(com.kejaksaan.reminder.util.ErrorMessageHelper.parseResponseError(response, "Gagal memuat pengingat")));
                 }
             }
 
             @Override
             public void onFailure(Call<ReminderResponse> call, Throwable t) {
-                result.postValue(ApiResult.error("Tidak dapat terhubung ke server: " + t.getMessage()));
+                result.postValue(ApiResult.error(com.kejaksaan.reminder.util.ErrorMessageHelper.parseThrowable(t)));
             }
         });
     }

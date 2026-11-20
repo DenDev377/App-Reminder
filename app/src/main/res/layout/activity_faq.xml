@@ -230,7 +230,7 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="3. Kapan pengingat jadwal sidang dikirimkan?"
+                        android:text="3. Kapan pengingat tahapan perkara dikirimkan?"
                         android:textColor="#0D9488"
                         android:textSize="14sp"
                         android:textStyle="bold" />
@@ -239,7 +239,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
-                        android:text="Pengingat dikirimkan secara otomatis melalui Push Notification HP (FCM) dan kartu pengingat saat tahapan perkara mendekati batas waktu (H-3), hari jatuh tempo, maupun saat melewati batas waktu (Overdue). Pastikan izin notifikasi aktif di pengaturan HP Anda."
+                        android:text="Pengingat dikirimkan secara otomatis melalui Push Notification HP (FCM) dan kartu pengingat saat tahapan perkara mendekati batas waktu SLA (H-3), hari jatuh tempo, maupun saat melewati batas waktu (Overdue). Pastikan izin notifikasi aktif di pengaturan HP Anda."
                         android:textColor="#334155"
                         android:textSize="13sp"
                         android:lineSpacingMultiplier="1.3" />
@@ -266,7 +266,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
-                        android:text="Jika notifikasi tidak masuk, periksa beberapa hal berikut:\n1. Izinkan notifikasi di Pengaturan HP > Aplikasi > Reminders > Notifikasi.\n2. Pastikan HP tidak dalam mode 'Hemat Baterai Ketat' yang menonaktifkan proses latar belakang.\n3. Pastikan nomor HP di halaman Profil sudah sesuai."
+                        android:text="Jika notifikasi tidak masuk, periksa beberapa hal berikut:\n1. Izinkan notifikasi di Pengaturan HP > Aplikasi > Reminders > Notifikasi.\n2. Pastikan HP tidak dalam mode 'Hemat Baterai Ketat' yang menonaktifkan proses latar belakang.\n3. Pastikan koneksi internet aktif dan perangkat Anda terhubung dengan akun SIPETA."
                         android:textColor="#334155"
                         android:textSize="13sp"
                         android:lineSpacingMultiplier="1.3" />
@@ -293,7 +293,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
-                        android:text="Buka halaman Profil Anda:\n• Klik menu 'Nomor HP' untuk memperbarui kontak WhatsApp/SMS.\n• Klik menu 'Kata Sandi' untuk mengganti password login akun Anda."
+                        android:text="Buka halaman Profil Anda:\n• Klik menu 'Nomor HP' untuk memperbarui nomor telepon kontak akun Anda.\n• Klik menu 'Kata Sandi' untuk mengganti password login akun Anda."
                         android:textColor="#334155"
                         android:textSize="13sp"
                         android:lineSpacingMultiplier="1.3" />

@@ -39,10 +39,12 @@ public class WorkflowAction {
     }
 
     /**
-     * Mengembalikan judul tindakan yang spesifik dan resmi sesuai istilah SOP Kejaksaan.
+     * Mengembalikan judul tindakan yang spesifik dan resmi sesuai istilah SOP
+     * Kejaksaan.
      */
     public String getDisplayTitle() {
-        if (id == null) return label != null ? label : "Tindakan Perkara";
+        if (id == null)
+            return label != null ? label : "Tindakan Perkara";
 
         switch (id) {
             case "koordinasi_selesai":
@@ -78,7 +80,8 @@ public class WorkflowAction {
      * Keterangan singkat satu kalimat yang menjelaskan maksud tindakan SOP.
      */
     public String getDisplayDescription() {
-        if (id == null) return "Proses tindakan alur perkara sesuai prosedur.";
+        if (id == null)
+            return "Proses tindakan alur perkara sesuai prosedur.";
 
         switch (id) {
             case "koordinasi_selesai":
@@ -114,7 +117,8 @@ public class WorkflowAction {
      * Menjelaskan estimasi dampak perubahan tahap/status alur perkara.
      */
     public String getNextImpactSummary() {
-        if (id == null) return "Memperbarui status alur perkara";
+        if (id == null)
+            return "Memperbarui status alur perkara";
 
         switch (id) {
             case "koordinasi_selesai":
@@ -147,10 +151,12 @@ public class WorkflowAction {
     }
 
     /**
-     * Teks spesifik untuk tombol eksekusi (menghindari tombol generik 'Ya' / 'Sudah').
+     * Teks spesifik untuk tombol eksekusi (menghindari tombol generik 'Ya' /
+     * 'Sudah').
      */
     public String getActionButtonText() {
-        if (id == null) return label != null ? label : "Proses Tindakan";
+        if (id == null)
+            return label != null ? label : "Proses Tindakan";
 
         switch (id) {
             case "koordinasi_selesai":
@@ -186,7 +192,8 @@ public class WorkflowAction {
      * Warna aksen identifikasi visual (Teal, Emerald, Amber, Carmine).
      */
     public String getAccentColorHex() {
-        if (id == null) return "#00897B";
+        if (id == null)
+            return "#00897B";
 
         switch (id) {
             case "hasil_lengkap":
@@ -213,7 +220,8 @@ public class WorkflowAction {
      * Badge label kategori SOP alur perkara.
      */
     public String getBadgeLabel() {
-        if (id == null) return "SOP ALUR";
+        if (id == null)
+            return "SOP ALUR";
 
         switch (id) {
             case "koordinasi_selesai":

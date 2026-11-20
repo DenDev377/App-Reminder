@@ -11,6 +11,7 @@ import com.kejaksaan.reminder.model.LoginRequest;
 import com.kejaksaan.reminder.model.LoginResponse;
 import com.kejaksaan.reminder.model.User;
 import com.kejaksaan.reminder.util.ApiResult;
+import com.kejaksaan.reminder.util.ErrorMessageHelper;
 import com.kejaksaan.reminder.util.FcmTokenManager;
 import com.kejaksaan.reminder.util.SessionManager;
 
@@ -82,19 +83,15 @@ public class AuthRepository {
                     // HTTP error (401, 422, dll.)
                     String defaultMsg = (response.code() == 401 || response.code() == 422)
                             ? "Email/username atau kata sandi tidak sesuai. Silakan coba lagi."
-                            : "Login gagal (HTTP " + response.code() + ")";
-                    String errorMsg = parseErrorMessage(response, defaultMsg);
+                            : "Login gagal (" + response.code() + ")";
+                    String errorMsg = ErrorMessageHelper.parseResponseError(response, defaultMsg);
                     result.postValue(ApiResult.error(errorMsg));
                 }
             }
 
             @Override
             public void onFailure(Call<LoginResponse> call, Throwable t) {
-                String networkMsg = "Tidak dapat terhubung ke server. Periksa koneksi internet Anda.";
-                if (t != null && t.getMessage() != null && !t.getMessage().trim().isEmpty()) {
-                    networkMsg += " (" + t.getMessage() + ")";
-                }
-                result.postValue(ApiResult.error(networkMsg));
+                result.postValue(ApiResult.error(ErrorMessageHelper.parseThrowable(t)));
             }
         });
     }

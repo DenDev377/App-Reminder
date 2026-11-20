@@ -27,7 +27,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class RetrofitClient {
 
     // ─── Konfigurasi ─────────────────────────────────────────────────────────────
-    public static final String BASE_URL = "https://sipeta.eu.cc/";
+    public static final String BASE_URL = "http://192.168.1.17:8000/";
 
     private static Retrofit retrofitInstance = null;
 

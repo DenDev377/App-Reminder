@@ -138,7 +138,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Terakhir Diperbarui: 10 Nov 2026"
+                            android:text="Terakhir Diperbarui: 19 Nov 2026"
                             android:textColor="#64748B"
                             android:textSize="11sp" />
                     </LinearLayout>
@@ -147,7 +147,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Kejaksaan Negeri Ogan Komering Ulu (OKU) berkomitmen tinggi untuk menjaga privasi, kerahasiaan, serta keamanan seluruh informasi dan data pengguna dalam aplikasi SIPETA (Sistem Pengingat Tahapan Perkara)."
+                    android:text="Kejaksaan Negeri Ogan Komering Ulu (OKU) berkomitmen penuh untuk menjamin privasi, kerahasiaan, serta keamanan seluruh informasi dan data penanganan perkara dalam aplikasi SIPETA (Sistem Pengingat Tahapan Perkara)."
                     android:textColor="#334155"
                     android:textSize="13sp"
                     android:lineSpacingMultiplier="1.4" />
@@ -198,7 +198,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Untuk mendukung kelancaran layanan pengingat dan pemantauan sidang perkara, aplikasi SIPETA mengumpulkan informasi berikut:\n\n• Data Profil Pengguna: Nama lengkap, NIP/NRP, jabatan, pangkat/golongan, alamat email resmi kedinasan, dan foto profil.\n• Nomor Kontak (HP/WhatsApp): Digunakan untuk pengiriman notifikasi pengingat jadwal persidangan.\n• Data Perkara &amp; Jadwal: Nomor register perkara, nama terdakwa/pihak terkait, agenda persidangan, serta ruang dan waktu sidang.\n• Token Perangkat (FCM): Token push notification unik untuk mengantarkan pengingat ke perangkat Android Anda."
+                    android:text="Untuk mendukung kelancaran layanan pengingat batas waktu dan pemantauan tahapan perkara, aplikasi SIPETA mengumpulkan dan memproses kategori data berikut secara terbatas untuk kepentingan kedinasan:\n\n• Data Profil Aparatur: Nama lengkap, NIP/NRP, pangkat/golongan, jabatan kedinasan, email dinas, dan foto profil yang digunakan untuk verifikasi dan autentikasi resmi jaksa/pegawai.\n• Data Kontak Kedinasan: Nomor telepon kedinasan yang didaftarkan pada profil pengguna untuk kebutuhan verifikasi akun dan koordinasi internal penanganan perkara.\n• Data Administrasi Perkara &amp; SLA: Nomor perkara/SPDP, identitas tersangka, tahapan prapenuntutan (SPDP, P-16, P-17, P-24, P-18/P-19, P-21, hingga Tahap II), jaksa penelaah/peneliti, penyidik kepolisian, tanggal register, serta batas waktu (SLA) tahapan perkara sesuai KUHAP dan SOP Kejaksaan RI.\n• Token Perangkat &amp; Sesi Aplikasi: Token Firebase Cloud Messaging (FCM) unik untuk menghantarkan alarm dan notifikasi pengingat batas waktu ke perangkat Android Anda, serta token sesi Bearer terenkripsi untuk menjaga keamanan komunikasi saat aplikasi aktif."
                     android:textColor="#334155"
                     android:textSize="13sp"
                     android:lineSpacingMultiplier="1.4" />
@@ -249,7 +249,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Informasi yang dikumpulkan digunakan semata-mata untuk:\n\n• Mengirimkan notifikasi pengingat otomatis jadwal sidang sebelum sidang dimulai.\n• Memastikan autentikasi pengguna yang sah dan berwenang di lingkungan Kejaksaan Negeri OKU.\n• Memfasilitasi koordinasi dan penelusuran status berkas perkara secara internal.\n• Meningkatkan efisiensi dan transparansi administrasi peradilan."
+                    android:text="Seluruh informasi yang dikumpulkan digunakan semata-mata untuk tujuan kedinasan internal Kejaksaan Negeri OKU, meliputi:\n\n• Pengingat Batas Waktu Otomatis: Menghitung secara otomatis sisa hari dan memicu pengingat tahapan perkara (H-3, Jatuh Tempo, dan Overdue) guna mencegah keterlambatan penanganan perkara pidana umum sesuai SOP.\n• Autentikasi &amp; Validasi Hak Akses: Memastikan bahwa hanya jaksa dan aparatur penegak hukum yang sah dan memiliki wewenang kedinasan yang dapat membuka serta mengelola berkas perkara.\n• Pemantauan Linimasa &amp; Audit Trail: Menyajikan riwayat tahapan perkara secara transparan dan akuntabel dari penerimaan SPDP hingga pelaksanaan Tahap II atau penghentian perkara sesuai SOP Kejaksaan RI.\n• Efisiensi Koordinasi Penegakan Hukum: Mempermudah jaksa peneliti dalam memantau perkembangan penyidikan dari penyidik kepolisian secara terstruktur dan terukur."
                     android:textColor="#334155"
                     android:textSize="13sp"
                     android:lineSpacingMultiplier="1.4" />
@@ -291,7 +291,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="10dp"
-                        android:text="3. Keamanan &amp; Kerahasiaan"
+                        android:text="3. Keamanan &amp; Kerahasiaan Data"
                         android:textColor="#1E293B"
                         android:textSize="15sp"
                         android:textStyle="bold" />
@@ -300,7 +300,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="• Enkripsi Data: Semua lalu lintas data antara aplikasi dan server dilindungi menggunakan enkripsi standar industri (TLS/HTTPS).\n• Pembatasan Akses: Akses terhadap data perkara dibatasi hanya untuk aparatur yang berwenang sesuai hak akses akun.\n• Larangan Pihak Ketiga: Kejaksaan Negeri OKU tidak akan pernah menjual, menyewakan, atau membagikan data kepada pihak luar yang tidak berwenang."
+                    android:text="Kejaksaan Negeri OKU menerapkan standar keamanan informasi berlapis guna menjamin integritas, kerahasiaan, dan ketersediaan data penanganan perkara:\n\n• Enkripsi Komunikasi Data (In-Transit Encryption): Seluruh lalu lintas transmisi data antara aplikasi Android dan server SIPETA dilindungi menggunakan protokol enkripsi standar industri Transport Layer Security (TLS 1.2 / TLS 1.3) dan HTTPS dengan sertifikat SSL terverifikasi untuk mencegah intersepsi data atau Man-in-the-Middle (MitM).\n\n• Keamanan Token Sesi &amp; Isolasi Sandbox (At-Rest Storage): Sesi autentikasi menggunakan Bearer Token dengan masa aktif terbatas. Token sesi disimpan di dalam penyimpanan privat lokal perangkat (Android App Sandbox) yang terisolasi dari aplikasi lain. Token akan otomatis dihancurkan (auto-clear) seketika saat pengguna melakukan logout atau sesi kedaluwarsa (401 Unauthorized), dan pengguna diarahkan kembali ke layar login.\n\n• Pengamanan Kredensial &amp; Sandi: Kata sandi akun tidak pernah disimpan dalam bentuk teks polos (plaintext). Seluruh kata sandi dienkripsi menggunakan algoritma cryptographic hashing satu arah yang kuat (Bcrypt) di sisi server.\n\n• Pembatasan Hak Akses Berjenjang (Role-Based Access Control / RBAC): Akses terhadap data perkara dan fitur penanganan dibatasi secara ketat berdasarkan kewenangan kedinasan (Jaksa Penuntut Umum, Pejabat Struktural, dan Staf Administrasi) sehingga pengguna hanya dapat mengakses data yang relevan dengan tugas kedinasannya.\n\n• Integritas Audit Trail: Setiap riwayat perubahan tahapan perkara dan log reminder dicatat secara kronologis dalam sistem audit trail yang tidak dapat diubah (immutable log), menjamin transparansi serta akuntabilitas pengawasan.\n\n• Kerahasiaan Berkas Tanpa Pihak Ketiga: Seluruh data perkara berstatus rahasia kedinasan peradilan pidana. Kejaksaan Negeri OKU menjamin tidak ada data yang dibagikan, dialihkan, disewakan, atau dijual kepada pihak ketiga di luar instansi penegak hukum yang berwenang."
                     android:textColor="#334155"
                     android:textSize="13sp"
                     android:lineSpacingMultiplier="1.4" />
@@ -342,7 +342,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="10dp"
-                        android:text="4. Kontak &amp; Informasi"
+                        android:text="4. Pengelolaan Akun &amp; Kontak Resmi"
                         android:textColor="#1E293B"
                         android:textSize="15sp"
                         android:textStyle="bold" />
@@ -351,7 +351,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Jika Anda memiliki pertanyaan mengenai Kebijakan Privasi ini, silakan hubungi kami:\n\nKejaksaan Negeri Ogan Komering Ulu\nJl. Lintas Sumatera No. 1, Baturaja\nKab. Ogan Komering Ulu, Sumatera Selatan\nEmail: kejari.oku@kejaksaan.go.id"
+                    android:text="• Pembaruan Data Mandiri: Pengguna dapat memperbarui nomor telepon kontak, foto profil, dan kata sandi akun secara mandiri melalui menu Pengaturan Profil di aplikasi.\n• Layanan Bantuan Administrator: Apabila terjadi kendala autentikasi akun, mutasi wewenang perkara, atau indikasi masalah keamanan, silakan hubungi Administrator Sistem:\n\nKejaksaan Negeri Ogan Komering Ulu\nJl. Lintas Sumatera No. 1, Baturaja\nKab. Ogan Komering Ulu, Sumatera Selatan\nEmail: kejari.oku@kejaksaan.go.id"
                     android:textColor="#334155"
                     android:textSize="13sp"
                     android:lineSpacingMultiplier="1.4" />
@@ -376,4 +376,3 @@
     </LinearLayout>
 
 </androidx.core.widget.NestedScrollView>
-

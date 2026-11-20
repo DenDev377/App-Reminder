@@ -366,7 +366,25 @@ public class MainActivity extends AppCompatActivity {
      */
     private void navigateAfterLogin(String role) {
         int pendingPerkaraId = getIntent().getIntExtra("pending_perkara_id", -1);
+        if (pendingPerkaraId <= 0) {
+            pendingPerkaraId = getIntent().getIntExtra(DetailPerkaraActivity.EXTRA_PERKARA_ID, -1);
+        }
+        if (pendingPerkaraId <= 0 && getIntent().hasExtra("perkara_id")) {
+            try {
+                String strId = getIntent().getStringExtra("perkara_id");
+                if (strId != null && !strId.trim().isEmpty()) {
+                    pendingPerkaraId = Integer.parseInt(strId.trim());
+                }
+            } catch (Exception ignored) {}
+        }
+
         String pendingNomorPerkara = getIntent().getStringExtra("pending_nomor_perkara");
+        if (pendingNomorPerkara == null || pendingNomorPerkara.trim().isEmpty()) {
+            pendingNomorPerkara = getIntent().getStringExtra(DetailPerkaraActivity.EXTRA_NOMOR_PERKARA);
+        }
+        if (pendingNomorPerkara == null || pendingNomorPerkara.trim().isEmpty()) {
+            pendingNomorPerkara = getIntent().getStringExtra("nomor_perkara");
+        }
 
         Intent dashboardIntent = new Intent(this, DashboardActivity.class);
         startActivity(dashboardIntent);
@@ -374,7 +392,7 @@ public class MainActivity extends AppCompatActivity {
         if (pendingPerkaraId > 0) {
             Intent detailIntent = new Intent(this, DetailPerkaraActivity.class);
             detailIntent.putExtra(DetailPerkaraActivity.EXTRA_PERKARA_ID, pendingPerkaraId);
-            if (pendingNomorPerkara != null) {
+            if (pendingNomorPerkara != null && !pendingNomorPerkara.trim().isEmpty()) {
                 detailIntent.putExtra(DetailPerkaraActivity.EXTRA_NOMOR_PERKARA, pendingNomorPerkara);
             }
             startActivity(detailIntent);

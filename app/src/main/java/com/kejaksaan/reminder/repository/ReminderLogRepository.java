@@ -5,8 +5,13 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.kejaksaan.reminder.api.ApiService;
 import com.kejaksaan.reminder.api.RetrofitClient;
+import com.kejaksaan.reminder.model.Perkara;
+import com.kejaksaan.reminder.model.PerkaraResponse;
 import com.kejaksaan.reminder.model.ReminderLogResponse;
 import com.kejaksaan.reminder.util.ApiResult;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -21,6 +26,40 @@ public class ReminderLogRepository {
 
     public ReminderLogRepository(Context context) {
         this.apiService = RetrofitClient.getApiService(context);
+    }
+
+    public ApiService getApiService() {
+        return apiService;
+    }
+
+    /**
+     * Mengambil daftar perkara resmi dari endpoint GET /api/perkara
+     * untuk melengkapi informasi perkara induk (tahap_saat_ini, status_saat_ini, tersangka, jaksa).
+     */
+    public void getPerkaras(int page, String search, MutableLiveData<ApiResult<List<Perkara>>> result) {
+        String query = (search != null && !search.trim().isEmpty()) ? search.trim() : null;
+        apiService.getPerkaras(page, query).enqueue(new Callback<PerkaraResponse>() {
+            @Override
+            public void onResponse(Call<PerkaraResponse> call, Response<PerkaraResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    PerkaraResponse body = response.body();
+                    if (body.isSuccess() && body.getData() != null && body.getData().getData() != null) {
+                        result.postValue(ApiResult.success(body.getData().getData()));
+                    } else {
+                        result.postValue(ApiResult.success(new ArrayList<>()));
+                    }
+                } else if (response.code() == 401) {
+                    result.postValue(ApiResult.error("UNAUTHORIZED:401:Sesi telah berakhir. Silakan login kembali."));
+                } else {
+                    result.postValue(ApiResult.error(com.kejaksaan.reminder.util.ErrorMessageHelper.parseResponseError(response, "Gagal memuat data perkara")));
+                }
+            }
+
+            @Override
+            public void onFailure(Call<PerkaraResponse> call, Throwable t) {
+                result.postValue(ApiResult.error(com.kejaksaan.reminder.util.ErrorMessageHelper.parseThrowable(t)));
+            }
+        });
     }
 
     /**
@@ -61,13 +100,13 @@ public class ReminderLogRepository {
                         } else if (response.code() == 401) {
                             result.postValue(ApiResult.error("UNAUTHORIZED:401:Sesi telah berakhir. Silakan login kembali."));
                         } else {
-                            result.postValue(ApiResult.error("Gagal memuat log reminder (HTTP " + response.code() + ")"));
+                            result.postValue(ApiResult.error(com.kejaksaan.reminder.util.ErrorMessageHelper.parseResponseError(response, "Gagal memuat log reminder")));
                         }
                     }
 
                     @Override
                     public void onFailure(Call<ReminderLogResponse> call, Throwable t) {
-                        result.postValue(ApiResult.error("Tidak dapat terhubung ke server: " + t.getMessage()));
+                        result.postValue(ApiResult.error(com.kejaksaan.reminder.util.ErrorMessageHelper.parseThrowable(t)));
                     }
                 });
     }

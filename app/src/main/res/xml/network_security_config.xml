@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <network-security-config>
-    <!-- Default aman: hanya percayai CA sistem resmi dan tolak traffic cleartext (HTTP biasa) -->
-    <base-config cleartextTrafficPermitted="false">
+    <!-- Default: izinkan traffic cleartext untuk mempermudah pengujian server lokal / LAN pengembang -->
+    <base-config cleartextTrafficPermitted="true">
         <trust-anchors>
             <certificates src="system" />
         </trust-anchors>
@@ -10,6 +10,7 @@
     <!-- Domain produksi: wajib HTTPS & tolak HTTP -->
     <domain-config cleartextTrafficPermitted="false">
         <domain includeSubdomains="true">sipeta.eu.cc</domain>
+        <domain includeSubdomains="true">sipeta.kejaksaan.go.id</domain>
     </domain-config>
 
     <!-- Khusus lingkungan pengujian lokal (emulator / LAN intranet pengembang) -->
@@ -17,6 +18,7 @@
         <domain includeSubdomains="true">10.0.2.2</domain>
         <domain includeSubdomains="true">localhost</domain>
         <domain includeSubdomains="true">127.0.0.1</domain>
+        <domain includeSubdomains="true">192.168.1.4</domain>
         <domain includeSubdomains="true">192.168.1.10</domain>
         <domain includeSubdomains="true">192.168.1.42</domain>
         <domain includeSubdomains="true">192.168.1.47</domain>

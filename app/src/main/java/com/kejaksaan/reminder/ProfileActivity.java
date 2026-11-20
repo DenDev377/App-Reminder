@@ -75,6 +75,7 @@ public class ProfileActivity extends AppCompatActivity {
     private TextView tvInfoDataPegawai; // subtitle Data Pegawai (Edit Profil)
     private TextView tvInfoEmail;       // subtitle Kata Sandi
     private TextView tvInfoNomorHp;     // subtitle Nomor HP
+    private TextView tvSubtitleBatteryOpt; // subtitle Optimalisasi Baterai
 
     private ImageView ivRefreshIcon;
     private SwipeRefreshLayout swipeRefresh;
@@ -157,6 +158,7 @@ public class ProfileActivity extends AppCompatActivity {
         tvInfoDataPegawai     = findViewById(R.id.tvInfoDataPegawai);
         tvInfoEmail           = findViewById(R.id.tvInfoEmail);
         tvInfoNomorHp         = findViewById(R.id.tvInfoNomorHp);
+        tvSubtitleBatteryOpt  = findViewById(R.id.tvSubtitleBatteryOpt);
         ivRefreshIcon         = findViewById(R.id.ivRefreshIcon);
         swipeRefresh          = findViewById(R.id.swipeRefresh);
 
@@ -265,6 +267,36 @@ public class ProfileActivity extends AppCompatActivity {
                 startActivity(intent);
             });
         }
+
+        View menuOptimalisasiBaterai = findViewById(R.id.menuOptimalisasiBaterai);
+        if (menuOptimalisasiBaterai != null) {
+            updateBatteryOptSubtitle();
+            menuOptimalisasiBaterai.setOnClickListener(v -> {
+                if (com.kejaksaan.reminder.util.BatteryOptimizationHelper.isIgnoringBatteryOptimizations(this)) {
+                    Toast.makeText(this, "✅ Aplikasi sudah bebas penghemat baterai (Alarm optimal).", Toast.LENGTH_SHORT).show();
+                } else {
+                    com.kejaksaan.reminder.util.BatteryOptimizationHelper.openBatteryOptimizationSettings(this);
+                }
+            });
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        updateBatteryOptSubtitle();
+    }
+
+    private void updateBatteryOptSubtitle() {
+        if (tvSubtitleBatteryOpt == null) return;
+        boolean isIgnoring = com.kejaksaan.reminder.util.BatteryOptimizationHelper.isIgnoringBatteryOptimizations(this);
+        if (isIgnoring) {
+            tvSubtitleBatteryOpt.setText("✅ Bebas Pembatasan (Alarm Optimal)");
+            tvSubtitleBatteryOpt.setTextColor(Color.parseColor("#059669"));
+        } else {
+            tvSubtitleBatteryOpt.setText("⚠️ Dibatasi Sistem (Ketuk untuk Mengizinkan)");
+            tvSubtitleBatteryOpt.setTextColor(Color.parseColor("#D97706"));
+        }
     }
 
     // ─── Dialog: Ganti Kata Sandi ────────────────────────────────────────────────
@@ -339,22 +371,7 @@ public class ProfileActivity extends AppCompatActivity {
                                         "Kata sandi berhasil diubah", Toast.LENGTH_SHORT).show();
                                 dialog.dismiss();
                             } else {
-                                String msg = null;
-                                if (response.body() != null && response.body().getMessage() != null) {
-                                    msg = response.body().getMessage();
-                                } else if (response.errorBody() != null) {
-                                    try {
-                                        String errStr = response.errorBody().string();
-                                        org.json.JSONObject obj = new org.json.JSONObject(errStr);
-                                        if (obj.has("message")) {
-                                            msg = obj.getString("message");
-                                        }
-                                    } catch (Exception ignored) {
-                                    }
-                                }
-                                if (msg == null || msg.trim().isEmpty()) {
-                                    msg = "Gagal mengubah kata sandi (HTTP " + response.code() + ")";
-                                }
+                                String msg = com.kejaksaan.reminder.util.ErrorMessageHelper.parseResponseError(response, "Gagal mengubah kata sandi");
                                 showError(tvError, msg);
                                 resetPositiveButton(dialog, "Simpan");
                             }
@@ -364,7 +381,7 @@ public class ProfileActivity extends AppCompatActivity {
                     @Override
                     public void onFailure(Call<GenericResponse> call, Throwable t) {
                         runOnUiThread(() -> {
-                            showError(tvError, "Tidak dapat terhubung ke server");
+                            showError(tvError, com.kejaksaan.reminder.util.ErrorMessageHelper.parseThrowable(t));
                             resetPositiveButton(dialog, "Simpan");
                         });
                     }
@@ -444,22 +461,7 @@ public class ProfileActivity extends AppCompatActivity {
                                         Toast.LENGTH_SHORT).show();
                                 dialog.dismiss();
                             } else {
-                                String msg = null;
-                                if (response.body() != null && response.body().getMessage() != null) {
-                                    msg = response.body().getMessage();
-                                } else if (response.errorBody() != null) {
-                                    try {
-                                        String errStr = response.errorBody().string();
-                                        org.json.JSONObject obj = new org.json.JSONObject(errStr);
-                                        if (obj.has("message")) {
-                                            msg = obj.getString("message");
-                                        }
-                                    } catch (Exception ignored) {
-                                    }
-                                }
-                                if (msg == null || msg.trim().isEmpty()) {
-                                    msg = "Gagal memperbarui nomor HP (HTTP " + response.code() + ")";
-                                }
+                                String msg = com.kejaksaan.reminder.util.ErrorMessageHelper.parseResponseError(response, "Gagal memperbarui nomor HP");
                                 showError(tvError, msg);
                                 resetPositiveButton(dialog, "Simpan");
                             }
@@ -469,7 +471,7 @@ public class ProfileActivity extends AppCompatActivity {
                     @Override
                     public void onFailure(Call<UpdatePhoneResponse> call, Throwable t) {
                         runOnUiThread(() -> {
-                            showError(tvError, "Tidak dapat terhubung ke server");
+                            showError(tvError, com.kejaksaan.reminder.util.ErrorMessageHelper.parseThrowable(t));
                             resetPositiveButton(dialog, "Simpan");
                         });
                     }
@@ -638,22 +640,7 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     private void handleProfileUpdateError(Response<UpdateProfileResponse> response, AlertDialog dialog, TextView tvError) {
-        String msg = null;
-        if (response.body() != null && response.body().getMessage() != null) {
-            msg = response.body().getMessage();
-        } else if (response.errorBody() != null) {
-            try {
-                String errStr = response.errorBody().string();
-                org.json.JSONObject obj = new org.json.JSONObject(errStr);
-                if (obj.has("message")) {
-                    msg = obj.getString("message");
-                }
-            } catch (Exception ignored) {
-            }
-        }
-        if (msg == null || msg.trim().isEmpty()) {
-            msg = "Gagal memperbarui profil (HTTP " + response.code() + ")";
-        }
+        String msg = com.kejaksaan.reminder.util.ErrorMessageHelper.parseResponseError(response, "Gagal memperbarui profil");
         showError(tvError, msg);
         resetPositiveButton(dialog, "Simpan");
     }
@@ -833,7 +820,7 @@ public class ProfileActivity extends AppCompatActivity {
             cameraTempUri = ImageUploadHelper.createCameraTempUri(this);
             takePictureLauncher.launch(cameraTempUri);
         } catch (Exception e) {
-            Toast.makeText(this, "Gagal menyiapkan kamera: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Gagal menyiapkan kamera. Pastikan izin kamera telah diberikan pada perangkat Anda.", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -849,7 +836,7 @@ public class ProfileActivity extends AppCompatActivity {
             } catch (Exception e) {
                 runOnUiThread(() -> {
                     setPhotoUploadingState(false);
-                    Toast.makeText(ProfileActivity.this, "Gagal memproses gambar: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ProfileActivity.this, "Gagal memproses gambar. Format berkas tidak didukung atau rusak.", Toast.LENGTH_SHORT).show();
                 });
             }
         });
@@ -924,7 +911,7 @@ public class ProfileActivity extends AppCompatActivity {
                 runOnUiThread(() -> {
                     setPhotoUploadingState(false);
                     cleanupTempFile(file);
-                    Toast.makeText(ProfileActivity.this, "Tidak dapat terhubung ke server", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ProfileActivity.this, com.kejaksaan.reminder.util.ErrorMessageHelper.parseThrowable(t), Toast.LENGTH_SHORT).show();
                 });
             }
         });
@@ -1030,25 +1017,7 @@ public class ProfileActivity extends AppCompatActivity {
     private void handlePhotoUploadError(Response<UpdateProfileResponse> response, File file) {
         setPhotoUploadingState(false);
         cleanupTempFile(file);
-
-        String msg = null;
-        if (response.body() != null && response.body().getMessage() != null) {
-            msg = response.body().getMessage();
-        } else if (response.errorBody() != null) {
-            try {
-                String errStr = response.errorBody().string();
-                org.json.JSONObject obj = new org.json.JSONObject(errStr);
-                if (obj.has("message")) {
-                    msg = obj.getString("message");
-                }
-            } catch (Exception ignored) {
-            }
-        }
-
-        if (msg == null || msg.trim().isEmpty()) {
-            msg = "Gagal memperbarui foto profil (HTTP " + response.code() + ")";
-        }
-
+        String msg = com.kejaksaan.reminder.util.ErrorMessageHelper.parseResponseError(response, "Gagal memperbarui foto profil");
         Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
     }
 
@@ -1080,8 +1049,8 @@ public class ProfileActivity extends AppCompatActivity {
                 if (result.isSuccess() && result.getData() != null) {
                     bindUserProfile(result.getData());
                 } else if (result.isError()) {
-                    Toast.makeText(this, "Gagal memuat profil: " + result.getMessage(),
-                            Toast.LENGTH_SHORT).show();
+                    String msg = result.getMessage() != null ? result.getMessage() : "Gagal memuat profil pengguna";
+                    Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
                 }
             }
         });

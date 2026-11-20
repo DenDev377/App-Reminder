@@ -402,6 +402,9 @@ public class DetailPerkaraActivity extends AppCompatActivity {
                         : "Aksi alur perkara berhasil diproses.";
                 Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
 
+                // Batalkan alarm offline lama untuk perkara ini karena tahapan telah berganti
+                com.kejaksaan.reminder.util.LocalAlarmScheduler.cancelAlarmsForPerkara(this, perkaraId);
+
                 // Muat ulang detail, available actions, dan timeline secara segar dari API
                 if (swipeRefresh != null) {
                     swipeRefresh.setRefreshing(true);

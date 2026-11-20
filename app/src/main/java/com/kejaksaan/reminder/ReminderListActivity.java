@@ -54,6 +54,17 @@ public class ReminderListActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Verifikasi sesi pengguna
+        SessionManager sessionManager = new SessionManager(this);
+        if (!sessionManager.isLoggedIn()) {
+            Intent intent = new Intent(this, MainActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
+            return;
+        }
+
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_reminder_list);
 
@@ -245,6 +256,9 @@ public class ReminderListActivity extends AppCompatActivity {
                     layoutErrorState.setVisibility(View.GONE);
 
                     List<Reminder> list = result.getData();
+                    if (list != null && currentSelectedFilter == null) {
+                        com.kejaksaan.reminder.util.LocalAlarmScheduler.scheduleAlarmsForReminders(ReminderListActivity.this, list);
+                    }
                     if ("tahap_2".equals(currentSelectedFilter) && list != null) {
                         List<Reminder> activeTahap2 = new java.util.ArrayList<>();
                         for (Reminder r : list) {
@@ -255,7 +269,9 @@ public class ReminderListActivity extends AppCompatActivity {
                                     if (r.getPerkara().getTahapSaatIni() != null) t += " " + r.getPerkara().getTahapSaatIni().toLowerCase();
                                     if (r.getPerkara().getStatusSaatIni() != null) s += " " + r.getPerkara().getStatusSaatIni().toLowerCase();
                                 }
-                                if (!t.contains("selesai") && !s.contains("selesai")) {
+                                if (!t.contains("selesai") && !s.contains("selesai")
+                                        && !t.contains("form-7") && !s.contains("form-7")
+                                        && !t.contains("form7") && !s.contains("form7")) {
                                     activeTahap2.add(r);
                                 }
                             }

@@ -284,7 +284,7 @@ public class ReminderLogListActivity extends AppCompatActivity {
         activeChip.setTextColor(Color.WHITE);
 
         rvReminderLogs.scrollToPosition(0);
-        loadData();
+        viewModel.setStatusFilter(status);
     }
 
     private void resetChipStyle(TextView chip) {
@@ -356,9 +356,15 @@ public class ReminderLogListActivity extends AppCompatActivity {
                     if (!currentSearch.isEmpty()) {
                         tvEmptyTitle.setText("Tidak Ada Hasil");
                         tvEmptyMessage.setText("Tidak ada log reminder perkara yang cocok dengan pencarian \"" + currentSearch + "\".");
-                    } else if (!"all".equalsIgnoreCase(currentSelectedStatus)) {
-                        tvEmptyTitle.setText("Data Tidak Ditemukan");
-                        tvEmptyMessage.setText("Tidak ada perkara untuk filter status yang dipilih.");
+                    } else if ("selesai".equalsIgnoreCase(currentSelectedStatus)) {
+                        tvEmptyTitle.setText("Belum Ada Perkara Selesai");
+                        tvEmptyMessage.setText("Belum ada perkara yang telah selesai penanganannya (telah tuntas Tahap II atau penghentian via SOP).");
+                    } else if ("overdue".equalsIgnoreCase(currentSelectedStatus)) {
+                        tvEmptyTitle.setText("Tidak Ada Perkara Overdue");
+                        tvEmptyMessage.setText("Tidak ada perkara yang melewati batas waktu SLA (seluruh jadwal aman).");
+                    } else if ("aktif".equalsIgnoreCase(currentSelectedStatus)) {
+                        tvEmptyTitle.setText("Tidak Ada Perkara Aktif");
+                        tvEmptyMessage.setText("Tidak ada perkara aktif yang sedang berjalan.");
                     } else {
                         tvEmptyTitle.setText("Belum Ada Log Reminder");
                         tvEmptyMessage.setText("Daftar audit trail batas waktu SLA perkara belum tersedia di sistem.");

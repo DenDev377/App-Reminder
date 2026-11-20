@@ -279,7 +279,7 @@
                             android:layout_gravity="center"
                             android:src="@drawable/ic_calendar"
                             app:tint="#0D9488"
-                            android:contentDescription="Jadwal Sidang" />
+                            android:contentDescription="Monitoring Tahapan Perkara" />
                     </FrameLayout>
 
                     <LinearLayout
@@ -685,7 +685,7 @@
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
-                                android:text="Dheny Kurniawan"
+                                android:text="M Dheny Kurniawand"
                                 android:textColor="#1E293B"
                                 android:textSize="14sp"
                                 android:textStyle="bold" />

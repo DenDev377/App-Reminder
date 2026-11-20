@@ -6,6 +6,7 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
 
 import com.kejaksaan.reminder.model.Perkara;
 import com.kejaksaan.reminder.model.PerkaraReminderLogGroup;
@@ -26,6 +27,7 @@ import java.util.Set;
 /**
  * ViewModel untuk mengelola state dan data Audit Trail / Log Reminders SLA.
  * Mengelompokkan log reminder per perkara (1 card per nomor perkara/SPDP).
+ * Melakukan agregasi metrik KPI dan filtering status pada level Perkara.
  */
 public class ReminderLogViewModel extends AndroidViewModel {
 
@@ -148,9 +150,15 @@ public class ReminderLogViewModel extends AndroidViewModel {
 
     /**
      * Ubah filter status ("all", "selesai", "aktif", "overdue").
+     * Menyaring data perkara secara instan di memori jika data sudah terisi.
      */
     public void setStatusFilter(String status) {
-        loadFirstPage(status, currentSearch, currentTahap);
+        this.currentStatus = (status != null && !status.isEmpty()) ? status : "all";
+        if (perkaraGroupMap.isEmpty()) {
+            loadFirstPage(this.currentStatus, currentSearch, currentTahap);
+        } else {
+            applyFilterAndPost();
+        }
     }
 
     /**
@@ -167,81 +175,185 @@ public class ReminderLogViewModel extends AndroidViewModel {
         loadFirstPage(currentStatus, currentSearch, tahap);
     }
 
+    private String getPerkaraGroupKey(int pId, String nomorPerkara) {
+        if (pId > 0) {
+            return "pid_" + pId;
+        }
+        if (nomorPerkara != null && !nomorPerkara.trim().isEmpty()) {
+            return "no_" + nomorPerkara.trim().toLowerCase();
+        }
+        return "obj_" + System.currentTimeMillis();
+    }
+
     private void fetchPage(int pageToFetch, boolean isPaginationCall) {
+        // Ambil data perkara induk resmi pada halaman 1 untuk menjamin semua perkara aktif
+        // (termasuk yang berada di Tahap II dan P-24) masuk ke dalam grouping
+        if (pageToFetch == 1) {
+            MutableLiveData<ApiResult<List<Perkara>>> perkarasResult = new MutableLiveData<>();
+            Observer<ApiResult<List<Perkara>>> perkaraObserver = new Observer<ApiResult<List<Perkara>>>() {
+                @Override
+                public void onChanged(ApiResult<List<Perkara>> pResult) {
+                    if (pResult == null || pResult.isLoading()) {
+                        return;
+                    }
+                    perkarasResult.removeObserver(this);
+                    if (pResult.isSuccess() && pResult.getData() != null) {
+                        for (Perkara p : pResult.getData()) {
+                            if (p != null) {
+                                String key = getPerkaraGroupKey(p.getId(), p.getNomorPerkara());
+                                PerkaraReminderLogGroup group = perkaraGroupMap.get(key);
+                                if (group == null) {
+                                    group = new PerkaraReminderLogGroup(p.getId(), p.getNomorPerkara(), p);
+                                    perkaraGroupMap.put(key, group);
+                                } else {
+                                    group.setPerkara(p);
+                                }
+                            }
+                        }
+                        updateSummaryAndFilter();
+                    }
+                }
+            };
+            perkarasResult.observeForever(perkaraObserver);
+            repository.getPerkaras(1, currentSearch, perkarasResult);
+        }
+
+        // Ambil data log reminder SLA (selalu status=null di backend agar tidak memutus rantai riwayat)
         MutableLiveData<ApiResult<ReminderLogResponse>> pageResult = new MutableLiveData<>();
-        pageResult.observeForever(result -> {
-            if (result == null || result.isLoading()) {
-                return;
-            }
+        Observer<ApiResult<ReminderLogResponse>> logObserver = new Observer<ApiResult<ReminderLogResponse>>() {
+            @Override
+            public void onChanged(ApiResult<ReminderLogResponse> result) {
+                if (result == null || result.isLoading()) {
+                    return;
+                }
+                pageResult.removeObserver(this);
 
-            isLoading = false;
-            if (isPaginationCall) {
-                isPaginating.setValue(false);
-            }
-
-            if (result.isSuccess() && result.getData() != null) {
-                ReminderLogResponse responseBody = result.getData();
-
-                // Simpan ringkasan summary KPI jika ada
-                if (responseBody.getSummary() != null) {
-                    summaryResult.setValue(responseBody.getSummary());
+                isLoading = false;
+                if (isPaginationCall) {
+                    isPaginating.setValue(false);
                 }
 
-                ReminderLogPagination pageData = responseBody.getData();
-                if (pageData != null) {
-                    currentPage = pageData.getCurrentPage() > 0 ? pageData.getCurrentPage() : pageToFetch;
-                    lastPage = pageData.getLastPage() > 0 ? pageData.getLastPage() : 1;
-                    isLastPage = currentPage >= lastPage;
+                if (result.isSuccess() && result.getData() != null) {
+                    ReminderLogResponse responseBody = result.getData();
+                    ReminderLogPagination pageData = responseBody.getData();
 
-                    List<ReminderLog> newItems = pageData.getData();
-                    if (newItems != null && !newItems.isEmpty()) {
-                        for (ReminderLog item : newItems) {
-                            if (item != null && !existingLogIds.contains(item.getId())) {
-                                existingLogIds.add(item.getId());
+                    if (pageData != null) {
+                        currentPage = pageData.getCurrentPage() > 0 ? pageData.getCurrentPage() : pageToFetch;
+                        lastPage = pageData.getLastPage() > 0 ? pageData.getLastPage() : 1;
+                        isLastPage = currentPage >= lastPage;
 
-                                // Tentukan kunci pengelompokan berdasarkan Perkara ID / Nomor Perkara
-                                int pId = item.getPerkaraId();
-                                String nomorPerkara = null;
-                                Perkara pObj = item.getPerkara();
-                                if (pObj != null) {
-                                    if (pId <= 0) pId = pObj.getId();
-                                    nomorPerkara = pObj.getNomorPerkara();
-                                }
+                        List<ReminderLog> newItems = pageData.getData();
+                        if (newItems != null && !newItems.isEmpty()) {
+                            for (ReminderLog item : newItems) {
+                                if (item != null && !existingLogIds.contains(item.getId())) {
+                                    existingLogIds.add(item.getId());
 
-                                String groupKey = (nomorPerkara != null && !nomorPerkara.trim().isEmpty())
-                                        ? nomorPerkara.trim().toLowerCase()
-                                        : (pId > 0 ? ("pid_" + pId) : ("log_" + item.getId()));
-
-                                PerkaraReminderLogGroup group = perkaraGroupMap.get(groupKey);
-                                if (group == null) {
-                                    group = new PerkaraReminderLogGroup(pId, nomorPerkara, pObj);
-                                    perkaraGroupMap.put(groupKey, group);
-                                } else {
-                                    if (pObj != null && group.getPerkara() == null) {
-                                        group.setPerkara(pObj);
+                                    int pId = item.getPerkaraId();
+                                    String nomorPerkara = null;
+                                    Perkara pObj = item.getPerkara();
+                                    if (pObj != null) {
+                                        if (pId <= 0) pId = pObj.getId();
+                                        nomorPerkara = pObj.getNomorPerkara();
                                     }
+
+                                    String groupKey = getPerkaraGroupKey(pId, nomorPerkara);
+                                    PerkaraReminderLogGroup group = perkaraGroupMap.get(groupKey);
+
+                                    // Cek fallback jika tersimpan dengan nomor perkara
+                                    if (group == null && nomorPerkara != null && !nomorPerkara.trim().isEmpty()) {
+                                        group = perkaraGroupMap.get("no_" + nomorPerkara.trim().toLowerCase());
+                                    }
+
+                                    if (group == null) {
+                                        group = new PerkaraReminderLogGroup(pId, nomorPerkara, pObj);
+                                        perkaraGroupMap.put(groupKey, group);
+                                    } else {
+                                        if (pObj != null && group.getPerkara() == null) {
+                                            group.setPerkara(pObj);
+                                        }
+                                    }
+                                    group.addReminderLog(item);
                                 }
-                                group.addReminderLog(item);
                             }
+                        } else {
+                            isLastPage = true;
                         }
                     } else {
                         isLastPage = true;
                     }
-                } else {
-                    isLastPage = true;
-                }
 
-                perkaraGroupsResult.setValue(ApiResult.success(new ArrayList<>(perkaraGroupMap.values())));
-            } else if (result.isError()) {
-                String errorMsg = result.getMessage() != null ? result.getMessage() : "Gagal memuat log reminder";
-                if (isPaginationCall) {
-                    paginationError.setValue(errorMsg);
-                } else {
-                    perkaraGroupsResult.setValue(ApiResult.error(errorMsg));
+                    updateSummaryAndFilter();
+                } else if (result.isError()) {
+                    String errorMsg = result.getMessage() != null ? result.getMessage() : "Gagal memuat log reminder";
+                    if (isPaginationCall) {
+                        paginationError.setValue(errorMsg);
+                    } else {
+                        if (perkaraGroupMap.isEmpty()) {
+                            perkaraGroupsResult.setValue(ApiResult.error(errorMsg));
+                        } else {
+                            updateSummaryAndFilter();
+                        }
+                    }
                 }
             }
-        });
+        };
+        pageResult.observeForever(logObserver);
 
-        repository.getReminderLogs(currentStatus, currentSearch, currentTahap, pageToFetch, PER_PAGE, pageResult);
+        // Jangan batasi status pada backend reminder_logs agar riwayat lengkap tidak terpotong
+        repository.getReminderLogs(null, currentSearch, currentTahap, pageToFetch, PER_PAGE, pageResult);
+    }
+
+    /**
+     * Menghitung metrik KPI ringkasan pada level perkara (Perkara-level metrics)
+     * dan memposting ke summaryResult.
+     */
+    private void updateSummaryAndFilter() {
+        int totalPerkara = perkaraGroupMap.size();
+        int selesaiPerkara = 0;
+        int overduePerkara = 0;
+        int aktifPerkara = 0;
+
+        for (PerkaraReminderLogGroup group : perkaraGroupMap.values()) {
+            if (group.isPerkaraFinished()) {
+                selesaiPerkara++;
+            } else if (group.hasOverdue()) {
+                overduePerkara++;
+            } else {
+                aktifPerkara++;
+            }
+        }
+
+        summaryResult.setValue(new ReminderLogSummary(totalPerkara, selesaiPerkara, aktifPerkara, overduePerkara));
+        applyFilterAndPost();
+    }
+
+    /**
+     * Menerapkan filter status perkara ("all", "aktif", "overdue", "selesai")
+     * dan memposting daftar hasil ke perkaraGroupsResult.
+     */
+    private void applyFilterAndPost() {
+        List<PerkaraReminderLogGroup> filtered = new ArrayList<>();
+        String status = currentStatus != null ? currentStatus.trim().toLowerCase() : "all";
+
+        for (PerkaraReminderLogGroup group : perkaraGroupMap.values()) {
+            if ("all".equalsIgnoreCase(status) || "semua".equalsIgnoreCase(status)) {
+                filtered.add(group);
+            } else if ("selesai".equalsIgnoreCase(status)) {
+                if (group.isPerkaraFinished()) {
+                    filtered.add(group);
+                }
+            } else if ("overdue".equalsIgnoreCase(status)) {
+                if (group.hasOverdue()) {
+                    filtered.add(group);
+                }
+            } else if ("aktif".equalsIgnoreCase(status)) {
+                // Perkara aktif adalah perkara yang masih berjalan (belum selesai dan tidak overdue)
+                if (!group.isPerkaraFinished() && !group.hasOverdue()) {
+                    filtered.add(group);
+                }
+            }
+        }
+
+        perkaraGroupsResult.setValue(ApiResult.success(filtered));
     }
 }

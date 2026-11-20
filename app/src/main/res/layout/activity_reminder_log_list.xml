@@ -127,7 +127,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="2dp"
-                            android:text="Total Log"
+                            android:text="Total Perkara"
                             android:textColor="#64748B"
                             android:textSize="11sp"
                             android:textStyle="bold" />
@@ -167,7 +167,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="2dp"
-                            android:text="Selesai"
+                            android:text="Perkara Selesai"
                             android:textColor="#059669"
                             android:textSize="11sp"
                             android:textStyle="bold" />
@@ -207,7 +207,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="2dp"
-                            android:text="SLA Aktif"
+                            android:text="Perkara Aktif"
                             android:textColor="#0284C7"
                             android:textSize="11sp"
                             android:textStyle="bold" />
@@ -246,7 +246,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="2dp"
-                            android:text="Overdue"
+                            android:text="Perkara Overdue"
                             android:textColor="#DC2626"
                             android:textSize="11sp"
                             android:textStyle="bold" />

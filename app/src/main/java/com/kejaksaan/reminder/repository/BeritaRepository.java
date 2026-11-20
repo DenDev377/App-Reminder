@@ -52,13 +52,13 @@ public class BeritaRepository {
                 } else if (response.code() == 401) {
                     result.postValue(ApiResult.error("UNAUTHORIZED:401:Sesi telah berakhir. Silakan login kembali."));
                 } else {
-                    result.postValue(ApiResult.error("Gagal memuat berita (HTTP " + response.code() + ")"));
+                    result.postValue(ApiResult.error(com.kejaksaan.reminder.util.ErrorMessageHelper.parseResponseError(response, "Gagal memuat berita")));
                 }
             }
 
             @Override
             public void onFailure(Call<BeritaResponse> call, Throwable t) {
-                result.postValue(ApiResult.error("Tidak dapat terhubung ke server: " + t.getMessage()));
+                result.postValue(ApiResult.error(com.kejaksaan.reminder.util.ErrorMessageHelper.parseThrowable(t)));
             }
         });
     }

@@ -61,7 +61,7 @@ public class PerkaraRepository {
                     result.postValue(ApiResult.error("UNAUTHORIZED:401:Sesi telah berakhir. Silakan login kembali."));
                 } else {
                     result.postValue(ApiResult.error(
-                            "Gagal memuat perkara (HTTP " + response.code() + ")"
+                            com.kejaksaan.reminder.util.ErrorMessageHelper.parseResponseError(response, "Gagal memuat perkara")
                     ));
                 }
             }
@@ -69,7 +69,7 @@ public class PerkaraRepository {
             @Override
             public void onFailure(Call<PerkaraResponse> call, Throwable t) {
                 result.postValue(ApiResult.error(
-                        "Tidak dapat terhubung ke server: " + t.getMessage()
+                        com.kejaksaan.reminder.util.ErrorMessageHelper.parseThrowable(t)
                 ));
             }
         });
@@ -97,7 +97,7 @@ public class PerkaraRepository {
                     }
                 } else {
                     result.postValue(ApiResult.error(
-                            "Gagal memuat perkara (HTTP " + response.code() + ")"
+                            com.kejaksaan.reminder.util.ErrorMessageHelper.parseResponseError(response, "Gagal memuat perkara")
                     ));
                 }
             }
@@ -105,7 +105,7 @@ public class PerkaraRepository {
             @Override
             public void onFailure(Call<PerkaraResponse> call, Throwable t) {
                 result.postValue(ApiResult.error(
-                        "Tidak dapat terhubung ke server: " + t.getMessage()
+                        com.kejaksaan.reminder.util.ErrorMessageHelper.parseThrowable(t)
                 ));
             }
         });
@@ -141,7 +141,7 @@ public class PerkaraRepository {
                     }
                 } else {
                     result.postValue(ApiResult.error(
-                            "Gagal memuat profil (HTTP " + response.code() + ")"
+                            com.kejaksaan.reminder.util.ErrorMessageHelper.parseResponseError(response, "Gagal memuat profil")
                     ));
                 }
             }
@@ -149,7 +149,7 @@ public class PerkaraRepository {
             @Override
             public void onFailure(Call<UserResponse> call, Throwable t) {
                 result.postValue(ApiResult.error(
-                        "Tidak dapat terhubung ke server: " + t.getMessage()
+                        com.kejaksaan.reminder.util.ErrorMessageHelper.parseThrowable(t)
                 ));
             }
         });
@@ -197,13 +197,13 @@ public class PerkaraRepository {
                         result.postValue(ApiResult.error("Data reminder kosong"));
                     }
                 } else {
-                    result.postValue(ApiResult.error("Gagal memuat reminder (HTTP " + response.code() + ")"));
+                    result.postValue(ApiResult.error(com.kejaksaan.reminder.util.ErrorMessageHelper.parseResponseError(response, "Gagal memuat reminder")));
                 }
             }
 
             @Override
             public void onFailure(Call<com.kejaksaan.reminder.model.ReminderResponse> call, Throwable t) {
-                result.postValue(ApiResult.error("Gagal terhubung server: " + t.getMessage()));
+                result.postValue(ApiResult.error(com.kejaksaan.reminder.util.ErrorMessageHelper.parseThrowable(t)));
             }
         });
     }

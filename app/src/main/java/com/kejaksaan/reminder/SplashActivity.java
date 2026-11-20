@@ -63,6 +63,9 @@ public class SplashActivity extends AppCompatActivity {
         // Inisialisasi Notification Channel sejak awal aplikasi terbuka
         NotificationHelper.createNotificationChannel(this);
 
+        // Selaraskan jadwal alarm offline mandiri dari penyimpanan lokal
+        com.kejaksaan.reminder.util.LocalAlarmScheduler.rescheduleAllAlarms(this);
+
         progressBarLoading = findViewById(R.id.progressBarLoading);
         tvLoadingStatus = findViewById(R.id.tvLoadingStatus);
 

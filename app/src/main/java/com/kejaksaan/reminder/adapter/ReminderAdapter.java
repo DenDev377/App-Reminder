@@ -70,7 +70,8 @@ public class ReminderAdapter extends RecyclerView.Adapter<ReminderAdapter.Remind
      * Menambahkan item baru tanpa duplikasi (untuk pagination / infinite scroll).
      */
     public void appendReminders(List<Reminder> newItems) {
-        if (newItems == null || newItems.isEmpty()) return;
+        if (newItems == null || newItems.isEmpty())
+            return;
 
         int startPosition = this.reminderList.size();
         int addedCount = 0;
@@ -113,7 +114,8 @@ public class ReminderAdapter extends RecyclerView.Adapter<ReminderAdapter.Remind
     }
 
     private static String formatDate(String dateString) {
-        if (dateString == null || dateString.trim().isEmpty()) return "-";
+        if (dateString == null || dateString.trim().isEmpty())
+            return "-";
         try {
             String datePart = dateString.trim();
             if (datePart.contains("T")) {
@@ -143,37 +145,69 @@ public class ReminderAdapter extends RecyclerView.Adapter<ReminderAdapter.Remind
 
         public ReminderViewHolder(@NonNull View itemView) {
             super(itemView);
-            cardReminder        = itemView.findViewById(R.id.cardReminder);
-            imgReminderIcon     = itemView.findViewById(R.id.imgReminderIcon);
-            tvReminderJenis     = itemView.findViewById(R.id.tvReminderJenis);
-            tvReminderStatus    = itemView.findViewById(R.id.tvReminderStatus);
-            tvReminderNomor     = itemView.findViewById(R.id.tvReminderNomor);
+            cardReminder = itemView.findViewById(R.id.cardReminder);
+            imgReminderIcon = itemView.findViewById(R.id.imgReminderIcon);
+            tvReminderJenis = itemView.findViewById(R.id.tvReminderJenis);
+            tvReminderStatus = itemView.findViewById(R.id.tvReminderStatus);
+            tvReminderNomor = itemView.findViewById(R.id.tvReminderNomor);
             tvReminderTersangka = itemView.findViewById(R.id.tvReminderTersangka);
-            tvReminderTahap     = itemView.findViewById(R.id.tvReminderTahap);
-            tvReminderDeadline  = itemView.findViewById(R.id.tvReminderDeadline);
-            tvReminderSisaHari  = itemView.findViewById(R.id.tvReminderSisaHari);
+            tvReminderTahap = itemView.findViewById(R.id.tvReminderTahap);
+            tvReminderDeadline = itemView.findViewById(R.id.tvReminderDeadline);
+            tvReminderSisaHari = itemView.findViewById(R.id.tvReminderSisaHari);
         }
 
         public void bind(Reminder reminder) {
             String jenis = reminder.getJenisReminder() != null ? reminder.getJenisReminder() : "Reminder";
             tvReminderJenis.setText(jenis);
 
-            // Sisa Hari (dihitung dinamis dari deadline)
-            int sisa = reminder.getSisaHari();
+            // Periksa apakah ini tahapan monitoring standby (seperti Tahap II) atau
+            // reminder dengan deadline kaku
+            boolean isMonitoring = reminder.isMonitoringStage() || !reminder.hasDeadline();
+            String status;
 
-            // Evaluasi status urgensi dinamis:
-            // Jika sisa hari < 0 (misal P-24 sudah lewat dari 7 hari), status adalah "Overdue"
-            String status = reminder.getStatusUrgensi();
-            if (sisa < 0) {
-                status = "Overdue";
-            } else if (sisa == 0) {
-                status = "Jatuh Tempo";
-            } else if (sisa <= 3) {
-                status = "H-3";
-            } else if (status == null || status.trim().isEmpty() || status.equals("-")) {
-                status = "Aman";
+            if (isMonitoring) {
+                status = "Menunggu Tahap II";
+                tvReminderStatus.setText(status);
+
+                if (reminder.hasDeadline()) {
+                    tvReminderDeadline.setText(formatDate(reminder.getDeadline()));
+                } else {
+                    tvReminderDeadline.setText("Tenggat: Jadwal Penyidik");
+                }
+
+                int hariBerjalan = reminder.getHariBerjalan();
+                if (hariBerjalan >= 0) {
+                    tvReminderSisaHari.setText("Masa Tunggu Hari ke-" + (hariBerjalan == 0 ? "1" : hariBerjalan));
+                } else {
+                    tvReminderSisaHari.setText("Menunggu Penyerahan Tersangka & BB");
+                }
+
+                applyMonitoringStyle();
+            } else {
+                int sisa = reminder.getSisaHari();
+                status = reminder.getStatusUrgensi();
+                if (sisa < 0) {
+                    status = "Overdue";
+                } else if (sisa == 0) {
+                    status = "Jatuh Tempo";
+                } else if (sisa <= 3) {
+                    status = "H-3";
+                } else if (status == null || status.trim().isEmpty() || status.equals("-")) {
+                    status = "Aman";
+                }
+                tvReminderStatus.setText(status);
+                tvReminderDeadline.setText(formatDate(reminder.getDeadline()));
+
+                if (sisa < 0) {
+                    tvReminderSisaHari.setText("Lewat " + Math.abs(sisa) + " Hari");
+                } else if (sisa == 0) {
+                    tvReminderSisaHari.setText("Jatuh Tempo Hari Ini");
+                } else {
+                    tvReminderSisaHari.setText("Sisa " + sisa + " Hari");
+                }
+
+                applyUrgensiStyle(status);
             }
-            tvReminderStatus.setText(status);
 
             if (reminder.getPerkara() != null && reminder.getPerkara().getNomorPerkara() != null) {
                 tvReminderNomor.setText("Nomor: " + reminder.getPerkara().getNomorPerkara());
@@ -187,7 +221,8 @@ public class ReminderAdapter extends RecyclerView.Adapter<ReminderAdapter.Remind
 
             // Stage
             String tahap = reminder.getTahap();
-            if ((tahap == null || tahap.trim().isEmpty() || tahap.equals("-")) && reminder.getPerkara() != null && reminder.getPerkara().getTahapSaatIni() != null) {
+            if ((tahap == null || tahap.trim().isEmpty() || tahap.equals("-")) && reminder.getPerkara() != null
+                    && reminder.getPerkara().getTahapSaatIni() != null) {
                 tahap = reminder.getPerkara().getTahapSaatIni();
             }
             if (tahap == null || tahap.trim().isEmpty()) {
@@ -196,7 +231,7 @@ public class ReminderAdapter extends RecyclerView.Adapter<ReminderAdapter.Remind
             tvReminderTahap.setText("Tahap: " + tahap);
 
             // Styling khusus jika Tahap II / Tahap 2
-            String lowerTahap = tahap.toLowerCase();
+            String lowerTahap = tahap.toLowerCase(Locale.ROOT);
             if (lowerTahap.contains("tahap ii") || lowerTahap.contains("tahap 2")) {
                 tvReminderTahap.setTextColor(Color.parseColor("#0284C7")); // Sky blue
                 tvReminderTahap.setTypeface(null, android.graphics.Typeface.BOLD);
@@ -204,20 +239,23 @@ public class ReminderAdapter extends RecyclerView.Adapter<ReminderAdapter.Remind
                 tvReminderTahap.setTextColor(Color.parseColor("#64748B"));
                 tvReminderTahap.setTypeface(null, android.graphics.Typeface.NORMAL);
             }
+        }
 
-            // Deadline
-            tvReminderDeadline.setText(formatDate(reminder.getDeadline()));
+        private void applyMonitoringStyle() {
+            int badgeColor = Color.parseColor("#0284C7"); // Sky Blue 600
+            int strokeColor = Color.parseColor("#BAE6FD"); // Sky 200
+            int textColor = Color.parseColor("#0369A1"); // Sky 700
 
-            if (sisa < 0) {
-                tvReminderSisaHari.setText("Lewat " + Math.abs(sisa) + " Hari");
-            } else if (sisa == 0) {
-                tvReminderSisaHari.setText("Jatuh Tempo Hari Ini");
-            } else {
-                tvReminderSisaHari.setText("Sisa " + sisa + " Hari");
+            tvReminderStatus.setBackgroundTintList(ColorStateList.valueOf(badgeColor));
+            tvReminderStatus.setTextColor(Color.WHITE);
+
+            imgReminderIcon.setImageTintList(ColorStateList.valueOf(textColor));
+            tvReminderJenis.setTextColor(textColor);
+            tvReminderSisaHari.setTextColor(textColor);
+
+            if (cardReminder != null) {
+                cardReminder.setStrokeColor(strokeColor);
             }
-
-            // Styling based on Urgensi
-            applyUrgensiStyle(status);
         }
 
         private void applyUrgensiStyle(String status) {
@@ -226,21 +264,21 @@ public class ReminderAdapter extends RecyclerView.Adapter<ReminderAdapter.Remind
             int textColor;
 
             if (status.equalsIgnoreCase("Overdue") || status.equalsIgnoreCase("Jatuh Tempo")) {
-                badgeColor  = Color.parseColor("#EF4444"); // Red
+                badgeColor = Color.parseColor("#EF4444"); // Red
                 strokeColor = Color.parseColor("#FECACA");
-                textColor   = Color.parseColor("#DC2626");
+                textColor = Color.parseColor("#DC2626");
             } else if (status.equalsIgnoreCase("H-3")) {
-                badgeColor  = Color.parseColor("#F59E0B"); // Amber
+                badgeColor = Color.parseColor("#F59E0B"); // Amber
                 strokeColor = Color.parseColor("#FDE68A");
-                textColor   = Color.parseColor("#D97706");
+                textColor = Color.parseColor("#D97706");
             } else if (status.equalsIgnoreCase("Aman")) {
-                badgeColor  = Color.parseColor("#10B981"); // Emerald
+                badgeColor = Color.parseColor("#10B981"); // Emerald
                 strokeColor = Color.parseColor("#A7F3D0");
-                textColor   = Color.parseColor("#059669");
+                textColor = Color.parseColor("#059669");
             } else {
-                badgeColor  = Color.parseColor("#64748B"); // Slate
+                badgeColor = Color.parseColor("#64748B"); // Slate
                 strokeColor = Color.parseColor("#E2E8F0");
-                textColor   = Color.parseColor("#475569");
+                textColor = Color.parseColor("#475569");
             }
 
             tvReminderStatus.setBackgroundTintList(ColorStateList.valueOf(badgeColor));
