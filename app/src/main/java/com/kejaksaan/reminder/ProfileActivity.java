@@ -1,14 +1,18 @@
 package com.kejaksaan.reminder;
 
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.method.HideReturnsTransformationMethod;
 import android.text.method.PasswordTransformationMethod;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -202,9 +206,17 @@ public class ProfileActivity extends AppCompatActivity {
             });
         }
 
-        // ── Preview & Ubah Foto Profil ────────────────────────────────────────
+        // ── Preview & Ubah Foto Profil (WhatsApp Style Fullscreen Preview) ───
+        View.OnClickListener previewFotoListener = v -> showDialogPreviewFoto();
         if (btnChangeProfilePhoto != null) {
-            btnChangeProfilePhoto.setOnClickListener(v -> showDialogPreviewFoto());
+            btnChangeProfilePhoto.setOnClickListener(previewFotoListener);
+        }
+        if (imgProfileKta != null) {
+            imgProfileKta.setOnClickListener(previewFotoListener);
+        }
+        View cardProfileAvatar = findViewById(R.id.cardProfileAvatar);
+        if (cardProfileAvatar != null) {
+            cardProfileAvatar.setOnClickListener(previewFotoListener);
         }
 
         View btnBadgeCamera = findViewById(R.id.btnBadgeCamera);
@@ -214,7 +226,7 @@ public class ProfileActivity extends AppCompatActivity {
 
         View menuFotoProfil = findViewById(R.id.menuFotoProfil);
         if (menuFotoProfil != null) {
-            menuFotoProfil.setOnClickListener(v -> showDialogPreviewFoto());
+            menuFotoProfil.setOnClickListener(previewFotoListener);
         }
 
         // ── Data Pegawai / Edit Profil ────────────────────────────────────────
@@ -645,18 +657,37 @@ public class ProfileActivity extends AppCompatActivity {
         resetPositiveButton(dialog, "Simpan");
     }
 
-    // ─── Fitur: Preview & Upload Foto Profil ─────────────────────────────────────
+    // ─── Fitur: Preview & Upload Foto Profil (WhatsApp Style Fullscreen) ─────────
 
     private void showDialogPreviewFoto() {
         View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_preview_foto, null);
 
+        View rootLayout       = dialogView.findViewById(R.id.rootPreviewLayout);
+        View topBar           = dialogView.findViewById(R.id.topBarPreview);
+        View bottomBar        = dialogView.findViewById(R.id.bottomBarPreview);
         TextView tvNama       = dialogView.findViewById(R.id.tvPreviewNama);
         TextView tvSub        = dialogView.findViewById(R.id.tvPreviewSub);
         ImageView ivFoto      = dialogView.findViewById(R.id.ivPreviewFoto);
         ProgressBar pbLoading = dialogView.findViewById(R.id.pbPreviewLoading);
         ImageView btnClose    = dialogView.findViewById(R.id.btnPreviewClose);
-        View btnTutup         = dialogView.findViewById(R.id.btnPreviewTutup);
+        ImageView btnEdit     = dialogView.findViewById(R.id.btnPreviewEdit);
         View btnUbahFoto      = dialogView.findViewById(R.id.btnPreviewUbahFoto);
+
+        // Pasang padding insets untuk notch kamera dan navigation bar
+        if (topBar != null) {
+            ViewCompat.setOnApplyWindowInsetsListener(topBar, (v, insets) -> {
+                Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+                v.setPadding(v.getPaddingLeft(), systemBars.top + 8, v.getPaddingRight(), v.getPaddingBottom());
+                return insets;
+            });
+        }
+        if (bottomBar != null) {
+            ViewCompat.setOnApplyWindowInsetsListener(bottomBar, (v, insets) -> {
+                Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+                v.setPadding(v.getPaddingLeft(), v.getPaddingTop(), v.getPaddingRight(), systemBars.bottom + 16);
+                return insets;
+            });
+        }
 
         SessionManager sessionManager = new SessionManager(this);
         String name = (currentUser != null && currentUser.getName() != null)
@@ -708,15 +739,15 @@ public class ProfileActivity extends AppCompatActivity {
 
         if (remoteUrl != null && !remoteUrl.trim().isEmpty()) {
             com.bumptech.glide.RequestBuilder<android.graphics.drawable.Drawable> errorBuilder = hasLocal
-                    ? Glide.with(this).load(localFile).centerCrop()
-                    : Glide.with(this).load(R.drawable.logo_kejaksaan).centerCrop();
+                    ? Glide.with(this).load(localFile).fitCenter()
+                    : Glide.with(this).load(R.drawable.logo_kejaksaan).fitCenter();
 
             Glide.with(this)
                     .load(remoteUrl)
                     .placeholder(R.drawable.logo_kejaksaan)
                     .error(errorBuilder)
                     .signature(new ObjectKey(System.currentTimeMillis()))
-                    .centerCrop()
+                    .fitCenter()
                     .listener(new com.bumptech.glide.request.RequestListener<android.graphics.drawable.Drawable>() {
                         @Override
                         public boolean onLoadFailed(com.bumptech.glide.load.engine.GlideException e, Object model, com.bumptech.glide.request.target.Target<android.graphics.drawable.Drawable> target, boolean isFirstResource) {
@@ -736,23 +767,43 @@ public class ProfileActivity extends AppCompatActivity {
             Glide.with(this)
                     .load(localFile)
                     .signature(new ObjectKey(System.currentTimeMillis()))
-                    .centerCrop()
+                    .fitCenter()
                     .into(ivFoto);
         } else {
             if (pbLoading != null) pbLoading.setVisibility(View.GONE);
             ivFoto.setImageResource(R.drawable.logo_kejaksaan);
         }
 
-        AlertDialog dialog = new AlertDialog.Builder(this)
-                .setView(dialogView)
-                .create();
+        Dialog dialog = new Dialog(this, R.style.Theme_FullScreenPhotoDialog);
+        dialog.setContentView(dialogView);
 
         if (dialog.getWindow() != null) {
-            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+            dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.BLACK));
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                dialog.getWindow().setStatusBarColor(Color.BLACK);
+                dialog.getWindow().setNavigationBarColor(Color.BLACK);
+            }
         }
 
+        // WhatsApp style: ketuk foto / background untuk sembunyikan atau tampilkan bilah atas dan bawah
+        View.OnClickListener toggleBars = v -> {
+            if (topBar != null && bottomBar != null) {
+                int nextVisibility = (topBar.getVisibility() == View.VISIBLE) ? View.GONE : View.VISIBLE;
+                topBar.setVisibility(nextVisibility);
+                bottomBar.setVisibility(nextVisibility);
+            }
+        };
+        if (rootLayout != null) rootLayout.setOnClickListener(toggleBars);
+        if (ivFoto != null) ivFoto.setOnClickListener(toggleBars);
+
         if (btnClose != null) btnClose.setOnClickListener(v -> dialog.dismiss());
-        if (btnTutup != null) btnTutup.setOnClickListener(v -> dialog.dismiss());
+        if (btnEdit != null) {
+            btnEdit.setOnClickListener(v -> {
+                dialog.dismiss();
+                showChangePhotoDialog();
+            });
+        }
         if (btnUbahFoto != null) {
             btnUbahFoto.setOnClickListener(v -> {
                 dialog.dismiss();

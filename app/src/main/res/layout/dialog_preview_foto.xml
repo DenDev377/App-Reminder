@@ -1,24 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/rootPreviewLayout"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:background="@drawable/bg_dialog_rounded"
-    android:padding="20dp">
+    android:layout_height="match_parent"
+    android:background="#000000">
 
-    <!-- Header: Informasi & Tombol Tutup -->
+    <!-- 1. Full Image Center (WhatsApp style: uncropped, fitCenter, high-res) -->
+    <ImageView
+        android:id="@+id/ivPreviewFoto"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:scaleType="fitCenter"
+        android:adjustViewBounds="true"
+        android:src="@drawable/logo_kejaksaan"
+        android:contentDescription="Foto Profil Pegawai" />
+
+    <!-- Loading Spinner -->
+    <ProgressBar
+        android:id="@+id/pbPreviewLoading"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_gravity="center"
+        android:indeterminateTint="#FFFFFF"
+        android:visibility="gone" />
+
+    <!-- 2. WhatsApp-Style Top Bar (Header) -->
     <LinearLayout
+        android:id="@+id/topBarPreview"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center_vertical"
+        android:layout_gravity="top"
+        android:background="#CC000000"
         android:orientation="horizontal"
-        android:layout_marginBottom="16dp">
+        android:gravity="center_vertical"
+        android:paddingHorizontal="14dp"
+        android:paddingTop="36dp"
+        android:paddingBottom="14dp">
 
+        <!-- Back Button (Arrow back) -->
+        <ImageView
+            android:id="@+id/btnPreviewClose"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:padding="8dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_arrow_back"
+            app:tint="#FFFFFF"
+            android:contentDescription="Kembali" />
+
+        <!-- User Information -->
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
             android:orientation="vertical">
 
             <TextView
@@ -26,7 +64,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Foto Profil Pegawai"
-                android:textColor="#0F172A"
+                android:textColor="#FFFFFF"
                 android:textSize="17sp"
                 android:textStyle="bold"
                 android:maxLines="1"
@@ -38,91 +76,52 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
                 android:text="Kejaksaan Negeri Ogan Komering Ulu"
-                android:textColor="#64748B"
+                android:textColor="#CBD5E1"
                 android:textSize="12sp"
                 android:maxLines="1"
                 android:ellipsize="end" />
         </LinearLayout>
 
+        <!-- Edit Photo Icon (Pencil / Camera) -->
         <ImageView
-            android:id="@+id/btnPreviewClose"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:padding="6dp"
+            android:id="@+id/btnPreviewEdit"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:padding="8dp"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@drawable/ic_close"
-            app:tint="#64748B"
-            android:contentDescription="Tutup" />
+            android:src="@drawable/ic_edit"
+            app:tint="#FFFFFF"
+            android:contentDescription="Ubah Foto Profil" />
     </LinearLayout>
 
-    <!-- Photo Container -->
-    <com.google.android.material.card.MaterialCardView
-        android:layout_width="match_parent"
-        android:layout_height="300dp"
-        app:cardCornerRadius="16dp"
-        app:cardElevation="2dp"
-        app:strokeWidth="1dp"
-        app:strokeColor="#E2E8F0"
-        app:cardBackgroundColor="#0F172A">
-
-        <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <ImageView
-                android:id="@+id/ivPreviewFoto"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:scaleType="centerCrop"
-                android:src="@drawable/logo_kejaksaan"
-                android:contentDescription="Foto Profil Pegawai" />
-
-            <!-- Spinner saat gambar sedang dimuat -->
-            <ProgressBar
-                android:id="@+id/pbPreviewLoading"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:layout_gravity="center"
-                android:visibility="gone"
-                android:indeterminateTint="#FFFFFF" />
-        </FrameLayout>
-    </com.google.android.material.card.MaterialCardView>
-
-    <!-- Tombol Aksi: Tutup & Ubah Foto -->
+    <!-- 3. WhatsApp-Style Bottom Bar / Action Pill -->
     <LinearLayout
+        android:id="@+id/bottomBarPreview"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:orientation="horizontal">
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnPreviewTutup"
-            style="@style/Widget.Material3.Button.OutlinedButton"
-            android:layout_width="0dp"
-            android:layout_height="48dp"
-            android:layout_weight="1"
-            android:layout_marginEnd="8dp"
-            android:text="Tutup"
-            android:textColor="#475569"
-            android:textSize="14sp"
-            app:strokeColor="#CBD5E1"
-            app:cornerRadius="12dp" />
+        android:layout_gravity="bottom"
+        android:background="#CC000000"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:paddingHorizontal="20dp"
+        android:paddingTop="12dp"
+        android:paddingBottom="28dp">
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnPreviewUbahFoto"
-            android:layout_width="0dp"
-            android:layout_height="48dp"
-            android:layout_weight="1"
-            android:layout_marginStart="8dp"
-            android:text="Ubah Foto"
+            android:layout_width="wrap_content"
+            android:layout_height="46dp"
+            android:text="Ubah Foto Profil"
             android:textColor="#FFFFFF"
             android:textSize="14sp"
             android:textStyle="bold"
             app:backgroundTint="#00897B"
-            app:cornerRadius="12dp"
+            app:cornerRadius="23dp"
             app:icon="@drawable/ic_camera"
             app:iconTint="#FFFFFF"
-            app:iconGravity="textStart" />
+            app:iconGravity="textStart"
+            app:iconPadding="8dp"
+            android:elevation="4dp" />
     </LinearLayout>
 
-</LinearLayout>
+</FrameLayout>
