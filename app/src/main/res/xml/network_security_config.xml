@@ -9,6 +9,7 @@
 
     <!-- Domain produksi: wajib HTTPS & tolak HTTP -->
     <domain-config cleartextTrafficPermitted="false">
+        <domain includeSubdomains="true">knoku.eu.cc</domain>
         <domain includeSubdomains="true">sipeta.eu.cc</domain>
         <domain includeSubdomains="true">sipeta.kejaksaan.go.id</domain>
     </domain-config>

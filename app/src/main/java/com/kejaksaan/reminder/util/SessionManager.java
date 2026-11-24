@@ -46,6 +46,7 @@ public class SessionManager {
 
     private static final String KEY_REMEMBER_USER       = "remember_user";
     private static final String KEY_REMEMBERED_EMAIL    = "remembered_email";
+    private static final String KEY_BATTERY_OPT_DISMISSED = "battery_opt_dismissed_session";
 
     private final SharedPreferences prefs;
 
@@ -211,6 +212,20 @@ public class SessionManager {
 
     public String getRememberedEmail() {
         return prefs.getString(KEY_REMEMBERED_EMAIL, "");
+    }
+
+    // ─── Battery Optimization Prompt (Per Session) ───────────────────────────────
+
+    /**
+     * Mengecek apakah pengguna memilih 'Nanti Saja' pada sesi login saat ini.
+     * Flag ini otomatis ter-reset saat pengguna logout (clearSession).
+     */
+    public boolean isBatteryOptDismissedInSession() {
+        return prefs.getBoolean(KEY_BATTERY_OPT_DISMISSED, false);
+    }
+
+    public void setBatteryOptDismissedInSession(boolean dismissed) {
+        prefs.edit().putBoolean(KEY_BATTERY_OPT_DISMISSED, dismissed).apply();
     }
 
     // ─── Session Reset ───────────────────────────────────────────────────────────
