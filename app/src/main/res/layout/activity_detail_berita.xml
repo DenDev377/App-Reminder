@@ -67,24 +67,29 @@
             android:orientation="vertical"
             android:paddingBottom="40dp">
 
-            <!-- Featured Image -->
+            <!-- Featured Image (Fit & Uncropped) -->
             <FrameLayout
                 android:id="@+id/layoutImageHeader"
                 android:layout_width="match_parent"
-                android:layout_height="220dp">
+                android:layout_height="wrap_content"
+                android:minHeight="180dp"
+                android:background="#0F172A">
 
                 <ImageView
                     android:id="@+id/ivDetailImage"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:scaleType="centerCrop"
-                    android:background="#E2E8F0"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:adjustViewBounds="true"
+                    android:maxHeight="340dp"
+                    android:scaleType="fitCenter"
+                    android:background="#0F172A"
                     android:contentDescription="Foto Berita" />
 
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:background="#15000000" />
+                    android:background="#0A000000" />
             </FrameLayout>
 
             <!-- Main Content Container -->

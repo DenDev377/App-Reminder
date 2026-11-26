@@ -25,14 +25,19 @@
         <FrameLayout
             android:id="@+id/layoutImageContainer"
             android:layout_width="match_parent"
-            android:layout_height="150dp">
+            android:layout_height="wrap_content"
+            android:minHeight="140dp"
+            android:background="#0F172A">
 
             <ImageView
                 android:id="@+id/ivThumbnail"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:scaleType="centerCrop"
-                android:background="#E2E8F0"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:adjustViewBounds="true"
+                android:maxHeight="260dp"
+                android:scaleType="fitCenter"
+                android:background="#0F172A"
                 android:contentDescription="Gambar Berita" />
 
             <!-- Gradient overlay for text contrast if needed -->

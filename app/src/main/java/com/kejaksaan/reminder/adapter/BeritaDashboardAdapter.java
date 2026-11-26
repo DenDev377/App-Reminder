@@ -88,12 +88,13 @@ public class BeritaDashboardAdapter extends RecyclerView.Adapter<BeritaDashboard
 
             String imageUrl = berita.getResolvedImageUrl();
             if (imageUrl != null && !imageUrl.isEmpty()) {
-                ivThumbnail.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                ivThumbnail.setScaleType(ImageView.ScaleType.FIT_CENTER);
                 Glide.with(context)
                         .load(imageUrl)
                         .transition(DrawableTransitionOptions.withCrossFade())
                         .placeholder(R.drawable.lambang_kejaksaan)
                         .error(R.drawable.lambang_kejaksaan)
+                        .fitCenter()
                         .into(ivThumbnail);
             } else {
                 ivThumbnail.setScaleType(ImageView.ScaleType.CENTER_INSIDE);

@@ -98,15 +98,18 @@ public class BeritaAdapter extends RecyclerView.Adapter<BeritaAdapter.BeritaView
 
             String imageUrl = berita.getResolvedImageUrl();
             if (imageUrl != null && !imageUrl.isEmpty()) {
-                ivThumbnail.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                ivThumbnail.setAdjustViewBounds(true);
+                ivThumbnail.setScaleType(ImageView.ScaleType.FIT_CENTER);
                 Glide.with(context)
                         .load(imageUrl)
                         .transition(DrawableTransitionOptions.withCrossFade())
                         .placeholder(R.drawable.lambang_kejaksaan)
                         .error(R.drawable.lambang_kejaksaan)
+                        .fitCenter()
                         .into(ivThumbnail);
             } else {
                 // Tampilkan lambang kejaksaan dengan padding rapi
+                ivThumbnail.setAdjustViewBounds(false);
                 ivThumbnail.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
                 ivThumbnail.setImageResource(R.drawable.lambang_kejaksaan);
             }

@@ -157,16 +157,8 @@ public class DashboardActivity extends AppCompatActivity {
             swipeRefresh.setOnRefreshListener(this::refreshDashboardData);
         }
 
-        // Setup Header Refresh Button
-        ImageView btnRefreshDashboard = findViewById(R.id.btnRefreshDashboard);
-        if (btnRefreshDashboard != null) {
-            btnRefreshDashboard.setOnClickListener(v -> {
-                if (swipeRefresh != null) {
-                    swipeRefresh.setRefreshing(true);
-                }
-                refreshDashboardData();
-            });
-        }
+
+
 
         // Bottom Nav Dashboard item: tap to scroll top & refresh
         View navDashboard = findViewById(R.id.navDashboard);
@@ -330,7 +322,7 @@ public class DashboardActivity extends AppCompatActivity {
             }));
         };
 
-        findViewById(R.id.btnLogout).setOnClickListener(logoutListener);
+
         findViewById(R.id.cardBtnLogout).setOnClickListener(logoutListener);
 
         // Menu Perkara

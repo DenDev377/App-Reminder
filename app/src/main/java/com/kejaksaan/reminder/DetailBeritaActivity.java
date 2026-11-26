@@ -111,19 +111,22 @@ public class DetailBeritaActivity extends AppCompatActivity {
             tvDetailKonten.setText("-");
         }
 
-        // Tampilkan gambar berita
+        // Tampilkan gambar berita (Utuh & Presisi tanpa terpotong)
         String imageUrl = item.getResolvedImageUrl();
         if (imageUrl != null && !imageUrl.isEmpty()) {
             layoutImageHeader.setVisibility(View.VISIBLE);
-            ivDetailImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
+            ivDetailImage.setAdjustViewBounds(true);
+            ivDetailImage.setScaleType(ImageView.ScaleType.FIT_CENTER);
             Glide.with(this)
                     .load(imageUrl)
                     .transition(DrawableTransitionOptions.withCrossFade())
                     .placeholder(R.drawable.lambang_kejaksaan)
                     .error(R.drawable.lambang_kejaksaan)
+                    .fitCenter()
                     .into(ivDetailImage);
         } else {
             // Jika tidak ada foto berita, gunakan banner lambang kejaksaan
+            ivDetailImage.setAdjustViewBounds(false);
             ivDetailImage.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
             ivDetailImage.setImageResource(R.drawable.lambang_kejaksaan);
         }

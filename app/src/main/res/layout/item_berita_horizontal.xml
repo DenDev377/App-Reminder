@@ -22,17 +22,18 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <!-- Thumbnail Image Container -->
+        <!-- Thumbnail Image Container (Fit & Uncropped) -->
         <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="110dp">
+            android:layout_height="130dp"
+            android:background="#0F172A">
 
             <ImageView
                 android:id="@+id/ivThumbnail"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:scaleType="centerCrop"
-                android:background="#E2E8F0"
+                android:scaleType="fitCenter"
+                android:background="#0F172A"
                 android:contentDescription="Gambar Berita" />
         </FrameLayout>
 
