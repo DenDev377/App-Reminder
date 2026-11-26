@@ -44,8 +44,6 @@ public class SessionManager {
     private static final String KEY_FCM_TOKEN_REGISTERED = "fcm_token_registered";
     private static final String KEY_DEVICE_ID           = "device_unique_id";
 
-    private static final String KEY_REMEMBER_USER       = "remember_user";
-    private static final String KEY_REMEMBERED_EMAIL    = "remembered_email";
     private static final String KEY_BATTERY_OPT_DISMISSED = "battery_opt_dismissed_session";
 
     private final SharedPreferences prefs;
@@ -197,23 +195,6 @@ public class SessionManager {
         return prefs.getString(KEY_LOCAL_AVATAR_PATH, null);
     }
 
-    // ─── Remember User ───────────────────────────────────────────────────────────
-
-    public void setRememberUser(boolean remember, String email) {
-        prefs.edit()
-                .putBoolean(KEY_REMEMBER_USER, remember)
-                .putString(KEY_REMEMBERED_EMAIL, remember && email != null ? email.trim() : "")
-                .apply();
-    }
-
-    public boolean isRememberUser() {
-        return prefs.getBoolean(KEY_REMEMBER_USER, false);
-    }
-
-    public String getRememberedEmail() {
-        return prefs.getString(KEY_REMEMBERED_EMAIL, "");
-    }
-
     // ─── Battery Optimization Prompt (Per Session) ───────────────────────────────
 
     /**
@@ -232,15 +213,12 @@ public class SessionManager {
 
     /**
      * Hapus sesi pengguna saat logout.
-     * Token FCM, Device ID, serta status Remember Me pengguna dipertahankan secara aman
-     * agar perangkat dapat langsung mendaftarkan token untuk user berikutnya setelah login baru
-     * dan memudahkan login ulang.
+     * Token FCM dan Device ID dipertahankan secara aman
+     * agar perangkat dapat langsung mendaftarkan token untuk user berikutnya setelah login baru.
      */
     public void clearSession() {
         String fcmToken = fetchFcmToken();
         String deviceId = prefs.getString(KEY_DEVICE_ID, null);
-        boolean remember = isRememberUser();
-        String rememberedEmail = getRememberedEmail();
 
         prefs.edit().clear().apply();
 
@@ -249,9 +227,6 @@ public class SessionManager {
         }
         if (deviceId != null) {
             prefs.edit().putString(KEY_DEVICE_ID, deviceId).apply();
-        }
-        if (remember) {
-            setRememberUser(true, rememberedEmail);
         }
         setFcmTokenRegistered(false);
     }

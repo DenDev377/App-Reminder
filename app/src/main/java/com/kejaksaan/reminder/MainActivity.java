@@ -12,7 +12,6 @@ import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -38,8 +37,7 @@ import com.kejaksaan.reminder.viewmodel.AuthViewModel;
  *
  * Menggunakan AuthViewModel (MVVM pattern) untuk:
  * - Melakukan autentikasi via API
- * - Menyimpan token & sesi pengguna
- * - Fitur "Ingat Saya" (Remember Me) untuk kredensial
+ * - Menyimpan token & sesi pengguna secara permanen dan aman
  * - Validasi input dengan indikator warna visual per-field
  * - Tombol clear username dan password visibility toggle yang mulus
  * - Bantuan Helpdesk akun kedinasan
@@ -57,7 +55,6 @@ public class MainActivity extends AppCompatActivity {
     private LinearLayout containerUsername;
     private LinearLayout containerPassword;
 
-    private CheckBox     cbRememberMe;
     private TextView     tvHelp;
 
     private LinearLayout layoutErrorAlert;
@@ -79,7 +76,6 @@ public class MainActivity extends AppCompatActivity {
         setupWindowInsets();
         bindViews();
         setupInputInteractions();
-        loadRememberedUser();
 
         // Inisialisasi ViewModel
         authViewModel = new ViewModelProvider(this).get(AuthViewModel.class);
@@ -114,7 +110,6 @@ public class MainActivity extends AppCompatActivity {
         containerUsername = findViewById(R.id.containerUsername);
         containerPassword = findViewById(R.id.containerPassword);
 
-        cbRememberMe      = findViewById(R.id.cbRememberMe);
         tvHelp            = findViewById(R.id.tvHelp);
 
         layoutErrorAlert  = findViewById(R.id.layoutErrorAlert);
@@ -142,19 +137,6 @@ public class MainActivity extends AppCompatActivity {
                     return insets;
                 }
         );
-    }
-
-    private void loadRememberedUser() {
-        boolean isRemembered = sessionManager.isRememberUser();
-        cbRememberMe.setChecked(isRemembered);
-        if (isRemembered) {
-            String savedEmail = sessionManager.getRememberedEmail();
-            if (savedEmail != null && !savedEmail.trim().isEmpty()) {
-                etUsername.setText(savedEmail.trim());
-                ivUsernameClear.setVisibility(View.VISIBLE);
-                etPassword.requestFocus();
-            }
-        }
     }
 
     private void setupInputInteractions() {
@@ -246,10 +228,6 @@ public class MainActivity extends AppCompatActivity {
             setLoadingState(false);
             hideError();
 
-            // Simpan atau bersihkan preferensi "Ingat Saya"
-            String currentEmail = etUsername.getText().toString().trim();
-            sessionManager.setRememberUser(cbRememberMe.isChecked(), currentEmail);
-
             User user = result.getData();
             String greeting = "Selamat datang, " + (user != null ? user.getName() : "");
             Toast.makeText(this, greeting, Toast.LENGTH_SHORT).show();
@@ -334,7 +312,6 @@ public class MainActivity extends AppCompatActivity {
         etPassword.setEnabled(!loading);
         ivPasswordToggle.setEnabled(!loading);
         ivUsernameClear.setEnabled(!loading);
-        cbRememberMe.setEnabled(!loading);
     }
 
     private void showHelpDialog() {
