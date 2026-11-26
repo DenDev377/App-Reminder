@@ -2,6 +2,7 @@ package com.kejaksaan.reminder;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -17,9 +18,15 @@ import androidx.core.view.WindowInsetsCompat;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.google.android.material.card.MaterialCardView;
+import com.kejaksaan.reminder.api.RetrofitClient;
 import com.kejaksaan.reminder.model.Berita;
+import com.kejaksaan.reminder.model.GenericResponse;
 
 import java.util.Locale;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class DetailBeritaActivity extends AppCompatActivity {
 
@@ -80,12 +87,45 @@ public class DetailBeritaActivity extends AppCompatActivity {
             berita = (Berita) getIntent().getSerializableExtra(EXTRA_BERITA);
             if (berita != null) {
                 bindBeritaData(berita);
+                // Tambahkan 1 ke views_count di backend secara fire-and-forget
+                incrementViewCount(berita.getId());
                 return;
             }
         }
 
         Toast.makeText(this, "Informasi berita tidak ditemukan", Toast.LENGTH_SHORT).show();
         finish();
+    }
+
+    /**
+     * Memanggil endpoint POST /api/berita/{id}/view untuk menaikkan jumlah pembaca di backend.
+     * Bersifat fire-and-forget: gagal tidak mengganggu tampilan berita.
+     */
+    private void incrementViewCount(int beritaId) {
+        if (beritaId <= 0) return;
+
+        RetrofitClient.getApiService(this)
+                .incrementBeritaView(beritaId)
+                .enqueue(new Callback<GenericResponse>() {
+                    @Override
+                    public void onResponse(Call<GenericResponse> call, Response<GenericResponse> response) {
+                        if (response.isSuccessful()) {
+                            Log.d("DetailBerita", "Views berita #" + beritaId + " berhasil diinkremen.");
+                            // Perbarui tampilan angka pembaca +1 secara lokal (optimistic update)
+                            if (tvDetailViews != null && berita != null) {
+                                int updatedViews = berita.getViewsCount() + 1;
+                                tvDetailViews.setText(String.format(Locale.getDefault(), "%d pembaca", updatedViews));
+                            }
+                        } else {
+                            Log.w("DetailBerita", "Gagal inkremen views berita #" + beritaId + " — HTTP " + response.code());
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<GenericResponse> call, Throwable t) {
+                        Log.w("DetailBerita", "Gagal inkremen views berita (network): " + t.getMessage());
+                    }
+                });
     }
 
     private void bindBeritaData(Berita item) {

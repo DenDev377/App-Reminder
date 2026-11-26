@@ -182,4 +182,8 @@ public interface ApiService {
 
     @GET("api/berita/{id}")
     Call<com.kejaksaan.reminder.model.BeritaSingleResponse> getBeritaById(@Path("id") int beritaId);
+
+    /** Increment views_count saat berita dibuka. Fire-and-forget. */
+    @POST("api/berita/{id}/view")
+    Call<GenericResponse> incrementBeritaView(@Path("id") int beritaId);
 }
