@@ -15,12 +15,15 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import android.content.SharedPreferences;
+
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.google.android.material.card.MaterialCardView;
 import com.kejaksaan.reminder.api.RetrofitClient;
 import com.kejaksaan.reminder.model.Berita;
 import com.kejaksaan.reminder.model.GenericResponse;
+import com.kejaksaan.reminder.util.SessionManager;
 
 import java.util.Locale;
 
@@ -99,31 +102,58 @@ public class DetailBeritaActivity extends AppCompatActivity {
 
     /**
      * Memanggil endpoint POST /api/berita/{id}/view untuk menaikkan jumlah pembaca di backend.
-     * Bersifat fire-and-forget: gagal tidak mengganggu tampilan berita.
+     * Dibatasi hanya 1 kali penambahan pembaca per akun per berita (dicatat di SharedPreferences).
+     * Bersifat fire-and-forget: kegagalan jaringan tidak mengganggu kenyamanan membaca berita.
      */
     private void incrementViewCount(int beritaId) {
         if (beritaId <= 0) return;
 
+        // Ambil identitas akun yang sedang login
+        SessionManager sessionManager = new SessionManager(this);
+        int userId = sessionManager.fetchUserId();
+        String userKey = userId > 0 ? String.valueOf(userId) : sessionManager.fetchUserEmail();
+        if (userKey == null || userKey.trim().isEmpty()) {
+            userKey = "anonymous";
+        }
+
+        // Cek apakah akun ini sudah pernah membuka/membaca berita ini sebelumnya
+        SharedPreferences prefs = getSharedPreferences("SIPETA_BERITA_VIEWS", MODE_PRIVATE);
+        String viewKey = "viewed_user_" + userKey + "_berita_" + beritaId;
+        boolean alreadyViewed = prefs.getBoolean(viewKey, false);
+
+        if (alreadyViewed) {
+            Log.d("DetailBerita", "Berita #" + beritaId + " sudah pernah dibaca oleh user (" + userKey + "), tidak menambah jumlah pembaca.");
+            return;
+        }
+
+        // Tandai sudah dibaca oleh akun ini agar tidak bertambah lagi walaupun diklik berulang kali
+        prefs.edit().putBoolean(viewKey, true).apply();
+
+        // Optimistic update pada tampilan lokal (+1 pembaca)
+        if (berita != null) {
+            int updatedViews = berita.getViewsCount() + 1;
+            berita.setViewsCount(updatedViews);
+            if (tvDetailViews != null) {
+                tvDetailViews.setText(String.format(Locale.getDefault(), "%d pembaca", updatedViews));
+            }
+        }
+
+        // Panggil endpoint backend
         RetrofitClient.getApiService(this)
                 .incrementBeritaView(beritaId)
                 .enqueue(new Callback<GenericResponse>() {
                     @Override
                     public void onResponse(Call<GenericResponse> call, Response<GenericResponse> response) {
                         if (response.isSuccessful()) {
-                            Log.d("DetailBerita", "Views berita #" + beritaId + " berhasil diinkremen.");
-                            // Perbarui tampilan angka pembaca +1 secara lokal (optimistic update)
-                            if (tvDetailViews != null && berita != null) {
-                                int updatedViews = berita.getViewsCount() + 1;
-                                tvDetailViews.setText(String.format(Locale.getDefault(), "%d pembaca", updatedViews));
-                            }
+                            Log.d("DetailBerita", "Views berita #" + beritaId + " berhasil diinkremen di server.");
                         } else {
-                            Log.w("DetailBerita", "Gagal inkremen views berita #" + beritaId + " — HTTP " + response.code());
+                            Log.w("DetailBerita", "Server mengembalikan HTTP " + response.code() + " saat increment view berita #" + beritaId);
                         }
                     }
 
                     @Override
                     public void onFailure(Call<GenericResponse> call, Throwable t) {
-                        Log.w("DetailBerita", "Gagal inkremen views berita (network): " + t.getMessage());
+                        Log.w("DetailBerita", "Gagal menghubungi server untuk increment view: " + t.getMessage());
                     }
                 });
     }
