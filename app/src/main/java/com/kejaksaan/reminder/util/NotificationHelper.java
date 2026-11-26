@@ -25,6 +25,7 @@ import com.kejaksaan.reminder.receiver.NotificationActionReceiver;
 /**
  * Helper untuk mengelola Notification Channel dan menampilkan notifikasi pengingat perkara
  * dengan nada dering kustom resmi Kejaksaan dan tombol interaktif (Buka Perkara & Tunda 2 Jam).
+ * Mendukung pula notifikasi berita baru melalui channel informasi umum.
  */
 public class NotificationHelper {
 
@@ -167,6 +168,57 @@ public class NotificationHelper {
             int actualId = (notificationId > 0) ? notificationId : ((perkaraId > 0) ? perkaraId : requestCode);
             manager.notify(actualId, builder.build());
             Log.i(TAG, "Notifikasi pengingat perkara berhasil dikirim (ID: " + actualId + ")");
+        } else {
+            Log.w(TAG, "Izin POST_NOTIFICATIONS belum diberikan oleh pengguna.");
+        }
+    }
+
+    /**
+     * Menampilkan notifikasi berita baru dari FCM.
+     * Ketika diketuk, pengguna akan diarahkan ke BeritaListActivity agar bisa melihat detail berita.
+     *
+     * @param context        Context aplikasi
+     * @param notificationId ID unik notifikasi
+     * @param beritaId       ID berita dari backend (opsional, -1 jika tidak ada)
+     * @param title          Judul notifikasi
+     * @param body           Isi pesan notifikasi
+     */
+    public static void showBeritaNotification(Context context, int notificationId, int beritaId,
+                                              String title, String body) {
+        createNotificationChannel(context);
+
+        // Tap notifikasi → buka BeritaListActivity (list berita, beritaId dilempar sebagai highlight)
+        Intent intent = new Intent(context, com.kejaksaan.reminder.BeritaListActivity.class);
+        intent.setAction("OPEN_BERITA_" + notificationId);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        if (beritaId > 0) {
+            intent.putExtra("highlight_berita_id", beritaId);
+        }
+
+        int requestCode = (beritaId > 0) ? (beritaId + 50000) : (int) (System.currentTimeMillis() % 100000);
+        int pendingFlags = PendingIntent.FLAG_UPDATE_CURRENT;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            pendingFlags |= PendingIntent.FLAG_IMMUTABLE;
+        }
+
+        PendingIntent contentPendingIntent = PendingIntent.getActivity(context, requestCode, intent, pendingFlags);
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_GENERAL_ID)
+                .setSmallIcon(R.drawable.ic_notification)
+                .setContentTitle(title != null ? title : "Berita Baru")
+                .setContentText(body)
+                .setStyle(new NotificationCompat.BigTextStyle().bigText(body))
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setColor(Color.parseColor("#00897B"))
+                .setAutoCancel(true)
+                .setContentIntent(contentPendingIntent);
+
+        NotificationManagerCompat manager = NotificationManagerCompat.from(context);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
+                ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
+            int actualId = (notificationId > 0) ? notificationId : requestCode;
+            manager.notify(actualId, builder.build());
+            Log.i(TAG, "Notifikasi berita baru berhasil dikirim (ID: " + actualId + ", beritaId: " + beritaId + ")");
         } else {
             Log.w(TAG, "Izin POST_NOTIFICATIONS belum diberikan oleh pengguna.");
         }

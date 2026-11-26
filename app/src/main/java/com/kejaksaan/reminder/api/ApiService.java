@@ -179,4 +179,7 @@ public interface ApiService {
         @Query("per_page") Integer perPage,
         @Query("search") String search
     );
+
+    @GET("api/berita/{id}")
+    Call<com.kejaksaan.reminder.model.BeritaSingleResponse> getBeritaById(@Path("id") int beritaId);
 }

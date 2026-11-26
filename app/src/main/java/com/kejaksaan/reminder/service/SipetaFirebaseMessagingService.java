@@ -29,8 +29,8 @@ import java.util.Map;
  * 1. Rotasi token perangkat (onNewToken) dengan sinkronisasi ke backend jika user terautentikasi.
  * 2. Penerimaan payload notifikasi & data saat aplikasi berada di latar depan (foreground)
  *    maupun data-only message (onMessageReceived).
- * 3. Menampilkan notifikasi pada Notification Channel 'sipeta_reminder_channel' dan navigasi
- *    langsung ke DetailPerkaraActivity saat notifikasi ditekan.
+ * 3. Notifikasi pengingat perkara: navigasi ke DetailPerkaraActivity.
+ * 4. Notifikasi berita baru: navigasi ke BeritaListActivity via channel informasi umum.
  */
 public class SipetaFirebaseMessagingService extends FirebaseMessagingService {
 
@@ -64,8 +64,8 @@ public class SipetaFirebaseMessagingService extends FirebaseMessagingService {
         NotificationHelper.createNotificationChannel(this);
 
         // Ekstrak title & body baik dari notification payload maupun data payload
-        String title = "SIPETA Kejaksaan";
-        String body = "Pembaruan notifikasi tahapan perkara.";
+        String title = "KN OKU Mobile";
+        String body = "Pembaruan notifikasi aplikasi.";
 
         if (remoteMessage.getNotification() != null) {
             if (remoteMessage.getNotification().getTitle() != null) {
@@ -86,7 +86,33 @@ public class SipetaFirebaseMessagingService extends FirebaseMessagingService {
             }
         }
 
-        showNotification(title, body, data);
+        // Tentukan tipe notifikasi: berita atau perkara/default
+        String type = (data != null) ? data.get("type") : null;
+        if ("berita".equalsIgnoreCase(type)) {
+            showBeritaNotification(title, body, data);
+        } else {
+            showNotification(title, body, data);
+        }
+    }
+
+    /**
+     * Membangun dan menampilkan notifikasi berita baru melalui channel informasi umum.
+     */
+    private void showBeritaNotification(String title, String body, Map<String, String> data) {
+        int beritaId = -1;
+
+        if (data != null) {
+            String beritaIdStr = data.get("berita_id");
+            if (beritaIdStr != null) {
+                try {
+                    beritaId = Integer.parseInt(beritaIdStr.trim());
+                } catch (NumberFormatException ignored) {}
+            }
+        }
+
+        int notificationId = (beritaId > 0) ? (beritaId + 50000) : (int) (System.currentTimeMillis() % Integer.MAX_VALUE);
+        NotificationHelper.showBeritaNotification(this, notificationId, beritaId, title, body);
+        Log.d(TAG, "Notifikasi berita diproses (beritaId=" + beritaId + ")");
     }
 
     /**
