@@ -21,7 +21,7 @@ import com.kejaksaan.reminder.util.NotificationHelper;
 import com.kejaksaan.reminder.util.SessionManager;
 
 /**
- * SplashActivity — Layar pembuka (Splash Screen) SIPETA Mobile.
+ * SplashActivity — Layar pembuka (Splash Screen) KN OKU Mobile.
  *
  * True Fullscreen / Immersive:
  * - Menembus area camera cutout / notch di bagian atas
@@ -92,7 +92,7 @@ public class SplashActivity extends AppCompatActivity {
                 } else if (progress < 70) {
                     tvLoadingStatus.setText("Memeriksa sesi pengguna...");
                 } else if (progress < 95) {
-                    tvLoadingStatus.setText("Menyiapkan SIPETA Mobile...");
+                    tvLoadingStatus.setText("Menyiapkan KN OKU Mobile...");
                 } else {
                     tvLoadingStatus.setText("Selesai");
                 }

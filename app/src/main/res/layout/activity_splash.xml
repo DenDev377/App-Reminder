@@ -52,7 +52,7 @@
             android:id="@+id/tvSplashAppName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="SIPETA"
+            android:text="KN OKU"
             android:fontFamily="serif"
             android:textColor="#E5C77A"
             android:textSize="40sp"
