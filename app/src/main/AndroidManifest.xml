@@ -29,7 +29,7 @@
             android:resource="@color/kejaksaan_teal" />
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
-            android:value="sipeta_reminder_channel_v2" />
+            android:value="sipeta_reminder_channel_v3" />
 
         <!-- Splash Screen sebagai Launcher Utama -->
         <activity

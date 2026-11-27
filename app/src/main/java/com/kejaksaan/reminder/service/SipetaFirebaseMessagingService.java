@@ -88,7 +88,8 @@ public class SipetaFirebaseMessagingService extends FirebaseMessagingService {
 
         // Tentukan tipe notifikasi: berita atau perkara/default
         String type = (data != null) ? data.get("type") : null;
-        if ("berita".equalsIgnoreCase(type)) {
+        String eventType = (data != null) ? data.get("event_type") : null;
+        if ("berita".equalsIgnoreCase(type) || "BERITA_PUBLISHED".equalsIgnoreCase(eventType)) {
             showBeritaNotification(title, body, data);
         } else {
             showNotification(title, body, data);
