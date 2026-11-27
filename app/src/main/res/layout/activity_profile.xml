@@ -259,25 +259,6 @@
                             android:shadowDy="1"
                             android:shadowRadius="3" />
                     </LinearLayout>
-
-                    <!-- Edit Button on KTA -->
-                    <FrameLayout
-                        android:id="@+id/btnEditKta"
-                        android:layout_width="34dp"
-                        android:layout_height="34dp"
-                        android:layout_marginStart="8dp"
-                        android:background="@drawable/bg_glass_circle_btn"
-                        android:clickable="true"
-                        android:focusable="true">
-
-                        <ImageView
-                            android:layout_width="16dp"
-                            android:layout_height="16dp"
-                            android:layout_gravity="center"
-                            android:src="@drawable/ic_edit"
-                            app:tint="#FFFFFF"
-                            android:contentDescription="Edit Profil" />
-                    </FrameLayout>
                 </LinearLayout>
 
             </FrameLayout>

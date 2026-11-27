@@ -31,20 +31,20 @@ public class NotificationHelper {
 
     private static final String TAG = "NotificationHelper";
 
-    // Channel V2 agar Android OS memperbarui pengaturan suara kustom dan pola getar
-    public static final String CHANNEL_ID = "sipeta_reminder_channel_v2";
+    // Channel V3 agar Android OS memperbarui nada dering kustom baru (notif_suara.mp3)
+    public static final String CHANNEL_ID = "sipeta_reminder_channel_v3";
     public static final String CHANNEL_NAME = "Pengingat Batas Waktu Perkara";
     public static final String CHANNEL_DESC = "Peringatan SLA, masa tenggat berkas, dan jadwal perkara SIPETA Kejaksaan";
 
-    public static final String CHANNEL_GENERAL_ID = "sipeta_general_channel";
+    public static final String CHANNEL_GENERAL_ID = "sipeta_general_channel_v2";
     public static final String CHANNEL_GENERAL_NAME = "Informasi & Berita Umum";
     public static final String CHANNEL_GENERAL_DESC = "Pembaruan informasi kedinasan dan berita Kejaksaan";
 
     /**
-     * Mendapatkan URI nada dering kustom resmi Kejaksaan dari res/raw/kejaksaan_bell.wav.
+     * Mendapatkan URI nada dering kustom resmi dari res/raw/notif_suara.mp3.
      */
     public static Uri getCustomSoundUri(Context context) {
-        return Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://" + context.getPackageName() + "/" + R.raw.kejaksaan_bell);
+        return Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://" + context.getPackageName() + "/" + R.raw.notif_suara);
     }
 
     /**
@@ -54,6 +54,19 @@ public class NotificationHelper {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationManager notificationManager = context.getSystemService(NotificationManager.class);
             if (notificationManager != null) {
+                // Hapus channel versi lama agar pengaturan suara kustom langsung ter-refresh di perangkat
+                try {
+                    notificationManager.deleteNotificationChannel("sipeta_reminder_channel");
+                    notificationManager.deleteNotificationChannel("sipeta_reminder_channel_v2");
+                    notificationManager.deleteNotificationChannel("sipeta_general_channel");
+                } catch (Exception ignored) {}
+
+                Uri soundUri = getCustomSoundUri(context);
+                AudioAttributes audioAttributes = new AudioAttributes.Builder()
+                        .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                        .setUsage(AudioAttributes.USAGE_NOTIFICATION_EVENT)
+                        .build();
+
                 // 1. Saluran Prioritas Tinggi (Pengingat Perkara & SLA) dengan suara kustom & pola getar
                 NotificationChannel existingReminderChannel = notificationManager.getNotificationChannel(CHANNEL_ID);
                 if (existingReminderChannel == null) {
@@ -68,28 +81,26 @@ public class NotificationHelper {
                     reminderChannel.enableVibration(true);
                     reminderChannel.setVibrationPattern(new long[]{0, 400, 200, 400, 200, 400});
                     reminderChannel.setShowBadge(true);
-
-                    Uri soundUri = getCustomSoundUri(context);
-                    AudioAttributes audioAttributes = new AudioAttributes.Builder()
-                            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                            .setUsage(AudioAttributes.USAGE_NOTIFICATION_EVENT)
-                            .build();
                     reminderChannel.setSound(soundUri, audioAttributes);
 
                     notificationManager.createNotificationChannel(reminderChannel);
                 }
 
-                // 2. Saluran Informasi Umum
+                // 2. Saluran Informasi Umum (Berita) juga dengan suara kustom & prioritas tinggi
                 NotificationChannel existingGeneralChannel = notificationManager.getNotificationChannel(CHANNEL_GENERAL_ID);
                 if (existingGeneralChannel == null) {
                     NotificationChannel generalChannel = new NotificationChannel(
                             CHANNEL_GENERAL_ID,
                             CHANNEL_GENERAL_NAME,
-                            NotificationManager.IMPORTANCE_DEFAULT
+                            NotificationManager.IMPORTANCE_HIGH
                     );
                     generalChannel.setDescription(CHANNEL_GENERAL_DESC);
                     generalChannel.enableLights(true);
                     generalChannel.setLightColor(Color.parseColor("#00897B"));
+                    generalChannel.enableVibration(true);
+                    generalChannel.setShowBadge(true);
+                    generalChannel.setSound(soundUri, audioAttributes);
+
                     notificationManager.createNotificationChannel(generalChannel);
                 }
             }
@@ -208,9 +219,11 @@ public class NotificationHelper {
                 .setContentTitle(title != null ? title : "Berita Baru")
                 .setContentText(body)
                 .setStyle(new NotificationCompat.BigTextStyle().bigText(body))
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setColor(Color.parseColor("#00897B"))
                 .setAutoCancel(true)
+                .setSound(getCustomSoundUri(context))
+                .setVibrate(new long[]{0, 400, 200, 400, 200, 400})
                 .setContentIntent(contentPendingIntent);
 
         NotificationManagerCompat manager = NotificationManagerCompat.from(context);

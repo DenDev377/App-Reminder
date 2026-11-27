@@ -235,11 +235,6 @@ public class ProfileActivity extends AppCompatActivity {
             menuEditProfil.setOnClickListener(v -> showDialogEditProfil());
         }
 
-        View btnEditKta = findViewById(R.id.btnEditKta);
-        if (btnEditKta != null) {
-            btnEditKta.setOnClickListener(v -> showDialogEditProfil());
-        }
-
         View cardKta = findViewById(R.id.cardKta);
         if (cardKta != null) {
             cardKta.setOnClickListener(v -> showDialogEditProfil());
